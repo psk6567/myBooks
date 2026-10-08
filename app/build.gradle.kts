@@ -46,6 +46,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature:main"))
     implementation(project(":core:designsystem"))
 
     implementation(platform(libs.androidx.compose.bom))

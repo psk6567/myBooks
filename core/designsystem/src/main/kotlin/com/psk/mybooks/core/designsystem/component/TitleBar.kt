@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +33,8 @@ import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
  * @param label 가운데 제목. null 이면 표시하지 않는다.
  * @param onBackClick 뒤로가기 동작. null 이면 뒤로가기 버튼을 표시하지 않는다.
  * @param rightArea 오른쪽 영역. 아이콘 버튼 등을 주입한다.
+ * @param windowInsets 위쪽 시스템 바 여백. 기본은 상태바 높이이고, 배경색이 상태바 영역까지 채워진다.
+ * 이미 위쪽 여백을 처리한 곳에 쓸 때는 `WindowInsets(0)` 을 넘긴다.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +42,8 @@ fun TitleBar(
     modifier: Modifier = Modifier,
     label: String? = null,
     onBackClick: (() -> Unit)? = null,
-    rightArea: @Composable RowScope.() -> Unit = {}
+    rightArea: @Composable RowScope.() -> Unit = {},
+    windowInsets: WindowInsets = WindowInsets.statusBars
 ) {
     // ponytail: 가운데 정렬·겹침 방지는 Material3 CenterAlignedTopAppBar 에 맡긴다
     CenterAlignedTopAppBar(
@@ -60,8 +64,7 @@ fun TitleBar(
         },
         actions = rightArea,
         expandedHeight = 56.dp,
-        // 상태바 여백은 화면(Scaffold)에서 처리한다
-        windowInsets = WindowInsets(0),
+        windowInsets = windowInsets,
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MyBooksTheme.colors.background,
             titleContentColor = MyBooksTheme.colors.textPrimary,

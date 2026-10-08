@@ -1,0 +1,4 @@
+<resources>
+    <string name="feature_main_tab_search">검색</string>
+    <string name="feature_main_tab_favorite">즐겨찾기</string>
+</resources>

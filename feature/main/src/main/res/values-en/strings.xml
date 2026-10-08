@@ -1,0 +1,4 @@
+<resources>
+    <string name="feature_main_tab_search">Search</string>
+    <string name="feature_main_tab_favorite">Favorites</string>
+</resources>
