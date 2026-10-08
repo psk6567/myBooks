@@ -1,9 +1,9 @@
 package com.psk.mybooks.feature.search.domain
 
 import androidx.paging.PagingData
-import com.psk.mybooks.core.data.BookRepository
-import com.psk.mybooks.core.model.Book
-import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.domain.BookRepository
+import com.psk.mybooks.core.domain.model.Book
+import com.psk.mybooks.core.domain.model.SearchSortType
 import kotlinx.coroutines.flow.Flow
 
 /**

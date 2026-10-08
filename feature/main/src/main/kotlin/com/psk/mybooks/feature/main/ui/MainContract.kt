@@ -1,9 +1,8 @@
 package com.psk.mybooks.feature.main.ui
 
 import androidx.annotation.StringRes
-import com.psk.mybooks.core.model.FavoriteSortType
-import com.psk.mybooks.core.model.SearchSortType
-import com.psk.mybooks.core.model.ViewMode
+import com.psk.mybooks.core.domain.model.FavoriteSortType
+import com.psk.mybooks.core.domain.model.SearchSortType
 import com.psk.mybooks.feature.main.R
 
 /** 하단 탭 순서. Pager 의 페이지 순서와 같다. */

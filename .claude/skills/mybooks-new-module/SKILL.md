@@ -15,10 +15,12 @@ description: 새 feature/core 모듈을 추가하거나 새 화면 단위를 만
 | core | `core/{name}` | 여러 feature 가 공유하는 것 (common, designsystem, model, data) |
 
 - **배치 기준: 두 개 이상의 feature 가 쓰면 core, 한 feature 만 쓰면 그 feature 안.**
-  - 공유 모델 → `core:model` (순수 Kotlin)
-  - Repository(인터페이스 public, 구현 internal), API, DB → `core:data`
+  - 공유 도메인 모델, Repository 인터페이스, 여러 feature 가 쓰는 UseCase → `core:domain` (순수 Kotlin)
+  - Repository 구현(internal), API, DB → `core:data`
+  - 한 feature 만 쓰는 UseCase → 그 feature 의 `domain/`
 - feature 는 **다른 feature 를 의존하지 않는다.** 화면 간 이동 연결은 `feature:main` 만 한다.
-- feature 는 `core:common`, `core:designsystem`, `core:model`, `core:data` 를 의존한다. (Convention Plugin 이 자동 추가)
+- feature 는 `core:common`, `core:designsystem`, `core:domain` 을 의존한다. (Convention Plugin 이 자동 추가)
+- **feature 는 `core:data` 를 의존하지 않는다.** Repository 는 `core:domain` 의 인터페이스로만 쓴다. 구현을 DI 에 묶는 것은 `app` 이 한다.
 
 ## feature 모듈 구조 (필수)
 
@@ -67,7 +69,7 @@ android {
 ## core 모듈
 
 - Compose 를 쓰면 `mybooks.android.library.compose`, 아니면 `mybooks.android.library`.
-- Android 에 의존하지 않는 모듈(`core:model` 등)은 `kotlin.jvm` 플러그인을 쓴다.
+- Android 에 의존하지 않는 모듈(`core:domain`)은 `kotlin.jvm` 플러그인을 쓴다.
 - 패키지는 `com.psk.mybooks.core.{name}`.
 
 ## 등록 절차

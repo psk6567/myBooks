@@ -1,8 +1,7 @@
 package com.psk.mybooks.feature.main.ui
 
-import com.psk.mybooks.core.model.FavoriteSortType
-import com.psk.mybooks.core.model.SearchSortType
-import com.psk.mybooks.core.model.ViewMode
+import com.psk.mybooks.core.domain.model.FavoriteSortType
+import com.psk.mybooks.core.domain.model.SearchSortType
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

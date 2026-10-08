@@ -48,6 +48,8 @@ android {
 dependencies {
     implementation(project(":feature:main"))
     implementation(project(":core:designsystem"))
+    // Repository 구현을 DI 에 묶기 위해 app 만 데이터 계층을 의존한다
+    implementation(project(":core:data"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

@@ -2,8 +2,8 @@ package com.psk.mybooks.feature.favorite.ui
 
 import androidx.lifecycle.viewModelScope
 import com.psk.mybooks.core.common.MviViewModel
-import com.psk.mybooks.core.data.dummyBooks
-import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.domain.model.Book
+import com.psk.mybooks.core.domain.model.dummyBooks
 import kotlinx.coroutines.launch
 
 /** Effect 가 없어서 `Nothing` */

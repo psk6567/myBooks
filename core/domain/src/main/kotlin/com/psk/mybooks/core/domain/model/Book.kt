@@ -1,4 +1,4 @@
-package com.psk.mybooks.core.model
+package com.psk.mybooks.core.domain.model
 
 /**
  * 도서. 검색·즐겨찾기·상세가 함께 쓴다. (카카오 도서 검색 API 의 문서 하나에 해당)

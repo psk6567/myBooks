@@ -1,6 +1,6 @@
 package com.psk.mybooks.feature.search.ui
 
-import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.domain.model.Book
 
 internal data class SearchUiState(
     val books: List<Book> = emptyList(),

@@ -22,7 +22,6 @@ import com.psk.mybooks.core.designsystem.component.Icon
 import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MbColors
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
-import com.psk.mybooks.core.model.ViewMode
 import com.psk.mybooks.feature.main.R
 
 private fun ViewMode.icon(): MbIcon = when (this) {

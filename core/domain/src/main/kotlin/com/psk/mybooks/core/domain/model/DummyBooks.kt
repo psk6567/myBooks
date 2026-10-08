@@ -1,9 +1,7 @@
-package com.psk.mybooks.core.data
-
-import com.psk.mybooks.core.model.Book
+package com.psk.mybooks.core.domain.model
 
 // TODO: 검색 API·Room 으로 만든 Repository 가 생기면 제거하고, 검색·즐겨찾기 ViewModel 이 UseCase 에서 가져온다
-// 검색과 즐겨찾기 feature 가 함께 쓰므로 core:data 에 둔다.
+// 임시 데이터라 Book 옆에 둔다. Repository 가 연결되면 이 파일을 지운다.
 // 표지는 임의 이미지(picsum.photos). 마지막 두 권은 불러오기 실패·URL 없음 표시를 확인하는 용도다.
 fun dummyBooks(): List<Book> = listOf(
     Book(

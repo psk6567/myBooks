@@ -24,10 +24,8 @@ android {
 }
 
 dependencies {
-    api(project(":core:model"))
-
-    // 이후 Repository 가 Flow<PagingData> 를 공개하면 feature 도 이 타입을 쓰게 되므로 api 로 둔다
-    api(libs.androidx.paging.common)
+    // Repository 인터페이스를 가진 도메인 계층. 구현(이 모듈)이 도메인을 의존한다.
+    api(project(":core:domain"))
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.kotlinx.serialization)

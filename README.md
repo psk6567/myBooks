@@ -46,8 +46,8 @@ build-logic             Convention Plugin (모듈 공통 Gradle 설정)
 core
 ├── common              공통 유틸
 ├── designsystem        색상·컴포넌트 등 디자인 시스템
-├── model               공유 도메인 모델 (순수 Kotlin)
-└── data                Repository(인터페이스 + internal 구현), API, DB
+├── domain              도메인 모델, Repository 인터페이스, 여러 feature가 쓰는 UseCase (순수 Kotlin)
+└── data                Repository 구현(internal), API, DB
 feature
 ├── main                하단 탭 + 화면 이동 연결
 ├── search              검색
@@ -56,9 +56,22 @@ feature
 ```
 
 - **배치 기준: 두 개 이상의 feature가 쓰면 core, 한 feature만 쓰면 그 feature 안에 둡니다.**
-- 이 앱의 데이터(도서, 즐겨찾기)는 세 화면이 모두 공유하므로 `core:model`, `core:data`에 둡니다.
-- `core:data`의 구현 클래스는 `internal`이라 feature에서는 Repository 인터페이스만 보입니다.
+- 이 앱의 데이터(도서, 즐겨찾기)는 세 화면이 모두 공유하므로 `core:domain`(모델, 인터페이스)과 `core:data`(구현)에 둡니다.
 - feature는 core만 의존하고, 다른 feature를 의존하지 않습니다. 화면 간 이동은 `feature:main`이 연결합니다.
+
+#### 의존성 역전
+
+```
+feature:search ──▶ core:domain ◀── core:data
+   (UI, UseCase)   (Repository 인터페이스)   (구현 internal, API/DB)
+                          ▲
+                        app ──▶ core:data   (DI 로 인터페이스와 구현을 묶는다)
+```
+
+- **Repository 인터페이스는 도메인(`core:domain`)이 소유하고, 데이터 계층이 그것을 구현합니다.** 화살표가 안쪽(도메인)을 향합니다.
+- **feature는 `core:data`를 의존하지 않습니다.** 구현 클래스나 Retrofit API를 import하면 컴파일 에러가 납니다. `app`만 데이터 계층을 알고, DI에서 인터페이스와 구현을 연결합니다.
+- `core:domain`은 Android에 의존하지 않는 순수 Kotlin 모듈입니다.
+- 화면 표시 설정(예: 격자/목록)처럼 도메인이 아닌 값은 그것을 정하는 feature가 가집니다.
 - 모듈 공통 설정(SDK 버전, Java 버전, Compose)은 `build-logic`의 Convention Plugin이 담당합니다.
 
 ### feature 모듈 내부 구조

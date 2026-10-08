@@ -19,35 +19,35 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.psk.mybooks.core.designsystem.component.BookGridItem
 import com.psk.mybooks.core.designsystem.component.BookListItem
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
-import com.psk.mybooks.core.model.Book
-import com.psk.mybooks.core.model.ViewMode
+import com.psk.mybooks.core.domain.model.Book
 import com.psk.mybooks.feature.search.R
 import java.text.NumberFormat
 
 /**
  * ViewModel 을 연결하는 진입점. Navigation 도입 후에는 internal 로 바꾼다.
  *
- * @param viewMode 격자/목록. 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
+ * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
  */
 @Composable
-fun SearchRoute(viewMode: ViewMode, modifier: Modifier = Modifier) {
+fun SearchRoute(isGrid: Boolean, modifier: Modifier = Modifier) {
     val viewModel: SearchViewModel = viewModel()
     val state: SearchUiState by viewModel.state.collectAsStateWithLifecycle()
 
-    SearchScreen(state = state, viewMode = viewMode, onIntent = viewModel::onIntent, modifier = modifier)
+    SearchScreen(state = state, isGrid = isGrid, onIntent = viewModel::onIntent, modifier = modifier)
 }
 
 /** 상태와 콜백을 파라미터로만 받는 UI. Preview·UI 테스트 대상. */
 @Composable
 internal fun SearchScreen(
     state: SearchUiState,
-    viewMode: ViewMode,
+    isGrid: Boolean,
     onIntent: (SearchIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    when (viewMode) {
-        ViewMode.List -> BookList(state = state, onIntent = onIntent, modifier = modifier)
-        ViewMode.Grid -> BookGrid(state = state, onIntent = onIntent, modifier = modifier)
+    if (isGrid) {
+        BookGrid(state = state, onIntent = onIntent, modifier = modifier)
+    } else {
+        BookList(state = state, onIntent = onIntent, modifier = modifier)
     }
 }
 
@@ -128,7 +128,7 @@ private val previewState: SearchUiState = SearchUiState(
 @Composable
 private fun SearchScreenListPreview() {
     MyBooksTheme {
-        SearchScreen(state = previewState, viewMode = ViewMode.List, onIntent = {})
+        SearchScreen(state = previewState, isGrid = false, onIntent = {})
     }
 }
 
@@ -136,6 +136,6 @@ private fun SearchScreenListPreview() {
 @Composable
 private fun SearchScreenGridPreview() {
     MyBooksTheme {
-        SearchScreen(state = previewState, viewMode = ViewMode.Grid, onIntent = {})
+        SearchScreen(state = previewState, isGrid = true, onIntent = {})
     }
 }

@@ -22,29 +22,28 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.psk.mybooks.core.designsystem.component.BookGridItem
 import com.psk.mybooks.core.designsystem.component.BookListItem
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
-import com.psk.mybooks.core.model.Book
-import com.psk.mybooks.core.model.ViewMode
+import com.psk.mybooks.core.domain.model.Book
 import com.psk.mybooks.feature.favorite.R
 import java.text.NumberFormat
 
 /**
  * ViewModel 을 연결하는 진입점. Navigation 도입 후에는 internal 로 바꾼다.
  *
- * @param viewMode 격자/목록. 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
+ * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
  */
 @Composable
-fun FavoriteRoute(viewMode: ViewMode, modifier: Modifier = Modifier) {
+fun FavoriteRoute(isGrid: Boolean, modifier: Modifier = Modifier) {
     val viewModel: FavoriteViewModel = viewModel()
     val state: FavoriteUiState by viewModel.state.collectAsStateWithLifecycle()
 
-    FavoriteScreen(state = state, viewMode = viewMode, onIntent = viewModel::onIntent, modifier = modifier)
+    FavoriteScreen(state = state, isGrid = isGrid, onIntent = viewModel::onIntent, modifier = modifier)
 }
 
 /** 상태와 콜백을 파라미터로만 받는 UI. Preview·UI 테스트 대상. */
 @Composable
 internal fun FavoriteScreen(
     state: FavoriteUiState,
-    viewMode: ViewMode,
+    isGrid: Boolean,
     onIntent: (FavoriteIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -52,9 +51,10 @@ internal fun FavoriteScreen(
         EmptyFavorites(modifier = modifier)
         return
     }
-    when (viewMode) {
-        ViewMode.List -> BookList(state = state, onIntent = onIntent, modifier = modifier)
-        ViewMode.Grid -> BookGrid(state = state, onIntent = onIntent, modifier = modifier)
+    if (isGrid) {
+        BookGrid(state = state, onIntent = onIntent, modifier = modifier)
+    } else {
+        BookList(state = state, onIntent = onIntent, modifier = modifier)
     }
 }
 
@@ -146,7 +146,7 @@ private val previewState: FavoriteUiState = FavoriteUiState(
 @Composable
 private fun FavoriteScreenListPreview() {
     MyBooksTheme {
-        FavoriteScreen(state = previewState, viewMode = ViewMode.List, onIntent = {})
+        FavoriteScreen(state = previewState, isGrid = false, onIntent = {})
     }
 }
 
@@ -154,7 +154,7 @@ private fun FavoriteScreenListPreview() {
 @Composable
 private fun FavoriteScreenGridPreview() {
     MyBooksTheme {
-        FavoriteScreen(state = previewState, viewMode = ViewMode.Grid, onIntent = {})
+        FavoriteScreen(state = previewState, isGrid = true, onIntent = {})
     }
 }
 
@@ -162,6 +162,6 @@ private fun FavoriteScreenGridPreview() {
 @Composable
 private fun FavoriteScreenEmptyPreview() {
     MyBooksTheme {
-        FavoriteScreen(state = FavoriteUiState(), viewMode = ViewMode.List, onIntent = {})
+        FavoriteScreen(state = FavoriteUiState(), isGrid = false, onIntent = {})
     }
 }

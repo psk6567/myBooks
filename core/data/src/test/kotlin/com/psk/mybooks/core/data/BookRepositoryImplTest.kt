@@ -5,8 +5,8 @@ import com.psk.mybooks.core.data.remote.BookApi
 import com.psk.mybooks.core.data.remote.BookSearchResponse
 import com.psk.mybooks.core.data.remote.SearchSort
 import com.psk.mybooks.core.data.remote.SearchTarget
-import com.psk.mybooks.core.model.Book
-import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.domain.model.Book
+import com.psk.mybooks.core.domain.model.SearchSortType
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

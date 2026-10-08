@@ -41,9 +41,8 @@ import com.psk.mybooks.core.designsystem.component.rememberBottomSheet
 import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.VSpacer
-import com.psk.mybooks.core.model.FavoriteSortType
-import com.psk.mybooks.core.model.SearchSortType
-import com.psk.mybooks.core.model.ViewMode
+import com.psk.mybooks.core.domain.model.FavoriteSortType
+import com.psk.mybooks.core.domain.model.SearchSortType
 import com.psk.mybooks.feature.favorite.ui.FavoriteRoute
 import com.psk.mybooks.feature.main.R
 import com.psk.mybooks.feature.search.ui.SearchRoute
@@ -60,8 +59,8 @@ fun MainRoute(modifier: Modifier = Modifier) {
         modifier = modifier,
         pageContent = { tab ->
             when (tab) {
-                MainTab.Search -> SearchRoute(viewMode = state.viewMode)
-                MainTab.Favorite -> FavoriteRoute(viewMode = state.viewMode)
+                MainTab.Search -> SearchRoute(isGrid = state.viewMode == ViewMode.Grid)
+                MainTab.Favorite -> FavoriteRoute(isGrid = state.viewMode == ViewMode.Grid)
             }
         }
     )
