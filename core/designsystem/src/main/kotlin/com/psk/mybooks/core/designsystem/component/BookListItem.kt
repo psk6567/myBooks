@@ -38,7 +38,7 @@ import com.psk.mybooks.core.designsystem.util.VSpacer
  * @param publisher 출판사. "출판사 : " 라벨은 이 컴포넌트가 붙인다.
  * @param authors 저자. "저자 : " 라벨은 이 컴포넌트가 붙인다.
  * @param price 오른쪽 아래 가격 (포맷된 문자열)
- * @param thumbnail 썸네일 영역. 이미지 로딩(Coil)은 호출하는 쪽에서 주입한다.
+ * @param thumbnailUrl 표지 이미지 URL. 불러오는 중·실패·빈 값 표시는 [NetworkImage] 가 맡는다.
  */
 @Composable
 fun BookListItem(
@@ -47,11 +47,11 @@ fun BookListItem(
     publisher: String,
     authors: String,
     price: String,
+    thumbnailUrl: String,
     isFavorite: Boolean,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    thumbnail: @Composable () -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     val colors: MbColors = MyBooksTheme.colors
     val typography: MbTypography = MyBooksTheme.typography
@@ -65,14 +65,14 @@ fun BookListItem(
             .padding(8.dp)
     ) {
         Row {
-            Box(
+            // 제목이 함께 읽히므로 표지 설명은 생략한다
+            NetworkImage(
+                url = thumbnailUrl,
+                contentDescription = null,
                 modifier = Modifier
                     .size(width = 72.dp, height = 108.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(colors.surfaceVariant)
-            ) {
-                thumbnail()
-            }
+            )
             HSpacer(12.dp)
             // 썸네일 높이를 최소로, 내용이 길면 그만큼 늘어난다. 가격은 항상 내용 아래에 와서 겹치지 않는다.
             Column(
@@ -159,6 +159,7 @@ private fun ListItemFavoritePreview() {
             publisher = "출판사",
             authors = "저자",
             price = "18,000원",
+            thumbnailUrl = "",
             isFavorite = true,
             onClick = {},
             onFavoriteClick = {}
@@ -176,6 +177,7 @@ private fun ListItemLongTextDarkPreview() {
             publisher = "아주 긴 출판사 이름이 들어가는 경우",
             authors = "저자 A, 저자 B, 저자 C",
             price = "1,234,000원",
+            thumbnailUrl = "",
             isFavorite = false,
             onClick = {},
             onFavoriteClick = {}

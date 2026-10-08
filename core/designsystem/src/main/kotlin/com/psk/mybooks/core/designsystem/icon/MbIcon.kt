@@ -12,6 +12,7 @@ enum class MbIcon(@DrawableRes internal val resId: Int) {
     ArrowBack(R.drawable.ic_arrow_back),
     Close(R.drawable.ic_close),
     Favorite(R.drawable.ic_favorite),
+    ImageBroken(R.drawable.ic_image_broken),
     Search(R.drawable.ic_search),
     ViewGrid(R.drawable.ic_view_grid),
     ViewList(R.drawable.ic_view_list)

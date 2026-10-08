@@ -26,15 +26,15 @@ import com.psk.mybooks.core.designsystem.util.VSpacer
  * 도서 그리드 아이템 (표지 + 제목 + 출판사). 한 줄에 3개씩 놓는 용도.
  * 가로 폭은 그리드(호출하는 쪽)가 정하고, 표지는 폭에 맞춰 2:3 비율로 그려진다.
  *
- * @param thumbnail 표지 영역. 이미지 로딩(Coil)은 호출하는 쪽에서 주입한다.
+ * @param thumbnailUrl 표지 이미지 URL. 불러오는 중·실패·빈 값 표시는 [NetworkImage] 가 맡는다.
  */
 @Composable
 fun BookGridItem(
     title: String,
     publisher: String,
+    thumbnailUrl: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    thumbnail: @Composable () -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     val colors: MbColors = MyBooksTheme.colors
     val typography: MbTypography = MyBooksTheme.typography
@@ -44,15 +44,15 @@ fun BookGridItem(
             .clip(RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
     ) {
-        Box(
+        // 제목이 함께 읽히므로 표지 설명은 생략한다
+        NetworkImage(
+            url = thumbnailUrl,
+            contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
                 .clip(RoundedCornerShape(8.dp))
-                .background(colors.surfaceVariant)
-        ) {
-            thumbnail()
-        }
+        )
         VSpacer(8.dp)
         Text(
             text = title,
@@ -83,14 +83,17 @@ private fun GridItemRowPreview() {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            BookGridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
+            BookGridItem(title = "도서 제목", publisher = "출판사", thumbnailUrl = "", onClick = {
+            }, modifier = Modifier.weight(1f))
             BookGridItem(
                 title = "아주 긴 도서 제목이 들어가면 한 줄로 말줄임 처리가 됩니다",
                 publisher = "아주 긴 출판사 이름",
+                thumbnailUrl = "",
                 onClick = {},
                 modifier = Modifier.weight(1f)
             )
-            BookGridItem(title = "세 번째", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
+            BookGridItem(title = "세 번째", publisher = "출판사", thumbnailUrl = "", onClick = {
+            }, modifier = Modifier.weight(1f))
         }
     }
 }
@@ -105,9 +108,12 @@ private fun GridItemDarkPreview() {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            BookGridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
-            BookGridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
-            BookGridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
+            BookGridItem(title = "도서 제목", publisher = "출판사", thumbnailUrl = "", onClick = {
+            }, modifier = Modifier.weight(1f))
+            BookGridItem(title = "도서 제목", publisher = "출판사", thumbnailUrl = "", onClick = {
+            }, modifier = Modifier.weight(1f))
+            BookGridItem(title = "도서 제목", publisher = "출판사", thumbnailUrl = "", onClick = {
+            }, modifier = Modifier.weight(1f))
         }
     }
 }

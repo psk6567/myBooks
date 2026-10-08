@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,7 +59,7 @@ fun MainRoute(modifier: Modifier = Modifier) {
         modifier = modifier,
         pageContent = { tab ->
             when (tab) {
-                MainTab.Search -> SearchRoute()
+                MainTab.Search -> SearchRoute(viewMode = state.viewMode)
                 MainTab.Favorite -> FavoriteRoute()
             }
         }
@@ -93,6 +94,10 @@ internal fun MainScreen(
         }
     }
 
+    val hideOnScrollState: HideOnScrollState = remember { HideOnScrollState() }
+    // 탭이나 검색어가 바뀌어 목록이 짧아지면 스크롤할 수 없어 줄이 숨겨진 채 남을 수 있으므로 다시 보인다
+    LaunchedEffect(state.selectedTab, state.searchText) { hideOnScrollState.show() }
+
     // 상태(탭 선택) → Pager 이동
     LaunchedEffect(state.selectedTab) {
         pagerState.animateScrollToPage(state.selectedTab.ordinal)
@@ -120,6 +125,19 @@ internal fun MainScreen(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 VSpacer(12.dp)
+            }
+        },
+        bottomBar = {
+            TabBar(
+                tabs = rememberTabItems(),
+                selectedIndex = state.selectedTab.ordinal,
+                onTabSelected = { onIntent(MainIntent.SelectTab(MainTab.entries[it])) }
+            )
+        }
+    ) { innerPadding ->
+        // 페이지 안 목록의 스크롤이 nestedScroll 로 올라와 정렬·보기 방식 줄을 숨기고 보인다
+        Column(modifier = Modifier.padding(innerPadding).fillMaxSize().nestedScroll(hideOnScrollState.connection)) {
+            Column(modifier = Modifier.hideOnScroll(hideOnScrollState)) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -134,22 +152,14 @@ internal fun MainScreen(
                 }
                 VSpacer(12.dp)
             }
-        },
-        bottomBar = {
-            TabBar(
-                tabs = rememberTabItems(),
-                selectedIndex = state.selectedTab.ordinal,
-                onTabSelected = { onIntent(MainIntent.SelectTab(MainTab.entries[it])) }
-            )
-        }
-    ) { innerPadding ->
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.padding(innerPadding).fillMaxSize(),
-            // 탭이 둘뿐이라 둘 다 유지해서 탭을 오가도 스크롤·입력 상태가 남게 한다
-            beyondViewportPageCount = MainTab.entries.size - 1
-        ) { page ->
-            pageContent(MainTab.entries[page])
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                // 탭이 둘뿐이라 둘 다 유지해서 탭을 오가도 스크롤·입력 상태가 남게 한다
+                beyondViewportPageCount = MainTab.entries.size - 1
+            ) { page ->
+                pageContent(MainTab.entries[page])
+            }
         }
     }
 }
