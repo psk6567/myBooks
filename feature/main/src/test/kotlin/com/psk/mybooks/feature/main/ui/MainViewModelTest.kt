@@ -1,5 +1,6 @@
 package com.psk.mybooks.feature.main.ui
 
+import com.psk.mybooks.core.model.SortType
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -47,5 +48,32 @@ class MainViewModelTest {
         viewModel.onIntent(MainIntent.SelectTab(MainTab.Favorite))
 
         assertEquals("해리 포터", viewModel.state.value.searchText)
+    }
+
+    @Test
+    fun `처음 정렬 기준은 제목 오름차순이다`() {
+        val viewModel: MainViewModel = MainViewModel()
+
+        assertEquals(SortType.TitleAsc, viewModel.state.value.sort)
+    }
+
+    @Test
+    fun `ChangeSort Intent 를 보내면 정렬 기준이 바뀐다`() {
+        val viewModel: MainViewModel = MainViewModel()
+
+        viewModel.onIntent(MainIntent.ChangeSort(SortType.PriceDesc))
+
+        assertEquals(SortType.PriceDesc, viewModel.state.value.sort)
+    }
+
+    @Test
+    fun `정렬을 바꿔도 검색어와 탭은 그대로다`() {
+        val viewModel: MainViewModel = MainViewModel()
+        viewModel.onIntent(MainIntent.ChangeSearchText("해리 포터"))
+        viewModel.onIntent(MainIntent.SelectTab(MainTab.Favorite))
+
+        viewModel.onIntent(MainIntent.ChangeSort(SortType.PriceAsc))
+
+        assertEquals(MainUiState(MainTab.Favorite, "해리 포터", SortType.PriceAsc), viewModel.state.value)
     }
 }

@@ -1,6 +1,7 @@
 package com.psk.mybooks.feature.main.ui
 
 import androidx.annotation.StringRes
+import com.psk.mybooks.core.model.SortType
 import com.psk.mybooks.feature.main.R
 
 /** 하단 탭 순서. Pager 의 페이지 순서와 같다. */
@@ -9,7 +10,20 @@ internal enum class MainTab(@StringRes val labelRes: Int) {
     Favorite(R.string.feature_main_tab_favorite)
 }
 
-internal data class MainUiState(val selectedTab: MainTab = MainTab.Search, val searchText: String = "")
+/** 정렬 기준의 화면 표시용 라벨 */
+@StringRes
+internal fun SortType.labelRes(): Int = when (this) {
+    SortType.TitleAsc -> R.string.feature_main_sort_title_asc
+    SortType.TitleDesc -> R.string.feature_main_sort_title_desc
+    SortType.PriceAsc -> R.string.feature_main_sort_price_asc
+    SortType.PriceDesc -> R.string.feature_main_sort_price_desc
+}
+
+internal data class MainUiState(
+    val selectedTab: MainTab = MainTab.Search,
+    val searchText: String = "",
+    val sort: SortType = SortType.TitleAsc
+)
 
 internal sealed interface MainIntent {
     /** 탭을 누르거나 Pager 를 넘겨서 탭이 바뀜 */
@@ -17,4 +31,7 @@ internal sealed interface MainIntent {
 
     /** 검색창 입력이 바뀜 */
     data class ChangeSearchText(val text: String) : MainIntent
+
+    /** 정렬 기준이 바뀜 */
+    data class ChangeSort(val sort: SortType) : MainIntent
 }

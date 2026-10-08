@@ -24,14 +24,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.psk.mybooks.core.designsystem.component.BottomSheetHandle
 import com.psk.mybooks.core.designsystem.component.Icon
+import com.psk.mybooks.core.designsystem.component.OptionItem
+import com.psk.mybooks.core.designsystem.component.OutlinedChip
 import com.psk.mybooks.core.designsystem.component.SearchBar
 import com.psk.mybooks.core.designsystem.component.TabBar
 import com.psk.mybooks.core.designsystem.component.TabItem
 import com.psk.mybooks.core.designsystem.component.TitleBar
+import com.psk.mybooks.core.designsystem.component.rememberBottomSheet
 import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.VSpacer
+import com.psk.mybooks.core.model.SortType
 import com.psk.mybooks.feature.favorite.ui.FavoriteRoute
 import com.psk.mybooks.feature.main.R
 import com.psk.mybooks.feature.search.ui.SearchRoute
@@ -69,6 +74,19 @@ internal fun MainScreen(
 ) {
     val pagerState: PagerState = rememberPagerState(initialPage = state.selectedTab.ordinal) { MainTab.entries.size }
     val currentOnIntent: (MainIntent) -> Unit by rememberUpdatedState(onIntent)
+    // 열림 여부는 UI 가 관리하고(ViewModel 은 선택 결과 Intent 만 받는다), 열린 동안 바뀐 정렬도 바로 반영된다
+    val sortSheet: BottomSheetHandle = rememberBottomSheet { dismiss ->
+        SortType.entries.forEach { sort ->
+            OptionItem(
+                text = stringResource(sort.labelRes()),
+                selected = sort == state.sort,
+                onClick = {
+                    onIntent(MainIntent.ChangeSort(sort))
+                    dismiss()
+                }
+            )
+        }
+    }
 
     // 상태(탭 선택) → Pager 이동
     LaunchedEffect(state.selectedTab) {
@@ -94,6 +112,12 @@ internal fun MainScreen(
                     query = state.searchText,
                     onQueryChange = { onIntent(MainIntent.ChangeSearchText(it)) },
                     placeholder = stringResource(R.string.feature_main_search_placeholder),
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                VSpacer(12.dp)
+                OutlinedChip(
+                    text = stringResource(state.sort.labelRes()),
+                    onClick = sortSheet::show,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 VSpacer(12.dp)
