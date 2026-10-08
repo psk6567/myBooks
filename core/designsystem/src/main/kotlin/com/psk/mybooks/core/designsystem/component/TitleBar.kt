@@ -9,14 +9,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -25,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.psk.mybooks.core.designsystem.R
+import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 
 /**
@@ -82,10 +81,8 @@ private fun BackButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_arrow_back),
-            contentDescription = stringResource(R.string.core_designsystem_back),
-            tint = MyBooksTheme.colors.icon,
-            modifier = Modifier.size(24.dp)
+            icon = MbIcon.ArrowBack,
+            contentDescription = stringResource(R.string.core_designsystem_back)
         )
     }
 }

@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Color
 data class MbColors(
     // 배경
     val background: Color,
-    /** 카드 */
-    val surface: Color,
+    /** 카드 (리스트 아이템 등). Material 의 surface(바닥층)와는 다른 의미라 card 로 이름 붙임 */
+    val card: Color,
     /** 검색창, 썸네일 자리, 책 소개 박스 */
     val surfaceVariant: Color,
     /** 리스트 영역 배경 */
@@ -46,7 +46,7 @@ data class MbColors(
 
 internal val LightMbColors = MbColors(
     background = Gray100,
-    surface = Gray100,
+    card = Gray100,
     surfaceVariant = Gray95,
     listBackground = Gray92,
     textPrimary = Gray10,
@@ -64,7 +64,7 @@ internal val LightMbColors = MbColors(
 
 internal val DarkMbColors = MbColors(
     background = Gray6,
-    surface = Gray12,
+    card = Gray12,
     surfaceVariant = Gray17,
     listBackground = Gray4,
     textPrimary = Gray90,

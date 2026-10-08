@@ -27,7 +27,7 @@ import com.psk.mybooks.core.designsystem.util.VSpacer
  * @param thumbnail 표지 영역. 이미지 로딩(Coil)은 호출하는 쪽에서 주입한다.
  */
 @Composable
-fun GridItem(
+fun BookGridItem(
     title: String,
     publisher: String,
     onClick: () -> Unit,
@@ -81,14 +81,14 @@ private fun GridItemRowPreview() {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            GridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
-            GridItem(
+            BookGridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
+            BookGridItem(
                 title = "아주 긴 도서 제목이 들어가면 한 줄로 말줄임 처리가 됩니다",
                 publisher = "아주 긴 출판사 이름",
                 onClick = {},
                 modifier = Modifier.weight(1f)
             )
-            GridItem(title = "세 번째", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
+            BookGridItem(title = "세 번째", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
         }
     }
 }
@@ -103,9 +103,9 @@ private fun GridItemDarkPreview() {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            GridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
-            GridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
-            GridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
+            BookGridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
+            BookGridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
+            BookGridItem(title = "도서 제목", publisher = "출판사", onClick = {}, modifier = Modifier.weight(1f))
         }
     }
 }

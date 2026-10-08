@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,13 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.psk.mybooks.core.designsystem.R
+import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.HSpacer
 
@@ -73,10 +72,10 @@ fun SearchBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_search),
+                    icon = MbIcon.Search,
                     contentDescription = null,
                     tint = colors.icon,
-                    modifier = Modifier.size(20.dp)
+                    size = 20.dp
                 )
                 HSpacer(8.dp)
                 Box(modifier = Modifier.weight(1f)) {
@@ -105,10 +104,10 @@ private fun ClearButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_close),
+            icon = MbIcon.Close,
             contentDescription = stringResource(R.string.core_designsystem_clear_query),
             tint = MyBooksTheme.colors.iconInactive,
-            modifier = Modifier.size(20.dp)
+            size = 20.dp
         )
     }
 }

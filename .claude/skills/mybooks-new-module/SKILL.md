@@ -80,6 +80,7 @@ android {
 - 모듈마다 `compileSdk`, `minSdk`, Java 버전을 직접 적지 않는다.
 - 색상은 `MyBooksTheme.colors.xxx`(시맨틱)만 쓴다. `Color(0x...)`, 토큰(`Red55` 등), `MaterialTheme.colorScheme` 을 화면·컴포넌트에서 직접 쓰지 않는다. 필요한 용도의 색이 없으면 `MbColors` 에 시맨틱 이름을 추가한다.
 - 여백은 `Spacer(Modifier.height/width(...))` 대신 `VSpacer(dp)`, `HSpacer(dp)`(`core.designsystem.util`)를 쓴다.
+- 아이콘은 디자인 시스템의 `Icon(icon = MbIcon.Xxx, ...)` 만 쓴다. Material `Icon`, `painterResource(R.drawable...)` 를 feature 에서 직접 쓰지 않는다. 새 아이콘은 `MbIcon` 에 추가한다. 슬롯으로 아이콘을 받는 컴포넌트(`TabItem.icon` 등)에도 디자인 시스템 `Icon` 을 넣는다.
 - 텍스트 스타일은 `MyBooksTheme.typography.xxx`(normal10~24, bold10~24)만 쓴다. `fontSize`, `fontFamily` 를 직접 지정하지 않는다.
 - UI 문구를 코드에 하드코딩하지 않는다. 문자열은 해당 모듈의 `res/values/strings.xml` (+ `values-en`) 에 두고 `stringResource` 로 쓴다.
 - 작업이 끝나면 `docs/ai-usage-log.md` 에 기록한다. (프로젝트 CLAUDE.md 규칙)

@@ -12,19 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.psk.mybooks.core.designsystem.R
+import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.HSpacer
 import com.psk.mybooks.core.designsystem.util.VSpacer
@@ -40,7 +39,7 @@ import com.psk.mybooks.core.designsystem.util.VSpacer
  * @param thumbnail 썸네일 영역. 이미지 로딩(Coil)은 호출하는 쪽에서 주입한다.
  */
 @Composable
-fun ListItem(
+fun BookListItem(
     status: String,
     title: String,
     publisher: String,
@@ -59,7 +58,7 @@ fun ListItem(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(colors.surface)
+            .background(colors.card)
             .clickable(onClick = onClick)
             .padding(8.dp)
     ) {
@@ -138,12 +137,12 @@ private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit, modifier: M
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_favorite),
+            icon = MbIcon.Favorite,
             contentDescription = stringResource(
                 if (isFavorite) R.string.core_designsystem_favorite_remove else R.string.core_designsystem_favorite_add
             ),
             tint = if (isFavorite) colors.favorite else colors.iconInactive,
-            modifier = Modifier.size(18.dp)
+            size = 18.dp
         )
     }
 }
@@ -152,7 +151,7 @@ private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit, modifier: M
 @Composable
 private fun ListItemFavoritePreview() {
     MyBooksTheme {
-        ListItem(
+        BookListItem(
             status = "정상판매",
             title = "도서 제목",
             publisher = "출판사",
@@ -169,7 +168,7 @@ private fun ListItemFavoritePreview() {
 @Composable
 private fun ListItemLongTextDarkPreview() {
     MyBooksTheme(darkTheme = true) {
-        ListItem(
+        BookListItem(
             status = "품절",
             title = "아주 긴 도서 제목이 들어가면 두 줄까지 보이고 나머지는 말줄임 처리가 됩니다",
             publisher = "아주 긴 출판사 이름이 들어가는 경우",
