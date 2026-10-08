@@ -76,4 +76,5 @@ androidx-room = { id = "androidx.room", version.ref = "room" }
 # Convention Plugins (build-logic)
 mybooks-android-library = { id = "mybooks.android.library" }
 mybooks-android-library-compose = { id = "mybooks.android.library.compose" }
+mybooks-android-hilt = { id = "mybooks.android.hilt" }
 mybooks-android-feature = { id = "mybooks.android.feature" }

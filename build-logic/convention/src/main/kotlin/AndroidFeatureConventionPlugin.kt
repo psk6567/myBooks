@@ -9,6 +9,8 @@ import org.gradle.kotlin.dsl.dependencies
 class AndroidFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         pluginManager.apply("mybooks.android.library.compose")
+        // ViewModel 에 UseCase 등을 주입하기 위해 모든 feature 가 Hilt 를 쓴다
+        pluginManager.apply("mybooks.android.hilt")
 
         dependencies {
             "implementation"(project(":core:common"))
@@ -18,6 +20,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
 
             "implementation"(libs.library("androidx-lifecycle-viewmodel-compose"))
             "implementation"(libs.library("androidx-lifecycle-runtime-compose"))
+            "implementation"(libs.library("androidx-hilt-navigation-compose"))
 
             "testImplementation"(libs.library("kotlinx-coroutines-test"))
         }

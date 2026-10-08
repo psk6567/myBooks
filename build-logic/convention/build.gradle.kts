@@ -18,6 +18,10 @@ gradlePlugin {
             id = "mybooks.android.library.compose"
             implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
+        register("androidHilt") {
+            id = "mybooks.android.hilt"
+            implementationClass = "AndroidHiltConventionPlugin"
+        }
         register("androidFeature") {
             id = "mybooks.android.feature"
             implementationClass = "AndroidFeatureConventionPlugin"

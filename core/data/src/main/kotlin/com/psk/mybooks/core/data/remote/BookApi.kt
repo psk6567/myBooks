@@ -3,7 +3,7 @@ package com.psk.mybooks.core.data.remote
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-/** 카카오 도서 검색 API. 인증 헤더는 [createBookApi] 의 OkHttp 인터셉터가 붙인다. */
+/** 카카오 도서 검색 API. 인증 헤더는 `NetworkModule` 의 OkHttp 인터셉터가 붙인다. */
 internal interface BookApi {
 
     /**

@@ -2,6 +2,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.mybooks.android.library)
+    alias(libs.plugins.mybooks.android.hilt)
     alias(libs.plugins.kotlin.serialization)
 }
 

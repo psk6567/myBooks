@@ -7,6 +7,11 @@ plugins {
     alias(libs.plugins.androidx.room)
 }
 
+// 어디서도 아직 주입하지 않는 바인딩까지 모두 검증한다 (그래프 오류를 빌드에서 바로 잡는다)
+ksp {
+    arg("dagger.fullBindingGraphValidation", "ERROR")
+}
+
 room {
     schemaDirectory("$projectDir/schemas")
 }

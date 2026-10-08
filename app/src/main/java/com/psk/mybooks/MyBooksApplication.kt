@@ -7,8 +7,10 @@ import coil3.SingletonImageLoader
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.request.crossfade
+import dagger.hilt.android.HiltAndroidApp
 import okio.Path.Companion.toOkioPath
 
+@HiltAndroidApp
 class MyBooksApplication :
     Application(),
     SingletonImageLoader.Factory {
