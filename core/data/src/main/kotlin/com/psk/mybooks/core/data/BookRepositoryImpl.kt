@@ -1,29 +1,31 @@
 package com.psk.mybooks.core.data
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.psk.mybooks.core.data.remote.BookApi
-import com.psk.mybooks.core.data.remote.toBookPage
-import com.psk.mybooks.core.model.BookPage
-import kotlin.coroutines.cancellation.CancellationException
+import com.psk.mybooks.core.data.remote.SearchSort
+import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.model.SearchSortType
+import kotlinx.coroutines.flow.Flow
 
-private val PAGINATION_RANGE: IntRange = 1..50
+/** 한 번에 불러오는 문서 수. API 는 1~50 이다. */
+internal const val SEARCH_PAGE_SIZE: Int = 20
 
 internal class BookRepositoryImpl(private val api: BookApi) : BookRepository {
 
-    override suspend fun searchBooks(query: String, page: Int, size: Int): Result<BookPage> {
-        require(page in PAGINATION_RANGE) { "page 는 1~50 이어야 한다: $page" }
-        require(size in PAGINATION_RANGE) { "size 는 1~50 이어야 한다: $size" }
-        // 빈 검색어는 서버가 400 을 돌려주므로 부르지 않는다
-        if (query.isBlank()) return Result.success(BookPage(books = emptyList(), isEnd = true))
-
-        return runCatchingCancellable { api.searchBooks(query = query.trim(), page = page, size = size).toBookPage() }
-    }
+    override fun searchBooks(query: String, sort: SearchSortType): Flow<PagingData<Book>> = Pager(
+        config = PagingConfig(
+            pageSize = SEARCH_PAGE_SIZE,
+            // API 가 쪽수(page)와 크기(size)로 나뉘므로 첫 로드도 한 페이지 크기여야 쪽수 계산이 맞는다
+            initialLoadSize = SEARCH_PAGE_SIZE,
+            enablePlaceholders = false
+        ),
+        pagingSourceFactory = { BookPagingSource(api, query, sort.toApiSort(), SEARCH_PAGE_SIZE) }
+    ).flow
 }
 
-/** `runCatching` 은 코루틴 취소(CancellationException)까지 삼켜 버려서, 취소는 다시 던진다. */
-private inline fun <T> runCatchingCancellable(block: () -> T): Result<T> = try {
-    Result.success(block())
-} catch (e: CancellationException) {
-    throw e
-} catch (e: Exception) {
-    Result.failure(e)
+private fun SearchSortType.toApiSort(): SearchSort = when (this) {
+    SearchSortType.Accuracy -> SearchSort.Accuracy
+    SearchSortType.Latest -> SearchSort.Latest
 }

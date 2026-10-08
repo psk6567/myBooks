@@ -3,10 +3,10 @@ package com.psk.mybooks.core.data
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.psk.mybooks.core.data.remote.BookApi
+import com.psk.mybooks.core.data.remote.BookPage
 import com.psk.mybooks.core.data.remote.SearchSort
 import com.psk.mybooks.core.data.remote.toBookPage
 import com.psk.mybooks.core.model.Book
-import com.psk.mybooks.core.model.BookPage
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
 

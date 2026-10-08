@@ -71,7 +71,7 @@ feature/{name}/src/main/kotlin/com/psk/mybooks/feature/{name}/
 ├── ui/
 │   ├── {Name}Screen.kt     {Name}Route(ViewModel 연결) + {Name}Screen(UI)
 │   └── {Name}ViewModel.kt  상태 관리 (internal)
-├── domain/                 (선택) 이 feature만 쓰는 UseCase
+├── domain/                 (선택) 이 feature만 쓰는 UseCase (예: feature:search 의 FetchSearchBooksUseCase)
 └── data/                   (선택) 이 feature만 쓰는 데이터 소스
 ```
 
