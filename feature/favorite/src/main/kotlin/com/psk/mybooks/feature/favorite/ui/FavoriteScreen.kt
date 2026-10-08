@@ -1,7 +1,6 @@
 package com.psk.mybooks.feature.favorite.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,10 +8,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.psk.mybooks.core.designsystem.component.BookGridItem
 import com.psk.mybooks.core.designsystem.component.BookListItem
+import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.domain.model.Book
 import com.psk.mybooks.feature.favorite.R
@@ -48,24 +46,13 @@ internal fun FavoriteScreen(
     modifier: Modifier = Modifier
 ) {
     if (state.books.isEmpty()) {
-        EmptyFavorites(modifier = modifier)
+        EmptyMessage(message = stringResource(R.string.feature_favorite_empty), modifier = modifier)
         return
     }
     if (isGrid) {
         BookGrid(state = state, onIntent = onIntent, modifier = modifier)
     } else {
         BookList(state = state, onIntent = onIntent, modifier = modifier)
-    }
-}
-
-@Composable
-private fun EmptyFavorites(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text = stringResource(R.string.feature_favorite_empty),
-            style = MyBooksTheme.typography.normal16,
-            color = MyBooksTheme.colors.textTertiary
-        )
     }
 }
 
