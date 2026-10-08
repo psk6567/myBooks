@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -24,4 +25,13 @@ dependencyResolutionManagement {
 
 rootProject.name = "MyBooks"
 include(":app")
- 
+
+include(":core:common")
+include(":core:designsystem")
+include(":core:model")
+include(":core:data")
+
+include(":feature:main")
+include(":feature:search")
+include(":feature:favorite")
+include(":feature:detail")
