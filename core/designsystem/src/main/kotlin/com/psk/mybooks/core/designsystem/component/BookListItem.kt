@@ -127,28 +127,6 @@ fun BookListItem(
     }
 }
 
-@Composable
-private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors: MbColors = MyBooksTheme.colors
-    Box(
-        modifier = modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .background(colors.surfaceVariant)
-            .clickable(role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            icon = MbIcon.Favorite,
-            contentDescription = stringResource(
-                if (isFavorite) R.string.core_designsystem_favorite_remove else R.string.core_designsystem_favorite_add
-            ),
-            tint = if (isFavorite) colors.favorite else colors.iconInactive,
-            size = 18.dp
-        )
-    }
-}
-
 @Preview(name = "Favorite", widthDp = 360)
 @Composable
 private fun ListItemFavoritePreview() {

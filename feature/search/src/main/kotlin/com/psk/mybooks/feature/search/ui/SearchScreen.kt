@@ -47,7 +47,7 @@ internal fun SearchScreen(
 ) {
     when (viewMode) {
         ViewMode.List -> BookList(state = state, onIntent = onIntent, modifier = modifier)
-        ViewMode.Grid -> BookGrid(state = state, modifier = modifier)
+        ViewMode.Grid -> BookGrid(state = state, onIntent = onIntent, modifier = modifier)
     }
 }
 
@@ -76,7 +76,7 @@ private fun BookList(state: SearchUiState, onIntent: (SearchIntent) -> Unit, mod
 }
 
 @Composable
-private fun BookGrid(state: SearchUiState, modifier: Modifier = Modifier) {
+private fun BookGrid(state: SearchUiState, onIntent: (SearchIntent) -> Unit, modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         modifier = modifier.fillMaxSize(),
@@ -85,7 +85,14 @@ private fun BookGrid(state: SearchUiState, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(state.books, key = { it.id }) { book ->
-            BookGridItem(title = book.title, publisher = book.publisher, thumbnailUrl = book.thumbnailUrl, onClick = {})
+            BookGridItem(
+                title = book.title,
+                publisher = book.publisher,
+                thumbnailUrl = book.thumbnailUrl,
+                isFavorite = book.id in state.favoriteIds,
+                onClick = {},
+                onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
+            )
         }
     }
 }

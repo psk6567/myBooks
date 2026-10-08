@@ -54,7 +54,7 @@ internal fun FavoriteScreen(
     }
     when (viewMode) {
         ViewMode.List -> BookList(state = state, onIntent = onIntent, modifier = modifier)
-        ViewMode.Grid -> BookGrid(state = state, modifier = modifier)
+        ViewMode.Grid -> BookGrid(state = state, onIntent = onIntent, modifier = modifier)
     }
 }
 
@@ -95,7 +95,7 @@ private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
 }
 
 @Composable
-private fun BookGrid(state: FavoriteUiState, modifier: Modifier = Modifier) {
+private fun BookGrid(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit, modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         modifier = modifier.fillMaxSize(),
@@ -104,7 +104,14 @@ private fun BookGrid(state: FavoriteUiState, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(state.books, key = { it.id }) { book ->
-            BookGridItem(title = book.title, publisher = book.publisher, thumbnailUrl = book.thumbnailUrl, onClick = {})
+            BookGridItem(
+                title = book.title,
+                publisher = book.publisher,
+                thumbnailUrl = book.thumbnailUrl,
+                isFavorite = true,
+                onClick = {},
+                onFavoriteClick = { onIntent(FavoriteIntent.RemoveFavorite(book.id)) }
+            )
         }
     }
 }
