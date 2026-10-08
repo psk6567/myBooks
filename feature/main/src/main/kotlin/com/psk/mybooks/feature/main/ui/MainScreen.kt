@@ -41,7 +41,8 @@ import com.psk.mybooks.core.designsystem.component.rememberBottomSheet
 import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.VSpacer
-import com.psk.mybooks.core.model.SortType
+import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.core.model.ViewMode
 import com.psk.mybooks.feature.favorite.ui.FavoriteRoute
 import com.psk.mybooks.feature.main.R
@@ -82,15 +83,28 @@ internal fun MainScreen(
     val currentOnIntent: (MainIntent) -> Unit by rememberUpdatedState(onIntent)
     // 열림 여부는 UI 가 관리하고(ViewModel 은 선택 결과 Intent 만 받는다), 열린 동안 바뀐 정렬도 바로 반영된다
     val sortSheet: BottomSheetHandle = rememberBottomSheet { dismiss ->
-        SortType.entries.forEach { sort ->
-            OptionItem(
-                text = stringResource(sort.labelRes()),
-                selected = sort == state.sort,
-                onClick = {
-                    onIntent(MainIntent.ChangeSort(sort))
-                    dismiss()
-                }
-            )
+        when (state.selectedTab) {
+            MainTab.Search -> SearchSortType.entries.forEach { sort ->
+                OptionItem(
+                    text = stringResource(sort.labelRes()),
+                    selected = sort == state.searchSort,
+                    onClick = {
+                        onIntent(MainIntent.ChangeSearchSort(sort))
+                        dismiss()
+                    }
+                )
+            }
+
+            MainTab.Favorite -> FavoriteSortType.entries.forEach { sort ->
+                OptionItem(
+                    text = stringResource(sort.labelRes()),
+                    selected = sort == state.favoriteSort,
+                    onClick = {
+                        onIntent(MainIntent.ChangeFavoriteSort(sort))
+                        dismiss()
+                    }
+                )
+            }
         }
     }
 
@@ -143,7 +157,15 @@ internal fun MainScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedChip(text = stringResource(state.sort.labelRes()), onClick = sortSheet::show)
+                    OutlinedChip(
+                        text = stringResource(
+                            when (state.selectedTab) {
+                                MainTab.Search -> state.searchSort.labelRes()
+                                MainTab.Favorite -> state.favoriteSort.labelRes()
+                            }
+                        ),
+                        onClick = sortSheet::show
+                    )
                     // 격자/목록 상태만 바꾸고, 실제 화면 반영은 검색·즐겨찾기 화면을 만들 때 연결한다
                     ViewModeToggle(
                         selected = state.viewMode,

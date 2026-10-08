@@ -9,7 +9,8 @@ internal class MainViewModel : MviViewModel<MainUiState, MainIntent, Nothing>(Ma
         when (intent) {
             is MainIntent.SelectTab -> reduce { copy(selectedTab = intent.tab) }
             is MainIntent.ChangeSearchText -> reduce { copy(searchText = intent.text) }
-            is MainIntent.ChangeSort -> reduce { copy(sort = intent.sort) }
+            is MainIntent.ChangeSearchSort -> reduce { copy(searchSort = intent.sort) }
+            is MainIntent.ChangeFavoriteSort -> reduce { copy(favoriteSort = intent.sort) }
             is MainIntent.ChangeViewMode -> reduce { copy(viewMode = intent.viewMode) }
         }
     }

@@ -1,6 +1,7 @@
 package com.psk.mybooks.feature.main.ui
 
-import com.psk.mybooks.core.model.SortType
+import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.core.model.ViewMode
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -29,7 +30,7 @@ class MainViewModelTest {
 
         viewModel.onIntent(MainIntent.SelectTab(MainTab.Search))
 
-        assertEquals(MainUiState(MainTab.Search), viewModel.state.value)
+        assertEquals(MainUiState(selectedTab = MainTab.Search), viewModel.state.value)
     }
 
     @Test
@@ -52,19 +53,24 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `처음 정렬 기준은 제목 오름차순이다`() {
+    fun `처음 정렬 기준은 검색은 정확도순, 즐겨찾기는 제목 오름차순이다`() {
         val viewModel: MainViewModel = MainViewModel()
 
-        assertEquals(SortType.TitleAsc, viewModel.state.value.sort)
+        assertEquals(SearchSortType.Accuracy, viewModel.state.value.searchSort)
+        assertEquals(FavoriteSortType.TitleAsc, viewModel.state.value.favoriteSort)
     }
 
     @Test
-    fun `ChangeSort Intent 를 보내면 정렬 기준이 바뀐다`() {
+    fun `검색 정렬과 즐겨찾기 정렬은 서로 영향을 주지 않는다`() {
         val viewModel: MainViewModel = MainViewModel()
 
-        viewModel.onIntent(MainIntent.ChangeSort(SortType.PriceDesc))
+        viewModel.onIntent(MainIntent.ChangeSearchSort(SearchSortType.Latest))
+        assertEquals(SearchSortType.Latest, viewModel.state.value.searchSort)
+        assertEquals(FavoriteSortType.TitleAsc, viewModel.state.value.favoriteSort)
 
-        assertEquals(SortType.PriceDesc, viewModel.state.value.sort)
+        viewModel.onIntent(MainIntent.ChangeFavoriteSort(FavoriteSortType.PriceDesc))
+        assertEquals(FavoriteSortType.PriceDesc, viewModel.state.value.favoriteSort)
+        assertEquals(SearchSortType.Latest, viewModel.state.value.searchSort)
     }
 
     @Test
@@ -73,9 +79,11 @@ class MainViewModelTest {
         viewModel.onIntent(MainIntent.ChangeSearchText("해리 포터"))
         viewModel.onIntent(MainIntent.SelectTab(MainTab.Favorite))
 
-        viewModel.onIntent(MainIntent.ChangeSort(SortType.PriceAsc))
+        viewModel.onIntent(MainIntent.ChangeFavoriteSort(FavoriteSortType.PriceAsc))
 
-        assertEquals(MainUiState(MainTab.Favorite, "해리 포터", SortType.PriceAsc), viewModel.state.value)
+        assertEquals(MainTab.Favorite, viewModel.state.value.selectedTab)
+        assertEquals("해리 포터", viewModel.state.value.searchText)
+        assertEquals(FavoriteSortType.PriceAsc, viewModel.state.value.favoriteSort)
     }
 
     @Test

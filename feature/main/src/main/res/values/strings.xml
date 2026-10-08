@@ -2,6 +2,8 @@
     <string name="feature_main_tab_search">검색</string>
     <string name="feature_main_tab_favorite">즐겨찾기</string>
     <string name="feature_main_search_placeholder">제목 또는 저자를 입력하세요.</string>
+    <string name="feature_main_sort_accuracy">정확도순</string>
+    <string name="feature_main_sort_latest">발간일순</string>
     <string name="feature_main_sort_title_asc">제목 오름차순</string>
     <string name="feature_main_sort_title_desc">제목 내림차순</string>
     <string name="feature_main_sort_price_asc">가격 오름차순</string>

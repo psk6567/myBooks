@@ -1,7 +1,8 @@
 package com.psk.mybooks.feature.main.ui
 
 import androidx.annotation.StringRes
-import com.psk.mybooks.core.model.SortType
+import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.core.model.ViewMode
 import com.psk.mybooks.feature.main.R
 
@@ -13,17 +14,25 @@ internal enum class MainTab(@StringRes val labelRes: Int) {
 
 /** 정렬 기준의 화면 표시용 라벨 */
 @StringRes
-internal fun SortType.labelRes(): Int = when (this) {
-    SortType.TitleAsc -> R.string.feature_main_sort_title_asc
-    SortType.TitleDesc -> R.string.feature_main_sort_title_desc
-    SortType.PriceAsc -> R.string.feature_main_sort_price_asc
-    SortType.PriceDesc -> R.string.feature_main_sort_price_desc
+internal fun SearchSortType.labelRes(): Int = when (this) {
+    SearchSortType.Accuracy -> R.string.feature_main_sort_accuracy
+    SearchSortType.Latest -> R.string.feature_main_sort_latest
+}
+
+@StringRes
+internal fun FavoriteSortType.labelRes(): Int = when (this) {
+    FavoriteSortType.TitleAsc -> R.string.feature_main_sort_title_asc
+    FavoriteSortType.TitleDesc -> R.string.feature_main_sort_title_desc
+    FavoriteSortType.PriceAsc -> R.string.feature_main_sort_price_asc
+    FavoriteSortType.PriceDesc -> R.string.feature_main_sort_price_desc
 }
 
 internal data class MainUiState(
     val selectedTab: MainTab = MainTab.Search,
     val searchText: String = "",
-    val sort: SortType = SortType.TitleAsc,
+    /** 정렬은 탭마다 따로 가진다. 검색은 서버가, 즐겨찾기는 앱이 정렬해서 고를 수 있는 항목이 다르다. */
+    val searchSort: SearchSortType = SearchSortType.Accuracy,
+    val favoriteSort: FavoriteSortType = FavoriteSortType.TitleAsc,
     val viewMode: ViewMode = ViewMode.List
 )
 
@@ -34,8 +43,11 @@ internal sealed interface MainIntent {
     /** 검색창 입력이 바뀜 */
     data class ChangeSearchText(val text: String) : MainIntent
 
-    /** 정렬 기준이 바뀜 */
-    data class ChangeSort(val sort: SortType) : MainIntent
+    /** 검색 정렬 기준이 바뀜 */
+    data class ChangeSearchSort(val sort: SearchSortType) : MainIntent
+
+    /** 즐겨찾기 정렬 기준이 바뀜 */
+    data class ChangeFavoriteSort(val sort: FavoriteSortType) : MainIntent
 
     /** 격자/목록 보기 방식이 바뀜 */
     data class ChangeViewMode(val viewMode: ViewMode) : MainIntent
