@@ -119,10 +119,26 @@ private fun BookGrid(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
 /** 천 단위 구분 (예: 15000 → 15,000) */
 private fun formatPrice(price: Int): String = NumberFormat.getNumberInstance().format(price)
 
+private fun previewBook(isbn: String, title: String, price: Int, status: String): Book = Book(
+    id = isbn,
+    title = title,
+    contents = "",
+    url = "",
+    isbn = isbn,
+    publishedAt = "",
+    authors = listOf("저자"),
+    publisher = "출판사",
+    translators = emptyList(),
+    price = price,
+    salePrice = price,
+    thumbnailUrl = "",
+    status = status
+)
+
 private val previewState: FavoriteUiState = FavoriteUiState(
     books = listOf(
-        Book("1", "도서 제목", listOf("저자"), "출판사", 18000, "정상판매", ""),
-        Book("2", "아주 긴 도서 제목이 들어가면 두 줄까지 보입니다", listOf("저자 A", "저자 B"), "출판사", 1234000, "품절", "")
+        previewBook(isbn = "1", title = "도서 제목", price = 18000, status = "정상판매"),
+        previewBook(isbn = "2", title = "아주 긴 도서 제목이 들어가면 두 줄까지 보입니다", price = 1234000, status = "품절")
     )
 )
 

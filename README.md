@@ -26,6 +26,18 @@
 
 버전은 모두 [gradle/libs.versions.toml](gradle/libs.versions.toml)에서 관리합니다.
 
+## API 키
+
+도서 검색은 [카카오 도서 검색 API](https://developers.kakao.com/docs/latest/ko/daum-search/dev-guide#search-book)를 씁니다.
+REST API 키는 저장소에 올리지 않고 프로젝트 루트의 `local.properties`(git 제외)에 넣습니다.
+
+```properties
+KAKAO_API_KEY=발급받은_REST_API_키
+```
+
+`core:data` 모듈의 `BuildConfig.KAKAO_API_KEY`로 읽습니다. 키가 없으면 빌드는 되지만 API가 401을 돌려줍니다.
+BuildConfig에 들어가므로 APK에는 포함됩니다. (과제용이며, 실서비스라면 서버 프록시를 둡니다)
+
 ## 모듈 구조
 
 ```
