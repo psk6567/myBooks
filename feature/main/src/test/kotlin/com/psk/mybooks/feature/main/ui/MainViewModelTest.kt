@@ -1,6 +1,7 @@
 package com.psk.mybooks.feature.main.ui
 
 import com.psk.mybooks.core.model.SortType
+import com.psk.mybooks.core.model.ViewMode
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -75,5 +76,14 @@ class MainViewModelTest {
         viewModel.onIntent(MainIntent.ChangeSort(SortType.PriceAsc))
 
         assertEquals(MainUiState(MainTab.Favorite, "해리 포터", SortType.PriceAsc), viewModel.state.value)
+    }
+
+    @Test
+    fun `ChangeViewMode Intent 를 보내면 보기 방식이 바뀐다`() {
+        val viewModel: MainViewModel = MainViewModel()
+
+        viewModel.onIntent(MainIntent.ChangeViewMode(ViewMode.Grid))
+
+        assertEquals(ViewMode.Grid, viewModel.state.value.viewMode)
     }
 }

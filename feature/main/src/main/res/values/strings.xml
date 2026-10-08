@@ -6,4 +6,6 @@
     <string name="feature_main_sort_title_desc">제목 내림차순</string>
     <string name="feature_main_sort_price_asc">가격 오름차순</string>
     <string name="feature_main_sort_price_desc">가격 내림차순</string>
+    <string name="feature_main_view_mode_grid">격자로 보기</string>
+    <string name="feature_main_view_mode_list">목록으로 보기</string>
 </resources>

@@ -1,9 +1,12 @@
 package com.psk.mybooks.feature.main.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
@@ -18,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +41,7 @@ import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.VSpacer
 import com.psk.mybooks.core.model.SortType
+import com.psk.mybooks.core.model.ViewMode
 import com.psk.mybooks.feature.favorite.ui.FavoriteRoute
 import com.psk.mybooks.feature.main.R
 import com.psk.mybooks.feature.search.ui.SearchRoute
@@ -115,11 +120,18 @@ internal fun MainScreen(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 VSpacer(12.dp)
-                OutlinedChip(
-                    text = stringResource(state.sort.labelRes()),
-                    onClick = sortSheet::show,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedChip(text = stringResource(state.sort.labelRes()), onClick = sortSheet::show)
+                    // 격자/목록 상태만 바꾸고, 실제 화면 반영은 검색·즐겨찾기 화면을 만들 때 연결한다
+                    ViewModeToggle(
+                        selected = state.viewMode,
+                        onSelect = { onIntent(MainIntent.ChangeViewMode(it)) }
+                    )
+                }
                 VSpacer(12.dp)
             }
         },
