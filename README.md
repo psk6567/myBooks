@@ -108,6 +108,24 @@ android {
 `MainViewModel`이 선택된 탭을 상태로 가지고, 탭 클릭과 Pager 스와이프가 모두 `SelectTab` Intent로 들어옵니다.
 상태(선택된 탭)가 Pager 이동의 기준이고, Pager가 넘어가면 다시 Intent로 상태를 맞춥니다.
 
+### BottomSheet 띄우기
+화면에서 시트를 한 줄로 선언하고, 반환된 손잡이로 엽니다. 화면마다 `if`나 열림 상태를 두지 않습니다.
+
+```kotlin
+val sortSheet: BottomSheetHandle = rememberBottomSheet { dismiss ->
+    SortOptions(selected = state.sort) { sort ->
+        onIntent(MainIntent.ChangeSort(sort))
+        dismiss()   // 닫힘 애니메이션 후 닫힘
+    }
+}
+SortChip(onClick = { sortSheet.show() })
+```
+
+- 시트 열림 여부는 ViewModel이 아니라 UI가 관리합니다(`rememberSaveable`). ViewModel은 선택 결과만 Intent로 받습니다.
+- 화면 회전과 프로세스 종료 후에도 열린 상태가 복원됩니다.
+- 시트 내용은 매번 다시 그려지므로 열린 동안 바뀐 상태도 반영됩니다.
+- ViewModel이 열 시점을 정해야 하면 Effect를 보내고, 화면이 그 Effect를 받아 `show()`를 호출합니다.
+
 ## 디자인 시스템 - 색상
 
 색상은 두 단계로 나눕니다.

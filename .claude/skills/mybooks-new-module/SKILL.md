@@ -84,6 +84,7 @@ android {
 - 모듈마다 `compileSdk`, `minSdk`, Java 버전을 직접 적지 않는다.
 - 색상은 `MyBooksTheme.colors.xxx`(시맨틱)만 쓴다. `Color(0x...)`, 토큰(`Red55` 등), `MaterialTheme.colorScheme` 을 화면·컴포넌트에서 직접 쓰지 않는다. 필요한 용도의 색이 없으면 `MbColors` 에 시맨틱 이름을 추가한다.
 - **타입 추론에 기대지 않는다.** `val`/`var`(지역 변수·프로퍼티·`by` 위임)과 `=` 로 쓴 함수의 반환 타입은 명시한다. 예: `val colors: MbColors = MyBooksTheme.colors`, `var selected: Int by remember { ... }`. 람다 파라미터와 `for`, 구조 분해는 예외.
+- BottomSheet 는 `val sheet: BottomSheetHandle = rememberBottomSheet { dismiss -> ... }` 로 선언하고 `sheet.show()` 로 연다. 화면마다 `if (isShown)` 이나 ViewModel 의 열림 상태(Show/Hide Intent)를 만들지 않는다. ViewModel 은 선택 결과만 Intent 로 받는다.
 - 여백은 `Spacer(Modifier.height/width(...))` 대신 `VSpacer(dp)`, `HSpacer(dp)`(`core.designsystem.util`)를 쓴다.
 - 아이콘은 디자인 시스템의 `Icon(icon = MbIcon.Xxx, ...)` 만 쓴다. Material `Icon`, `painterResource(R.drawable...)` 를 feature 에서 직접 쓰지 않는다. 새 아이콘은 `MbIcon` 에 추가한다. 슬롯으로 아이콘을 받는 컴포넌트(`TabItem.icon` 등)에도 디자인 시스템 `Icon` 을 넣는다.
 - 텍스트 스타일은 `MyBooksTheme.typography.xxx`(normal10~24, bold10~24)만 쓴다. `fontSize`, `fontFamily` 를 직접 지정하지 않는다.
