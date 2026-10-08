@@ -59,7 +59,12 @@ fun MainRoute(modifier: Modifier = Modifier) {
         modifier = modifier,
         pageContent = { tab ->
             when (tab) {
-                MainTab.Search -> SearchRoute(isGrid = state.viewMode == ViewMode.Grid)
+                MainTab.Search -> SearchRoute(
+                    query = state.searchText,
+                    sort = state.searchSort,
+                    isGrid = state.viewMode == ViewMode.Grid
+                )
+
                 MainTab.Favorite -> FavoriteRoute(isGrid = state.viewMode == ViewMode.Grid)
             }
         }

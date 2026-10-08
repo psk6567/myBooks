@@ -63,4 +63,14 @@ class FetchSearchBooksUseCaseTest {
         assertEquals("io-test", repository.collectedOn?.name)
         assertNotEquals(Thread.currentThread(), repository.collectedOn)
     }
+
+    @Test
+    fun `검색어가 비어 있으면 Repository 를 부르지 않고 빈 목록을 준다`() = runTest {
+        val repository: FakeBookRepository = FakeBookRepository()
+        val dispatcher: CoroutineDispatcher = StandardTestDispatcher(testScheduler)
+
+        FetchSearchBooksUseCase(repository, dispatcher)("   ", SearchSortType.Accuracy).first()
+
+        assertEquals(null, repository.lastQuery)
+    }
 }

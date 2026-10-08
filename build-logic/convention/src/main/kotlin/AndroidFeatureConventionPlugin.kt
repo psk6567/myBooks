@@ -21,8 +21,10 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             "implementation"(libs.library("androidx-lifecycle-viewmodel-compose"))
             "implementation"(libs.library("androidx-lifecycle-runtime-compose"))
             "implementation"(libs.library("androidx-hilt-navigation-compose"))
+            "implementation"(libs.library("androidx-paging-compose"))
 
             "testImplementation"(libs.library("kotlinx-coroutines-test"))
+            "testImplementation"(libs.library("androidx-paging-testing"))
         }
     }
 }

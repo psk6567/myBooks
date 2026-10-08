@@ -1,3 +1,5 @@
 <resources>
+    <string name="feature_search_no_result">검색 결과가 없습니다</string>
+    <string name="feature_search_empty_query">검색어를 입력해 도서를 찾아보세요</string>
     <string name="feature_search_price">%1$s원</string>
 </resources>

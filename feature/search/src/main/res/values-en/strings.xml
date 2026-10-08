@@ -1,3 +1,5 @@
 <resources>
+    <string name="feature_search_no_result">No results found</string>
+    <string name="feature_search_empty_query">Enter a keyword to find books</string>
     <string name="feature_search_price">KRW %1$s</string>
 </resources>
