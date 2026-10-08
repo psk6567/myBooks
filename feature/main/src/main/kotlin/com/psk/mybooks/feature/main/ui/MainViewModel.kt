@@ -8,6 +8,7 @@ internal class MainViewModel : MviViewModel<MainUiState, MainIntent, Nothing>(Ma
     override fun onIntent(intent: MainIntent) {
         when (intent) {
             is MainIntent.SelectTab -> reduce { copy(selectedTab = intent.tab) }
+            is MainIntent.ChangeSearchText -> reduce { copy(searchText = intent.text) }
         }
     }
 }

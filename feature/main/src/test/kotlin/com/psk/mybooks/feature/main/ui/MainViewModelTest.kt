@@ -29,4 +29,23 @@ class MainViewModelTest {
 
         assertEquals(MainUiState(MainTab.Search), viewModel.state.value)
     }
+
+    @Test
+    fun `검색창 입력은 Intent 로만 상태에 반영된다`() {
+        val viewModel: MainViewModel = MainViewModel()
+
+        viewModel.onIntent(MainIntent.ChangeSearchText("해리 포터"))
+
+        assertEquals("해리 포터", viewModel.state.value.searchText)
+    }
+
+    @Test
+    fun `탭을 바꿔도 검색어는 유지된다`() {
+        val viewModel: MainViewModel = MainViewModel()
+        viewModel.onIntent(MainIntent.ChangeSearchText("해리 포터"))
+
+        viewModel.onIntent(MainIntent.SelectTab(MainTab.Favorite))
+
+        assertEquals("해리 포터", viewModel.state.value.searchText)
+    }
 }

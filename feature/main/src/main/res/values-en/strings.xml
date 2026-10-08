@@ -1,4 +1,5 @@
 <resources>
     <string name="feature_main_tab_search">Search</string>
     <string name="feature_main_tab_favorite">Favorites</string>
+    <string name="feature_main_search_placeholder">Enter a title or author.</string>
 </resources>

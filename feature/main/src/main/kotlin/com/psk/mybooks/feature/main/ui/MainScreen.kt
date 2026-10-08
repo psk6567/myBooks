@@ -1,7 +1,13 @@
 package com.psk.mybooks.feature.main.ui
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -15,15 +21,19 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.psk.mybooks.core.designsystem.component.Icon
+import com.psk.mybooks.core.designsystem.component.SearchBar
 import com.psk.mybooks.core.designsystem.component.TabBar
 import com.psk.mybooks.core.designsystem.component.TabItem
 import com.psk.mybooks.core.designsystem.component.TitleBar
 import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
+import com.psk.mybooks.core.designsystem.util.VSpacer
 import com.psk.mybooks.feature.favorite.ui.FavoriteRoute
+import com.psk.mybooks.feature.main.R
 import com.psk.mybooks.feature.search.ui.SearchRoute
 
 /** ViewModel 을 연결하는 진입점. Navigation 도입 후에는 internal 로 바꾼다. */
@@ -74,7 +84,21 @@ internal fun MainScreen(
     Scaffold(
         modifier = modifier,
         containerColor = MyBooksTheme.colors.background,
-        topBar = { TitleBar(label = stringResource(state.selectedTab.labelRes)) },
+        topBar = {
+            // Scaffold 는 topBar 에 좌우 여백을 주지 않으므로 가로 모드의 내비게이션 바를 피한다
+            Column(
+                modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
+            ) {
+                TitleBar(label = stringResource(state.selectedTab.labelRes))
+                SearchBar(
+                    query = state.searchText,
+                    onQueryChange = { onIntent(MainIntent.ChangeSearchText(it)) },
+                    placeholder = stringResource(R.string.feature_main_search_placeholder),
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                VSpacer(12.dp)
+            }
+        },
         bottomBar = {
             TabBar(
                 tabs = rememberTabItems(),
@@ -132,6 +156,6 @@ private fun MainScreenSearchPreview() {
 @Composable
 private fun MainScreenFavoriteDarkPreview() {
     MyBooksTheme(darkTheme = true) {
-        MainScreen(state = MainUiState(MainTab.Favorite), onIntent = {}, pageContent = {})
+        MainScreen(state = MainUiState(MainTab.Favorite, searchText = "해리 포터"), onIntent = {}, pageContent = {})
     }
 }

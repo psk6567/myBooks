@@ -1,4 +1,5 @@
 <resources>
     <string name="feature_main_tab_search">검색</string>
     <string name="feature_main_tab_favorite">즐겨찾기</string>
+    <string name="feature_main_search_placeholder">제목 또는 저자를 입력하세요.</string>
 </resources>
