@@ -99,6 +99,15 @@ android {
 - 브랜드 컬러 `#F83949`를 [Material Color Utilities](https://github.com/material-foundation/material-color-utilities)에 넣어 팔레트를 생성했습니다. 배경과 글자는 무채색(Gray)을 씁니다.
 - 라이트/다크 모드를 지원합니다. 다이내믹 컬러는 쓰지 않습니다.
 
+## 디자인 시스템 - 타이포그래피
+
+- 폰트: [여기어때 잘난체 2](https://www.gccompany.co.kr) (개인·기업 무료, 수정·재배포 허용) — `core/designsystem/src/main/res/font/jalnan2.ttf`
+- 스케일: 10~24sp (2 단위) × `normal` / `bold` → `MyBooksTheme.typography.normal14`, `bold20` 등
+- 줄 높이는 글자 크기의 1.4배입니다.
+- 폰트 파일이 Regular 한 가지라 `bold`는 Compose가 굵기를 합성해서 그립니다.
+- 화면과 컴포넌트는 `MyBooksTheme.typography.xxx`만 사용합니다. `fontSize`를 직접 지정하지 않습니다.
+- Material 컴포넌트도 같은 폰트를 쓰도록 `Theme.kt`에서 Material `Typography`에 매핑합니다.
+
 ## 신규 모듈 추가 (Claude Skill)
 
 모듈 추가 규칙은 프로젝트

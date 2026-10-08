@@ -3,6 +3,7 @@ package com.psk.mybooks.core.designsystem.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -14,8 +15,17 @@ fun MyBooksTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composabl
     val colors = if (darkTheme) DarkMbColors else LightMbColors
     val colorScheme = if (darkTheme) darkScheme(colors) else lightScheme(colors)
 
-    CompositionLocalProvider(LocalMbColors provides colors) {
-        MaterialTheme(colorScheme = colorScheme, content = content)
+    val typography = DefaultMbTypography
+
+    CompositionLocalProvider(
+        LocalMbColors provides colors,
+        LocalMbTypography provides typography
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = materialTypography(typography),
+            content = content
+        )
     }
 }
 
@@ -24,7 +34,29 @@ object MyBooksTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalMbColors.current
+
+    val typography: MbTypography
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalMbTypography.current
 }
+
+/*
+ * Material Typography 매핑. Material 컴포넌트(Text 기본값, 버튼, 메뉴 등)도 같은 폰트를 쓰도록 연결만 한다.
+ * display/headline Large·Medium 은 24sp 를 넘어 스케일 밖이라 매핑하지 않는다.
+ */
+private fun materialTypography(t: MbTypography) = Typography(
+    headlineSmall = t.bold24,
+    titleLarge = t.bold22,
+    titleMedium = t.bold16,
+    titleSmall = t.bold14,
+    bodyLarge = t.normal16,
+    bodyMedium = t.normal14,
+    bodySmall = t.normal12,
+    labelLarge = t.bold14,
+    labelMedium = t.bold12,
+    labelSmall = t.bold10
+)
 
 /*
  * Material ColorScheme 매핑.
