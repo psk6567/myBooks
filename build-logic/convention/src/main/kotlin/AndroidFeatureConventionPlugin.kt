@@ -7,7 +7,7 @@ import org.gradle.kotlin.dsl.dependencies
  * 모듈 내부 구조: {Name}Route.kt / ui (+ feature 전용 로직이 있을 때만 domain, data)
  */
 class AndroidFeatureConventionPlugin : Plugin<Project> {
-    override fun apply(target: Project) = with(target) {
+    override fun apply(target: Project): Unit = with(target) {
         pluginManager.apply("mybooks.android.library.compose")
 
         dependencies {

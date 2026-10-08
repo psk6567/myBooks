@@ -1,6 +1,7 @@
 package com.psk.mybooks.core.designsystem.theme
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
@@ -44,7 +45,7 @@ data class MbColors(
     val error: Color
 )
 
-internal val LightMbColors = MbColors(
+internal val LightMbColors: MbColors = MbColors(
     background = Gray100,
     card = Gray100,
     surfaceVariant = Gray95,
@@ -62,7 +63,7 @@ internal val LightMbColors = MbColors(
     error = Error40
 )
 
-internal val DarkMbColors = MbColors(
+internal val DarkMbColors: MbColors = MbColors(
     background = Gray6,
     card = Gray12,
     surfaceVariant = Gray17,
@@ -80,4 +81,4 @@ internal val DarkMbColors = MbColors(
     error = Error80
 )
 
-internal val LocalMbColors = staticCompositionLocalOf { LightMbColors }
+internal val LocalMbColors: ProvidableCompositionLocal<MbColors> = staticCompositionLocalOf { LightMbColors }

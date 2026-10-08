@@ -3,6 +3,7 @@ package com.psk.mybooks.feature.main.ui
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -29,7 +30,7 @@ import com.psk.mybooks.feature.search.ui.SearchRoute
 @Composable
 fun MainRoute(modifier: Modifier = Modifier) {
     val viewModel: MainViewModel = viewModel()
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val state: MainUiState by viewModel.state.collectAsStateWithLifecycle()
 
     MainScreen(
         state = state,
@@ -56,8 +57,8 @@ internal fun MainScreen(
     pageContent: @Composable (MainTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState(initialPage = state.selectedTab.ordinal) { MainTab.entries.size }
-    val currentOnIntent by rememberUpdatedState(onIntent)
+    val pagerState: PagerState = rememberPagerState(initialPage = state.selectedTab.ordinal) { MainTab.entries.size }
+    val currentOnIntent: (MainIntent) -> Unit by rememberUpdatedState(onIntent)
 
     // 상태(탭 선택) → Pager 이동
     LaunchedEffect(state.selectedTab) {
@@ -95,8 +96,8 @@ internal fun MainScreen(
 
 @Composable
 private fun rememberTabItems(): List<TabItem> {
-    val searchLabel = stringResource(MainTab.Search.labelRes)
-    val favoriteLabel = stringResource(MainTab.Favorite.labelRes)
+    val searchLabel: String = stringResource(MainTab.Search.labelRes)
+    val favoriteLabel: String = stringResource(MainTab.Favorite.labelRes)
 
     return remember(searchLabel, favoriteLabel) {
         listOf(

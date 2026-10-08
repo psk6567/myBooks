@@ -12,10 +12,10 @@ import androidx.compose.runtime.ReadOnlyComposable
 
 @Composable
 fun MyBooksTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) DarkMbColors else LightMbColors
-    val colorScheme = if (darkTheme) darkScheme(colors) else lightScheme(colors)
+    val colors: MbColors = if (darkTheme) DarkMbColors else LightMbColors
+    val colorScheme: ColorScheme = if (darkTheme) darkScheme(colors) else lightScheme(colors)
 
-    val typography = DefaultMbTypography
+    val typography: MbTypography = DefaultMbTypography
 
     CompositionLocalProvider(
         LocalMbColors provides colors,
@@ -46,7 +46,7 @@ object MyBooksTheme {
  * display/headline Large·Medium 은 24sp 를 넘어 스케일 밖이라 매핑하지 않는다.
  * 합성 bold 는 잘난체에서 획이 뭉쳐 보여 Material 기본값은 모두 normal 로 연결한다.
  */
-private fun materialTypography(t: MbTypography) = Typography(
+private fun materialTypography(t: MbTypography): Typography = Typography(
     headlineSmall = t.normal24,
     titleLarge = t.normal22,
     titleMedium = t.normal16,

@@ -24,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.psk.mybooks.core.designsystem.R
 import com.psk.mybooks.core.designsystem.icon.MbIcon
+import com.psk.mybooks.core.designsystem.theme.MbColors
+import com.psk.mybooks.core.designsystem.theme.MbTypography
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.HSpacer
 import com.psk.mybooks.core.designsystem.util.VSpacer
@@ -51,8 +53,8 @@ fun BookListItem(
     modifier: Modifier = Modifier,
     thumbnail: @Composable () -> Unit = {}
 ) {
-    val colors = MyBooksTheme.colors
-    val typography = MyBooksTheme.typography
+    val colors: MbColors = MyBooksTheme.colors
+    val typography: MbTypography = MyBooksTheme.typography
 
     Box(
         modifier = modifier
@@ -127,7 +129,7 @@ fun BookListItem(
 
 @Composable
 private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = MyBooksTheme.colors
+    val colors: MbColors = MyBooksTheme.colors
     Box(
         modifier = modifier
             .size(32.dp)

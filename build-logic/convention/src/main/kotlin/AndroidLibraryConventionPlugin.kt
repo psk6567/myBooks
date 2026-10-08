@@ -7,7 +7,7 @@ import org.gradle.kotlin.dsl.dependencies
 
 /** 모든 Android 라이브러리 모듈의 공통 설정 */
 class AndroidLibraryConventionPlugin : Plugin<Project> {
-    override fun apply(target: Project) = with(target) {
+    override fun apply(target: Project): Unit = with(target) {
         pluginManager.apply("com.android.library")
 
         extensions.configure<LibraryExtension> {

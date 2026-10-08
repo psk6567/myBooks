@@ -21,13 +21,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.psk.mybooks.core.designsystem.R
 import com.psk.mybooks.core.designsystem.icon.MbIcon
+import com.psk.mybooks.core.designsystem.theme.MbColors
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.HSpacer
 
@@ -44,9 +47,9 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     onSearch: (String) -> Unit = {}
 ) {
-    val colors = MyBooksTheme.colors
-    val textStyle = MyBooksTheme.typography.normal14.copy(color = colors.textPrimary)
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val colors: MbColors = MyBooksTheme.colors
+    val textStyle: TextStyle = MyBooksTheme.typography.normal14.copy(color = colors.textPrimary)
+    val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
 
     BasicTextField(
         value = query,

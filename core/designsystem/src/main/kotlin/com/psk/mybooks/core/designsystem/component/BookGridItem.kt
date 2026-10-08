@@ -17,6 +17,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.psk.mybooks.core.designsystem.theme.MbColors
+import com.psk.mybooks.core.designsystem.theme.MbTypography
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.VSpacer
 
@@ -34,8 +36,8 @@ fun BookGridItem(
     modifier: Modifier = Modifier,
     thumbnail: @Composable () -> Unit = {}
 ) {
-    val colors = MyBooksTheme.colors
-    val typography = MyBooksTheme.typography
+    val colors: MbColors = MyBooksTheme.colors
+    val typography: MbTypography = MyBooksTheme.typography
 
     Column(
         modifier = modifier

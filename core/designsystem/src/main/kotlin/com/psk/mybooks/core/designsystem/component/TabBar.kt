@@ -22,10 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.psk.mybooks.core.designsystem.icon.MbIcon
+import com.psk.mybooks.core.designsystem.theme.MbColors
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.VSpacer
 
@@ -52,7 +54,7 @@ fun TabBar(
     modifier: Modifier = Modifier,
     windowInsets: WindowInsets = WindowInsets.navigationBars
 ) {
-    val colors = MyBooksTheme.colors
+    val colors: MbColors = MyBooksTheme.colors
 
     Column(modifier = modifier.background(colors.background)) {
         HorizontalDivider(thickness = 1.dp, color = colors.divider)
@@ -64,8 +66,8 @@ fun TabBar(
                 .selectableGroup()
         ) {
             tabs.forEachIndexed { index, tab ->
-                val selected = index == selectedIndex
-                val labelColor = if (selected) colors.icon else colors.iconInactive
+                val selected: Boolean = index == selectedIndex
+                val labelColor: Color = if (selected) colors.icon else colors.iconInactive
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -116,7 +118,7 @@ private fun rememberSampleTabs(): List<TabItem> = remember {
 @Composable
 private fun TabBarPreview() {
     MyBooksTheme {
-        var selected by remember { mutableIntStateOf(0) }
+        var selected: Int by remember { mutableIntStateOf(0) }
         TabBar(
             tabs = rememberSampleTabs(),
             selectedIndex = selected,

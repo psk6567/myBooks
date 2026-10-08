@@ -22,10 +22,10 @@ import kotlinx.coroutines.launch
  */
 abstract class MviViewModel<S : Any, I : Any, E : Any>(initialState: S) : ViewModel() {
 
-    private val _state = MutableStateFlow(initialState)
+    private val _state: MutableStateFlow<S> = MutableStateFlow(initialState)
     val state: StateFlow<S> = _state.asStateFlow()
 
-    private val _effect = Channel<E>(Channel.BUFFERED)
+    private val _effect: Channel<E> = Channel(Channel.BUFFERED)
     val effect: Flow<E> = _effect.receiveAsFlow()
 
     abstract fun onIntent(intent: I)

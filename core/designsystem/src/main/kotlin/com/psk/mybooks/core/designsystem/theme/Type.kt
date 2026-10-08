@@ -1,6 +1,7 @@
 package com.psk.mybooks.core.designsystem.theme
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -13,7 +14,7 @@ import com.psk.mybooks.core.designsystem.R
  * 여기어때 잘난체 2 (GC COMPANY, 개인·기업 무료 / 수정·재배포 허용)
  * 폰트 파일은 Regular 한 가지뿐이라 Bold 는 Compose 가 굵기를 합성(FontSynthesis)해서 그린다.
  */
-internal val Jalnan = FontFamily(Font(R.font.jalnan2, FontWeight.Normal))
+internal val Jalnan: FontFamily = FontFamily(Font(R.font.jalnan2, FontWeight.Normal))
 
 /**
  * 텍스트 스타일. 크기 10~24sp (2 단위) x normal / bold.
@@ -39,14 +40,14 @@ data class MbTypography(
     val bold24: TextStyle
 )
 
-private fun textStyle(size: Int, weight: FontWeight) = TextStyle(
+private fun textStyle(size: Int, weight: FontWeight): TextStyle = TextStyle(
     fontFamily = Jalnan,
     fontWeight = weight,
     fontSize = size.sp,
     lineHeight = (size * 1.4f).sp
 )
 
-internal val DefaultMbTypography = MbTypography(
+internal val DefaultMbTypography: MbTypography = MbTypography(
     normal10 = textStyle(10, FontWeight.Normal),
     bold10 = textStyle(10, FontWeight.Bold),
     normal12 = textStyle(12, FontWeight.Normal),
@@ -65,4 +66,5 @@ internal val DefaultMbTypography = MbTypography(
     bold24 = textStyle(24, FontWeight.Bold)
 )
 
-internal val LocalMbTypography = staticCompositionLocalOf { DefaultMbTypography }
+internal val LocalMbTypography: ProvidableCompositionLocal<MbTypography> =
+    staticCompositionLocalOf { DefaultMbTypography }

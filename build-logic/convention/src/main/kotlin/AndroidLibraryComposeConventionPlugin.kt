@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.dependencies
 
 /** Compose 를 쓰는 라이브러리 모듈 (core:designsystem 등) */
 class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
-    override fun apply(target: Project) = with(target) {
+    override fun apply(target: Project): Unit = with(target) {
         pluginManager.apply("mybooks.android.library")
         pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
