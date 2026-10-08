@@ -2,6 +2,7 @@ package com.psk.mybooks.feature.search.ui
 
 import androidx.lifecycle.viewModelScope
 import com.psk.mybooks.core.common.MviViewModel
+import com.psk.mybooks.core.data.dummyBooks
 import com.psk.mybooks.core.model.Book
 import kotlinx.coroutines.launch
 

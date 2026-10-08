@@ -1,3 +1,4 @@
 <resources>
-    <string name="feature_favorite_dummy">Favorite screen (dummy)</string>
+    <string name="feature_favorite_empty">No favorite books yet</string>
+    <string name="feature_favorite_price">KRW %1$s</string>
 </resources>

@@ -60,7 +60,7 @@ fun MainRoute(modifier: Modifier = Modifier) {
         pageContent = { tab ->
             when (tab) {
                 MainTab.Search -> SearchRoute(viewMode = state.viewMode)
-                MainTab.Favorite -> FavoriteRoute()
+                MainTab.Favorite -> FavoriteRoute(viewMode = state.viewMode)
             }
         }
     )

@@ -1,10 +1,11 @@
-package com.psk.mybooks.feature.search.ui
+package com.psk.mybooks.core.data
 
 import com.psk.mybooks.core.model.Book
 
-// TODO: 검색 API(Repository)가 생기면 제거하고 ViewModel 이 UseCase 에서 가져온다
+// TODO: 검색 API·Room 으로 만든 Repository 가 생기면 제거하고, 검색·즐겨찾기 ViewModel 이 UseCase 에서 가져온다
+// 검색과 즐겨찾기 feature 가 함께 쓰므로 core:data 에 둔다.
 // 표지는 임의 이미지(picsum.photos). 마지막 두 권은 불러오기 실패·URL 없음 표시를 확인하는 용도다.
-internal fun dummyBooks(): List<Book> = listOf(
+fun dummyBooks(): List<Book> = listOf(
     Book(
         id = "9791100000000",
         title = "해리 포터와 마법사의 돌",

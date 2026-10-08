@@ -1,3 +1,4 @@
 <resources>
-    <string name="feature_favorite_dummy">즐겨찾기 화면 (dummy)</string>
+    <string name="feature_favorite_empty">즐겨찾기한 도서가 없습니다</string>
+    <string name="feature_favorite_price">%1$s원</string>
 </resources>
