@@ -1,17 +1,21 @@
 package com.psk.mybooks.core.data
 
 import com.psk.mybooks.core.data.remote.BookApi
-import com.psk.mybooks.core.data.remote.toBooks
-import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.data.remote.toBookPage
+import com.psk.mybooks.core.model.BookPage
 import kotlin.coroutines.cancellation.CancellationException
+
+private val PAGINATION_RANGE: IntRange = 1..50
 
 internal class BookRepositoryImpl(private val api: BookApi) : BookRepository {
 
-    override suspend fun searchBooks(query: String): Result<List<Book>> {
+    override suspend fun searchBooks(query: String, page: Int, size: Int): Result<BookPage> {
+        require(page in PAGINATION_RANGE) { "page 는 1~50 이어야 한다: $page" }
+        require(size in PAGINATION_RANGE) { "size 는 1~50 이어야 한다: $size" }
         // 빈 검색어는 서버가 400 을 돌려주므로 부르지 않는다
-        if (query.isBlank()) return Result.success(emptyList())
+        if (query.isBlank()) return Result.success(BookPage(books = emptyList(), isEnd = true))
 
-        return runCatchingCancellable { api.searchBooks(query = query.trim()).toBooks() }
+        return runCatchingCancellable { api.searchBooks(query = query.trim(), page = page, size = size).toBookPage() }
     }
 }
 

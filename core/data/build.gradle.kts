@@ -26,6 +26,9 @@ android {
 dependencies {
     api(project(":core:model"))
 
+    // 이후 Repository 가 Flow<PagingData> 를 공개하면 feature 도 이 타입을 쓰게 되므로 api 로 둔다
+    api(libs.androidx.paging.common)
+
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.kotlinx.serialization)
     implementation(libs.okhttp)
