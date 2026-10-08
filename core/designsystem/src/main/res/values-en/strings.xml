@@ -1,4 +1,8 @@
 <resources>
     <string name="core_designsystem_back">Back</string>
     <string name="core_designsystem_clear_query">Clear search</string>
+    <string name="core_designsystem_favorite_add">Add to favorites</string>
+    <string name="core_designsystem_favorite_remove">Remove from favorites</string>
+    <string name="core_designsystem_list_item_publisher">Publisher : %1$s</string>
+    <string name="core_designsystem_list_item_authors">Author : %1$s</string>
 </resources>

@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.psk.mybooks.core.designsystem.R
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
+import com.psk.mybooks.core.designsystem.util.HSpacer
 
 /**
  * 검색 입력창. 입력이 있으면 오른쪽에 지우기(X) 버튼이 나타난다.
@@ -78,7 +78,7 @@ fun SearchBar(
                     tint = colors.icon,
                     modifier = Modifier.size(20.dp)
                 )
-                Spacer(Modifier.width(8.dp))
+                HSpacer(8.dp)
                 Box(modifier = Modifier.weight(1f)) {
                     if (query.isEmpty()) {
                         Text(text = placeholder, style = textStyle, color = colors.textTertiary, maxLines = 1)
@@ -88,7 +88,7 @@ fun SearchBar(
                 if (query.isNotEmpty()) {
                     ClearButton(onClick = { onQueryChange("") })
                 } else {
-                    Spacer(Modifier.width(16.dp))
+                    HSpacer(16.dp)
                 }
             }
         }
