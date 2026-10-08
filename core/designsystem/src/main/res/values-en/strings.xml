@@ -1,3 +1,4 @@
 <resources>
     <string name="core_designsystem_back">Back</string>
+    <string name="core_designsystem_clear_query">Clear search</string>
 </resources>

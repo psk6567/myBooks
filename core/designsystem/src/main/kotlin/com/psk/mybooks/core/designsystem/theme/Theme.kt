@@ -44,18 +44,19 @@ object MyBooksTheme {
 /*
  * Material Typography 매핑. Material 컴포넌트(Text 기본값, 버튼, 메뉴 등)도 같은 폰트를 쓰도록 연결만 한다.
  * display/headline Large·Medium 은 24sp 를 넘어 스케일 밖이라 매핑하지 않는다.
+ * 합성 bold 는 잘난체에서 획이 뭉쳐 보여 Material 기본값은 모두 normal 로 연결한다.
  */
 private fun materialTypography(t: MbTypography) = Typography(
-    headlineSmall = t.bold24,
-    titleLarge = t.bold22,
-    titleMedium = t.bold16,
-    titleSmall = t.bold14,
+    headlineSmall = t.normal24,
+    titleLarge = t.normal22,
+    titleMedium = t.normal16,
+    titleSmall = t.normal14,
     bodyLarge = t.normal16,
     bodyMedium = t.normal14,
     bodySmall = t.normal12,
-    labelLarge = t.bold14,
-    labelMedium = t.bold12,
-    labelSmall = t.bold10
+    labelLarge = t.normal14,
+    labelMedium = t.normal12,
+    labelSmall = t.normal10
 )
 
 /*

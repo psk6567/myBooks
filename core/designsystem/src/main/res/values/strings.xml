@@ -1,3 +1,4 @@
 <resources>
     <string name="core_designsystem_back">뒤로 가기</string>
+    <string name="core_designsystem_clear_query">검색어 지우기</string>
 </resources>
