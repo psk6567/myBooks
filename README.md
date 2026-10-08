@@ -2,27 +2,27 @@
 
 ## 개발 환경
 
-| 항목 | 버전 |
-|---|---|
-| Gradle | 9.4.1 |
-| Android Gradle Plugin (AGP) | 9.2.1 |
-| Kotlin | 2.4.0 |
-| KSP | 2.3.10 |
-| JDK | 17 |
-| compileSdk / targetSdk | 37 |
-| minSdk | 24 |
+| 항목                          | 버전     |
+|-----------------------------|--------|
+| Gradle                      | 9.4.1  |
+| Android Gradle Plugin (AGP) | 9.2.1  |
+| Kotlin                      | 2.4.0  |
+| KSP                         | 2.3.10 |
+| JDK                         | 17     |
+| compileSdk / targetSdk      | 37     |
+| minSdk                      | 24     |
 
 ## 주요 라이브러리
 
-| 용도 | 라이브러리 | 버전 |
-|---|---|---|
-| DI | Hilt (+ hilt-navigation-compose) | 2.60.1 (1.4.0) |
-| 로컬 DB | Room | 2.8.5 |
-| 네트워크 | Retrofit | 3.0.0 |
-| HTTP 클라이언트 | OkHttp (+ logging-interceptor) | 5.5.0 |
-| 비동기 | kotlinx.coroutines (android, test) | 1.11.0 |
-| 직렬화 | kotlinx.serialization-json | 1.11.0 |
-| UI | Jetpack Compose (BOM 2026.02.01) + Material3 | - |
+| 용도         | 라이브러리                                        | 버전             |
+|------------|----------------------------------------------|----------------|
+| DI         | Hilt (+ hilt-navigation-compose)             | 2.60.1 (1.4.0) |
+| 로컬 DB      | Room                                         | 2.8.5          |
+| 네트워크       | Retrofit                                     | 3.0.0          |
+| HTTP 클라이언트 | OkHttp (+ logging-interceptor)               | 5.5.0          |
+| 비동기        | kotlinx.coroutines (android, test)           | 1.11.0         |
+| 직렬화        | kotlinx.serialization-json                   | 1.11.0         |
+| UI         | Jetpack Compose (BOM 2026.02.01) + Material3 | -              |
 
 버전은 모두 [gradle/libs.versions.toml](gradle/libs.versions.toml)에서 관리합니다.
 
@@ -51,7 +51,8 @@ feature
 
 ### feature 모듈 내부 구조
 
-feature는 기본적으로 UI 레이어(Screen, ViewModel, UI 모델)만 가집니다. 모듈로 나누는 목적은 레이어 분리가 아니라 화면 단위 격리(빌드 캐시, `internal` 캡슐화)입니다.
+feature는 기본적으로 UI 레이어(Screen, ViewModel, UI 모델)만 가집니다. 모듈로 나누는 목적은 레이어 분리가 아니라 화면 단위 격리(빌드 캐시,
+`internal` 캡슐화)입니다.
 
 ```
 feature/{name}/src/main/kotlin/com/psk/mybooks/feature/{name}/
@@ -75,17 +76,19 @@ android {
 
 ### Convention Plugin
 
-| 플러그인 | 용도 |
-|---|---|
-| `mybooks.android.library` | Android 라이브러리 모듈 공통 설정 |
-| `mybooks.android.library.compose` | 위 설정 + Compose |
-| `mybooks.android.feature` | 위 설정 + core 모듈 4개, ViewModel 의존성 |
+| 플러그인                              | 용도                               |
+|-----------------------------------|----------------------------------|
+| `mybooks.android.library`         | Android 라이브러리 모듈 공통 설정           |
+| `mybooks.android.library.compose` | 위 설정 + Compose                   |
+| `mybooks.android.feature`         | 위 설정 + core 모듈 4개, ViewModel 의존성 |
 
 새 모듈은 기존 플러그인으로 충분하며, 새로운 종류의 모듈이 필요할 때만 `build-logic`에 추가합니다.
 
 ## 신규 모듈 추가 (Claude Skill)
 
-모듈 추가 규칙은 프로젝트 skill [.claude/skills/mybooks-new-module/SKILL.md](.claude/skills/mybooks-new-module/SKILL.md)에 정의되어 있습니다. Claude Code로 새 feature/core 모듈을 만들면 이 skill이 위 구조를 그대로 따르도록 안내합니다.
+모듈 추가 규칙은 프로젝트
+skill [.claude/skills/mybooks-new-module/SKILL.md](.claude/skills/mybooks-new-module/SKILL.md)에 정의되어
+있습니다. Claude Code로 새 feature/core 모듈을 만들면 이 skill이 위 구조를 그대로 따르도록 안내합니다.
 
 수동으로 추가할 때의 절차도 같습니다.
 
@@ -93,3 +96,25 @@ android {
 2. `settings.gradle.kts`에 `include(":feature:{name}")`을 추가한다.
 3. 화면이 탭/이동 대상이면 `feature:main`에서 연결한다.
 4. `./gradlew :feature:{name}:assembleDebug`로 빌드를 확인한다.
+
+## 코드 스타일
+
+[ktlint](https://pinterest.github.io/ktlint/)(Android Studio 스타일)
+를 [Spotless](https://github.com/diffplug/spotless)로 실행합니다. 규칙은 [.editorconfig](.editorconfig)에 있습니다.
+
+```bash
+./gradlew spotlessCheck   # 검사
+./gradlew spotlessApply   # 자동 수정
+```
+
+Spotless는 위 명령을 실행할 때만 동작합니다. 커밋 전에 `spotlessApply`를 실행합니다.
+
+### Android Studio 저장 시 자동 정렬
+
+`Settings → Tools → Actions on Save`에서 아래 두 항목을 켭니다.
+
+- **Reformat code**
+- **Optimize imports**
+
+Android Studio는 `.editorconfig`를 읽고, ktlint의 `android_studio` 스타일은 Android Studio 기본 Kotlin 스타일에 맞춰져
+있어 대부분 같은 결과가 나옵니다. 일부 규칙(예: 와일드카드 import)은 다를 수 있으므로 최종 기준은 `spotlessCheck`입니다.

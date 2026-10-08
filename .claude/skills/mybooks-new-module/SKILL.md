@@ -71,7 +71,8 @@ android {
 1. 위 구조로 폴더와 파일을 만든다.
 2. 루트 `settings.gradle.kts` 에 `include(":feature:{name}")` (또는 `:core:{name}`) 를 추가한다.
 3. 화면이 탭/이동 대상이면 `feature:main` 에서 연결한다. (main 만 다른 feature 를 의존)
-4. `./gradlew :feature:{name}:assembleDebug` 로 빌드를 확인한다.
+4. `./gradlew spotlessApply` 로 코드 스타일을 맞춘다.
+5. `./gradlew :feature:{name}:assembleDebug` 로 빌드를 확인한다.
 
 ## 하지 말 것
 

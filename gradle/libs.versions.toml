@@ -1,4 +1,6 @@
 [versions]
+spotless = "8.10.3"
+ktlint = "1.8.0"
 agp = "9.2.1"
 coreKtx = "1.19.1"
 junit = "4.13.2"
@@ -54,6 +56,7 @@ android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", ver
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
