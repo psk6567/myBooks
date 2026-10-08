@@ -27,3 +27,6 @@ internal fun BookSearchResponse.BookDocument.toBook(): Book = Book(
     thumbnailUrl = thumbnail,
     status = status
 )
+
+/** 같은 항목이 한 번 더 오면 처음 것만 남긴다. (화면 목록의 key 가 겹치면 앱이 죽는다) */
+internal fun BookSearchResponse.toBooks(): List<Book> = documents.map { it.toBook() }.distinctBy { it.id }
