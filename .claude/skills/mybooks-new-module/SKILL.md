@@ -78,5 +78,6 @@ android {
 
 - `build-logic` 을 수정하지 않는다. 새 모듈은 기존 Convention Plugin 으로 충분하다. 새로운 "종류"의 모듈이 필요할 때만 사용자에게 먼저 확인한다.
 - 모듈마다 `compileSdk`, `minSdk`, Java 버전을 직접 적지 않는다.
+- 색상은 `MyBooksTheme.colors.xxx`(시맨틱)만 쓴다. `Color(0x...)`, 토큰(`Red55` 등), `MaterialTheme.colorScheme` 을 화면·컴포넌트에서 직접 쓰지 않는다. 필요한 용도의 색이 없으면 `MbColors` 에 시맨틱 이름을 추가한다.
 - UI 문구를 코드에 하드코딩하지 않는다. 문자열은 해당 모듈의 `res/values/strings.xml` (+ `values-en`) 에 두고 `stringResource` 로 쓴다.
 - 작업이 끝나면 `docs/ai-usage-log.md` 에 기록한다. (프로젝트 CLAUDE.md 규칙)

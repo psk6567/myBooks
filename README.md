@@ -84,6 +84,21 @@ android {
 
 새 모듈은 기존 플러그인으로 충분하며, 새로운 종류의 모듈이 필요할 때만 `build-logic`에 추가합니다.
 
+## 디자인 시스템 - 색상
+
+색상은 두 단계로 나눕니다.
+
+| 단계 | 파일 | 이름 예시 | 공개 범위 |
+|---|---|---|---|
+| Color Token (팔레트) | `ColorTokens.kt` | `Red55`, `Gray92` (계열 + 톤) | `internal` (designsystem 내부) |
+| Semantic Color (용도) | `MbColors.kt` | `textPrimary`, `favorite`, `border` | public |
+
+- 화면과 컴포넌트는 **`MyBooksTheme.colors.xxx`만** 사용합니다. 토큰과 `MaterialTheme.colorScheme`은 직접 쓰지 않습니다.
+- 토큰은 `internal`이라 feature 모듈에서는 쓰는 순간 컴파일 에러가 납니다.
+- Material 컴포넌트가 같은 톤을 내도록 `Theme.kt`에서 Material `ColorScheme`에 매핑합니다.
+- 브랜드 컬러 `#F83949`를 [Material Color Utilities](https://github.com/material-foundation/material-color-utilities)에 넣어 팔레트를 생성했습니다. 배경과 글자는 무채색(Gray)을 씁니다.
+- 라이트/다크 모드를 지원합니다. 다이내믹 컬러는 쓰지 않습니다.
+
 ## 신규 모듈 추가 (Claude Skill)
 
 모듈 추가 규칙은 프로젝트
