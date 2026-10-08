@@ -84,6 +84,30 @@ android {
 
 새 모듈은 기존 플러그인으로 충분하며, 새로운 종류의 모듈이 필요할 때만 `build-logic`에 추가합니다.
 
+## 아키텍처 패턴: MVI
+
+모든 feature의 ViewModel은 `core:common`의 `MviViewModel<State, Intent, Effect>`를 상속합니다.
+
+```
+화면 ──Intent──▶ ViewModel ──reduce──▶ State ──▶ 화면
+                    └──────Effect(일회성)──────▶ 화면
+```
+
+| 구성 | 역할 | 규칙 |
+|---|---|---|
+| **State** | 화면이 그리는 모든 상태 | 불변 `data class`, 화면은 `state`만 보고 그린다 |
+| **Intent** | 사용자 행동 등 화면 → ViewModel 입력 | `sealed interface`, `onIntent()`로만 들어온다 |
+| **Effect** | 한 번만 처리할 일(토스트, 이동 등) | 없으면 `Nothing` |
+
+- 상태 변경은 `reduce { copy(...) }`로만 합니다.
+- State/Intent/Effect는 화면 파일 옆의 `{Name}Contract.kt`에 둡니다.
+- `Screen`은 `state`와 `onIntent`만 받습니다. ViewModel을 직접 모르므로 Preview와 테스트가 쉽습니다.
+- ViewModel은 Android 의존 없이 JUnit만으로 테스트합니다. (예: `MainViewModelTest`)
+
+### main 화면의 탭 이동
+`MainViewModel`이 선택된 탭을 상태로 가지고, 탭 클릭과 Pager 스와이프가 모두 `SelectTab` Intent로 들어옵니다.
+상태(선택된 탭)가 Pager 이동의 기준이고, Pager가 넘어가면 다시 Intent로 상태를 맞춥니다.
+
 ## 디자인 시스템 - 색상
 
 색상은 두 단계로 나눕니다.

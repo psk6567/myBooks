@@ -1,5 +1,13 @@
 package com.psk.mybooks.feature.main.ui
 
-import androidx.lifecycle.ViewModel
+import com.psk.mybooks.core.common.MviViewModel
 
-internal class MainViewModel : ViewModel()
+/** Effect 가 없어서 `Nothing` */
+internal class MainViewModel : MviViewModel<MainUiState, MainIntent, Nothing>(MainUiState()) {
+
+    override fun onIntent(intent: MainIntent) {
+        when (intent) {
+            is MainIntent.SelectTab -> reduce { copy(selectedTab = intent.tab) }
+        }
+    }
+}

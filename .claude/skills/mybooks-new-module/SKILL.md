@@ -30,7 +30,8 @@ feature/{name}/
 └── src/main/kotlin/com/psk/mybooks/feature/{name}/
     ├── ui/
     │   ├── {Name}Screen.kt     # {Name}Route(ViewModel 연결) + {Name}Screen(UI)
-    │   ├── {Name}ViewModel.kt  # 상태 관리 (internal)
+    │   ├── {Name}Contract.kt   # State / Intent / (Effect) 정의 (MVI)
+    │   ├── {Name}ViewModel.kt  # `MviViewModel` 상속 (internal)
     │   └── {Name}UiState.kt    # UI 모델 (필요할 때)
     ├── domain/                 # (선택) 이 feature 만 쓰는 UseCase
     └── data/                   # (선택) 이 feature 만 쓰는 데이터 소스
@@ -43,6 +44,9 @@ feature/{name}/
 - `{Name}Route` 와 `{Name}Screen` 은 **같은 파일**(`ui/{Name}Screen.kt`)에 둔다.
   - `Route`: ViewModel 을 만들고 `Screen` 에 상태·콜백을 넘기는 얇은 어댑터
   - `Screen`: 상태와 콜백을 파라미터로만 받는 UI (`internal`). ViewModel 을 직접 참조하지 않는다 → Preview·테스트 가능
+- **MVI**: ViewModel 은 `core:common` 의 `MviViewModel<State, Intent, Effect>` 를 상속한다. 상태 변경은 `reduce { copy(...) }` 로만 하고, Screen 은 `state` 와 `onIntent` 만 받는다. Effect 가 없으면 `Nothing`.
+  - Route: `viewModel.state` 를 `collectAsStateWithLifecycle()` 로 구독해 `Screen(state, onIntent = viewModel::onIntent)` 에 넘긴다.
+  - ViewModel 은 JUnit 만으로 테스트한다. (`{Name}ViewModelTest`)
 - 외부에 공개하는 것은 `{Name}Route` 뿐이다. 나머지는 `internal`.
 - Navigation 도입 후에는 `navigation/{Name}Navigation.kt`(Route 객체 + `NavGraphBuilder` 확장 함수)가 유일한 공개 진입점이 되고, `{Name}Route` 는 `internal` 로 바꾼다.
 

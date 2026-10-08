@@ -17,6 +17,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             "implementation"(project(":core:data"))
 
             "implementation"(libs.library("androidx-lifecycle-viewmodel-compose"))
+            "implementation"(libs.library("androidx-lifecycle-runtime-compose"))
         }
     }
 }
