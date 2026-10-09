@@ -9,6 +9,7 @@ import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -70,8 +71,12 @@ class SearchLoadStateTest {
     fun `더 불러올 페이지가 있으면 빈 페이지여도 결과 없음이 아니다`() = runTest {
         val data: PagingData<String> = Pager(PagingConfig(pageSize = 10, enablePlaceholders = false)) {
             object : PagingSource<Int, String>() {
-                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
-                    LoadResult.Page(data = emptyList(), prevKey = null, nextKey = (params.key ?: 1) + 1)
+                // 첫 페이지는 비어 있지만 다음 페이지가 있다. 다음 페이지는 응답이 오지 않는 "불러오는 중"으로 둔다.
+                // (계속 빈 페이지를 주면 Paging 이 항목이 모자라다고 보고 끝없이 다음 페이지를 요청한다)
+                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> = when (params) {
+                    is LoadParams.Append -> awaitCancellation()
+                    else -> LoadResult.Page(data = emptyList(), prevKey = null, nextKey = 2)
+                }
 
                 override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
             }
