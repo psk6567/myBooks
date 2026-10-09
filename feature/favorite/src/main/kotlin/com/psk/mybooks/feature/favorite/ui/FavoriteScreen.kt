@@ -20,7 +20,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.psk.mybooks.core.designsystem.component.BookGridItem
 import com.psk.mybooks.core.designsystem.component.BookListItem
+import com.psk.mybooks.core.designsystem.component.DialogButtons
 import com.psk.mybooks.core.designsystem.component.EmptyMessage
+import com.psk.mybooks.core.designsystem.component.MbDialog
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
@@ -75,6 +77,20 @@ internal fun FavoriteScreen(
     onIntent: (FavoriteIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // 이 탭에서만 즐겨찾기를 빼기 전에 한 번 더 묻는다
+    state.pendingRemoval?.let { book ->
+        MbDialog(
+            title = stringResource(R.string.feature_favorite_remove_title),
+            message = stringResource(R.string.feature_favorite_remove_message, book.title),
+            buttons = DialogButtons.Two(
+                confirmText = stringResource(R.string.feature_favorite_remove_confirm),
+                dismissText = stringResource(R.string.feature_favorite_remove_cancel),
+                onConfirm = { onIntent(FavoriteIntent.ConfirmRemove) },
+                onDismiss = { onIntent(FavoriteIntent.DismissRemove) }
+            ),
+            onDismissRequest = { onIntent(FavoriteIntent.DismissRemove) }
+        )
+    }
     if (state.books.isEmpty()) {
         // 필터 때문에 비었으면 즐겨찾기가 없는 것이 아니라 조건에 맞는 도서가 없는 것이다
         val message: Int =
@@ -109,7 +125,7 @@ private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 // 즐겨찾기 목록의 책은 모두 즐겨찾기 상태다
                 isFavorite = true,
                 onClick = { onIntent(FavoriteIntent.OpenDetail(book)) },
-                onFavoriteClick = { onIntent(FavoriteIntent.RemoveFavorite(book.id)) }
+                onFavoriteClick = { onIntent(FavoriteIntent.RequestRemove(book)) }
             )
         }
     }
@@ -131,7 +147,7 @@ private fun BookGrid(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 thumbnailUrl = book.thumbnailUrl,
                 isFavorite = true,
                 onClick = { onIntent(FavoriteIntent.OpenDetail(book)) },
-                onFavoriteClick = { onIntent(FavoriteIntent.RemoveFavorite(book.id)) }
+                onFavoriteClick = { onIntent(FavoriteIntent.RequestRemove(book)) }
             )
         }
     }
@@ -174,6 +190,18 @@ private fun FavoriteScreenListPreview() {
 private fun FavoriteScreenGridPreview() {
     MyBooksTheme {
         FavoriteScreen(state = previewState, isGrid = true, onIntent = {})
+    }
+}
+
+@Preview(name = "Remove dialog", widthDp = 360, heightDp = 640)
+@Composable
+private fun FavoriteScreenRemoveDialogPreview() {
+    MyBooksTheme {
+        FavoriteScreen(
+            state = previewState.copy(pendingRemoval = previewState.books.first()),
+            isGrid = false,
+            onIntent = {}
+        )
     }
 }
 

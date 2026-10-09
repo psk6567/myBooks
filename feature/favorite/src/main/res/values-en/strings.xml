@@ -1,4 +1,8 @@
 <resources>
     <string name="feature_favorite_empty">No favorite books yet</string>
     <string name="feature_favorite_no_match">No books match the filter</string>
+    <string name="feature_favorite_remove_title">Remove favorite</string>
+    <string name="feature_favorite_remove_message">Remove “%1$s” from your favorites?</string>
+    <string name="feature_favorite_remove_confirm">Remove</string>
+    <string name="feature_favorite_remove_cancel">Cancel</string>
 </resources>

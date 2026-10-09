@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -130,26 +131,65 @@ class FavoriteViewModelTest {
         assertEquals(listOf(FavoriteSortType.TitleAsc), repository.requestedSorts)
     }
 
-    @Test
-    fun `하트를 누르면 그 도서만 목록에서 빠진다`() {
-        val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"), book("2", "나"))))
-
-        viewModel.onIntent(FavoriteIntent.RemoveFavorite("1"))
-
-        assertEquals(listOf("2"), viewModel.state.value.books.map { it.id })
+    private fun FavoriteViewModel.requestRemove(id: String) {
+        onIntent(FavoriteIntent.RequestRemove(state.value.books.first { it.id == id }))
     }
 
     @Test
-    fun `모두 빼면 목록이 비어 있다`() {
+    fun `하트를 누르면 바로 빼지 않고 삭제 확인을 기다린다`() {
         val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"), book("2", "나"))))
 
-        viewModel.state.value.books.map { it.id }.forEach { viewModel.onIntent(FavoriteIntent.RemoveFavorite(it)) }
+        viewModel.requestRemove("1")
+
+        assertEquals("1", viewModel.state.value.pendingRemoval?.id)
+        assertEquals(listOf("1", "2"), viewModel.state.value.books.map { it.id })
+    }
+
+    @Test
+    fun `삭제를 확인하면 그 도서만 목록에서 빠지고 다이얼로그가 닫힌다`() {
+        val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"), book("2", "나"))))
+
+        viewModel.requestRemove("1")
+        viewModel.onIntent(FavoriteIntent.ConfirmRemove)
+
+        assertEquals(listOf("2"), viewModel.state.value.books.map { it.id })
+        assertNull(viewModel.state.value.pendingRemoval)
+    }
+
+    @Test
+    fun `삭제를 취소하면 도서는 그대로이고 다이얼로그가 닫힌다`() {
+        val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"))))
+
+        viewModel.requestRemove("1")
+        viewModel.onIntent(FavoriteIntent.DismissRemove)
+
+        assertEquals(listOf("1"), viewModel.state.value.books.map { it.id })
+        assertNull(viewModel.state.value.pendingRemoval)
+    }
+
+    @Test
+    fun `확인할 도서가 없는데 삭제를 확인해도 아무 일도 없다`() {
+        val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"))))
+
+        viewModel.onIntent(FavoriteIntent.ConfirmRemove)
+
+        assertEquals(listOf("1"), viewModel.state.value.books.map { it.id })
+    }
+
+    @Test
+    fun `모두 확인해서 빼면 목록이 비어 있다`() {
+        val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"), book("2", "나"))))
+
+        listOf("1", "2").forEach { id ->
+            viewModel.requestRemove(id)
+            viewModel.onIntent(FavoriteIntent.ConfirmRemove)
+        }
 
         assertTrue(viewModel.state.value.books.isEmpty())
     }
 
     @Test
-    fun `하트를 눌러 빼다 실패하면 오류를 알리고 목록은 그대로다`() = runTest(dispatcher) {
+    fun `삭제를 확인했는데 빼다 실패하면 오류를 알리고 목록은 그대로다`() = runTest(dispatcher) {
         val repository: FakeFavoriteRepository = FakeFavoriteRepository(listOf(book("1", "가"))).apply {
             failure = IllegalStateException("디스크 오류")
         }
@@ -157,7 +197,8 @@ class FavoriteViewModelTest {
         val received: MutableList<Throwable> = mutableListOf()
         backgroundScope.launch { viewModel.error.collect { received += it } }
 
-        viewModel.onIntent(FavoriteIntent.RemoveFavorite("1"))
+        viewModel.requestRemove("1")
+        viewModel.onIntent(FavoriteIntent.ConfirmRemove)
 
         assertEquals(listOf("디스크 오류"), received.map { it.message })
         assertEquals(listOf("1"), viewModel.state.value.books.map { it.id })

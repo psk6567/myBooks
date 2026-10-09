@@ -29,7 +29,9 @@ internal class FavoriteViewModel @Inject constructor(
         when (intent) {
             is FavoriteIntent.ChangeCondition -> reduce { copy(sort = intent.sort, priceFilter = intent.priceFilter) }
             is FavoriteIntent.OpenDetail -> sendEffect(FavoriteEffect.OpenDetail(intent.book))
-            is FavoriteIntent.RemoveFavorite -> remove(intent.bookId)
+            is FavoriteIntent.RequestRemove -> reduce { copy(pendingRemoval = intent.book) }
+            FavoriteIntent.ConfirmRemove -> confirmRemove()
+            FavoriteIntent.DismissRemove -> reduce { copy(pendingRemoval = null) }
         }
     }
 
@@ -45,7 +47,10 @@ internal class FavoriteViewModel @Inject constructor(
         }
     }
 
-    private fun remove(bookId: String) {
+    /** 확인을 기다리던 도서를 즐겨찾기에서 뺀다. 다이얼로그는 바로 닫는다. */
+    private fun confirmRemove() {
+        val bookId: String = state.value.pendingRemoval?.id ?: return
+        reduce { copy(pendingRemoval = null) }
         viewModelScope.launch {
             try {
                 removeFavorite(bookId)
