@@ -1,6 +1,8 @@
 package com.psk.mybooks.core.ui
 
 import com.psk.mybooks.core.model.Book
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -64,6 +66,15 @@ class BookUiModelTest {
 
         assertEquals("", ui.publishedAt)
         assertEquals("", ui.translators)
+    }
+
+    @Test
+    fun `JSON 으로 바꿨다가 되돌리면 같은 값이다(이동 인자로 넘긴다)`() {
+        val ui: BookUiModel = book(authors = listOf("롤링", "저자 \"별명\"")).copy(translators = listOf("번역자")).toUiModel()
+
+        val restored: BookUiModel = Json.decodeFromString(Json.encodeToString(ui))
+
+        assertEquals(ui, restored)
     }
 
     @Test
