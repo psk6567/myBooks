@@ -9,4 +9,6 @@ android {
 dependencies {
     // NetworkImage 의 이미지 로딩
     implementation(libs.coil.compose)
+
+    testImplementation(libs.kotlinx.coroutines.test)
 }

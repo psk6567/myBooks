@@ -52,6 +52,7 @@ class MbSnackbarVisuals(
 // TODO: 재시도. 에러 종류(ErrorReason)가 서버 오류나 네트워크 없음처럼 다시 해 볼 만할 때만 "다시 시도" 동작 버튼
 //  (actionLabel)을 붙이고, 눌리면 ViewModel 에 재시도 Intent 를 보내 Paging 의 retry() 등을 부른다.
 //  인증·권한·잘못된 요청은 다시 해도 같으므로 버튼을 붙이지 않는다. 로딩/에러/재시도 UI 단계에서 함께 한다.
+
 /**
  * 스낵바를 띄운다. 닫힐 때까지(또는 [actionLabel] 을 누를 때까지) 기다린 뒤 결과를 돌려준다.
  * 이미 떠 있는 스낵바가 있으면 그것이 끝난 뒤에 보인다. 바로 바꾸려면 호출 전에 `currentSnackbarData?.dismiss()` 를 부른다.
