@@ -149,6 +149,18 @@ SortChip(onClick = { sortSheet.show() })
 - 시트 내용은 매번 다시 그려지므로 열린 동안 바뀐 상태도 반영됩니다.
 - ViewModel이 열 시점을 정해야 하면 Effect를 보내고, 화면이 그 Effect를 받아 `show()`를 호출합니다.
 
+### Snackbar 띄우기
+스낵바를 그리는 호스트는 `MainScreen`에 한 번만 두고, 어느 화면에서든 손잡이로 한 줄에 띄웁니다.
+
+```kotlin
+val snackbar: SnackbarHandle = LocalSnackbar.current
+snackbar.show(stringResource(R.string.saved), SnackbarType.Success)   // None, Success, Failed
+```
+
+- 종류(`SnackbarType`)에 따라 색과 아이콘이 달라집니다. 동작 버튼이 필요하면 `actionLabel`과 `onAction`을 넘깁니다.
+- 새 메시지가 오면 떠 있던 것을 닫고 바로 보여 줍니다. 호스트가 없으면(프리뷰, 테스트) 아무 일도 하지 않습니다.
+- 손잡이는 호스트와 같은 수명이라 호출한 화면이 사라져도 스낵바가 끊기지 않습니다.
+
 ## 디자인 시스템 - 색상
 
 색상은 두 단계로 나눕니다.
