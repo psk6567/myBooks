@@ -13,7 +13,7 @@ interface FavoriteRepository {
 
     /**
      * 즐겨찾기 목록에서 [priceFilter] 에 맞는 도서만 골라 [sort] 순서로 준다.
-     * 기준이 같으면 최근에 담은 것이 먼저다. 비어 있으면 빈 목록이다.
+     * 금액은 판매가 기준이다. 기준이 같으면 최근에 담은 것이 먼저다. 비어 있으면 빈 목록이다.
      */
     fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter = PriceFilter()): Flow<List<Book>>
 

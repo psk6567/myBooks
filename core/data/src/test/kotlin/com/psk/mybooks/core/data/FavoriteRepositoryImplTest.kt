@@ -41,7 +41,7 @@ class FavoriteRepositoryImplTest {
     private var time: Long = 1_000L
     private val repository: FavoriteRepository = FavoriteRepositoryImpl(dao) { time++ }
 
-    private fun book(id: String, title: String = "제목$id", price: Int = 10000): Book = Book(
+    private fun book(id: String, title: String = "제목$id", price: Int = 10000, salePrice: Int = -1): Book = Book(
         id = id,
         title = title,
         contents = "소개",
@@ -52,7 +52,7 @@ class FavoriteRepositoryImplTest {
         publisher = "출판사",
         translators = listOf("번역자"),
         price = price,
-        salePrice = -1,
+        salePrice = salePrice,
         thumbnailUrl = "https://example.com/$id.jpg",
         status = "정상판매"
     )
@@ -159,6 +159,18 @@ class FavoriteRepositoryImplTest {
         assertEquals(listOf("1", "2", "3"), ids(PriceFilter(max = 20000)))
         assertEquals(listOf("2", "3"), ids(PriceFilter(min = 10000, max = 20000)))
         assertEquals(listOf("2"), ids(PriceFilter(min = 10000, max = 10000)))
+    }
+
+    @Test
+    fun `금액 필터는 판매가로 거르고 판매가를 모르면 정가로 거른다`() = runTest {
+        repository.add(book("1", price = 50000, salePrice = 9000))
+        repository.add(book("2", price = 8000, salePrice = -1))
+        repository.add(book("3", price = 8000, salePrice = 30000))
+
+        val ids: List<String> = repository.observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(max = 10000))
+            .first().map { it.id }
+
+        assertEquals(listOf("1", "2"), ids)
     }
 
     @Test

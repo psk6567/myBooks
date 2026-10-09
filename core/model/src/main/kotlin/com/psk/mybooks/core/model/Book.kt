@@ -34,3 +34,6 @@ data class Book(
     val thumbnailUrl: String,
     val status: String
 )
+
+/** 실제로 지불하는 금액. 금액 필터가 이 값을 쓴다. 판매가를 모르면(-1) 정가를 쓴다. */
+val Book.sellingPrice: Int get() = if (salePrice >= 0) salePrice else price
