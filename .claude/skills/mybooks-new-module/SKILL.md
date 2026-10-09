@@ -12,15 +12,16 @@ description: 새 feature/core 모듈을 추가하거나 새 화면 단위를 만
 | 종류 | 위치 | 용도 |
 |---|---|---|
 | feature | `feature/{name}` | 화면 단위 기능 (main, search, favorite, detail ...) |
-| core | `core/{name}` | 여러 feature 가 공유하는 것 (common, designsystem, model, domain, data) |
+| core | `core/{name}` | 여러 feature 가 공유하는 것 (common, designsystem, ui, model, domain, data) |
 
 - **배치 기준: 두 개 이상의 feature 가 쓰면 core, 한 feature 만 쓰면 그 feature 안.**
   - 모든 계층이 쓰는 모델 → `core:model` (순수 Kotlin)
   - UseCase → `core:domain` (한 feature 만 쓰더라도)
+  - 여러 화면이 쓰는 UI 공용 코드(도메인 모델을 알아야 하는 것, 예: 오류 알림 `ErrorEffect`) → `core:ui`. 도메인을 모르는 순수 컴포넌트는 `core:designsystem`
   - Repository 인터페이스와 구현(internal), API, DB → `core:data`
 - 의존 방향은 `feature → core:domain → core:data`, 모두 `core:model` 을 의존한다. (Android 아키텍처 가이드의 UI → Domain → Data)
 - feature 는 **다른 feature 를 의존하지 않는다.** 화면 간 이동 연결은 `feature:main` 만 한다.
-- feature 는 `core:common`, `core:designsystem`, `core:model`, `core:domain` 을 의존한다. (Convention Plugin 이 자동 추가)
+- feature 는 `core:common`, `core:designsystem`, `core:ui`, `core:model`, `core:domain` 을 의존한다. (Convention Plugin 이 자동 추가)
 - **feature 는 `core:data` 를 의존하지 않는다.** 데이터는 `core:domain` 의 UseCase 를 거쳐서만 쓴다. (`core:domain` 이 `core:data` 를 `implementation` 으로 의존해 feature 에 노출되지 않는다)
 
 ## feature 모듈 구조 (필수)

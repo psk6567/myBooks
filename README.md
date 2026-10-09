@@ -46,6 +46,7 @@ build-logic             Convention Plugin (모듈 공통 Gradle 설정)
 core
 ├── common              공통 유틸
 ├── designsystem        색상·컴포넌트 등 디자인 시스템
+├── ui                  여러 화면이 쓰는 UI 공용 코드 (오류를 중요도에 따라 스낵바/다이얼로그로 알리는 ErrorEffect)
 ├── model               모든 계층이 함께 쓰는 모델 (순수 Kotlin)
 ├── domain              UseCase
 └── data                Repository(인터페이스 + 구현), API, DB
@@ -103,7 +104,7 @@ android {
 |-----------------------------------|----------------------------------|
 | `mybooks.android.library`         | Android 라이브러리 모듈 공통 설정           |
 | `mybooks.android.library.compose` | 위 설정 + Compose                   |
-| `mybooks.android.feature`         | 위 설정 + core 모듈 4개(common, designsystem, model, domain), ViewModel 의존성 |
+| `mybooks.android.feature`         | 위 설정 + core 모듈 5개(common, designsystem, ui, model, domain), ViewModel 의존성 |
 
 새 모듈은 기존 플러그인으로 충분하며, 새로운 종류의 모듈이 필요할 때만 `build-logic`에 추가합니다.
 

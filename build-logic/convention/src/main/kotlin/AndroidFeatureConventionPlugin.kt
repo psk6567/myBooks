@@ -15,6 +15,8 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
         dependencies {
             "implementation"(project(":core:common"))
             "implementation"(project(":core:designsystem"))
+            // 오류를 중요도에 따라 스낵바/다이얼로그로 알리는 ErrorEffect 등 화면 공용 코드
+            "implementation"(project(":core:ui"))
             "implementation"(project(":core:model"))
             // 데이터 계층(core:data)은 의존하지 않는다. 데이터는 core:domain 의 UseCase 를 거쳐서만 쓴다.
             "implementation"(project(":core:domain"))

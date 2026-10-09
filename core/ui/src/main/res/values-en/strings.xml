@@ -1,0 +1,11 @@
+<resources>
+    <string name="core_ui_error_title">Notice</string>
+    <string name="core_ui_error_confirm">OK</string>
+    <string name="core_ui_error_network">Check your network connection.</string>
+    <string name="core_ui_error_unauthorized">Authentication failed. Check the app settings.</string>
+    <string name="core_ui_error_forbidden">You do not have permission to use this feature.</string>
+    <string name="core_ui_error_invalid_request">The request could not be processed.</string>
+    <string name="core_ui_error_quota_exceeded">Too many requests. Please try again later.</string>
+    <string name="core_ui_error_server">A server error occurred. Please try again later.</string>
+    <string name="core_ui_error_unknown">An unknown error occurred.</string>
+</resources>
