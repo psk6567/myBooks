@@ -8,4 +8,5 @@
     <string name="core_ui_error_quota_exceeded">요청이 너무 많습니다. 잠시 뒤에 다시 시도해 주세요.</string>
     <string name="core_ui_error_server">서버에 문제가 생겼습니다. 잠시 뒤에 다시 시도해 주세요.</string>
     <string name="core_ui_error_unknown">알 수 없는 오류가 발생했습니다.</string>
+    <string name="core_ui_price">%1$s원</string>
 </resources>

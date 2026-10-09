@@ -8,4 +8,5 @@
     <string name="core_ui_error_quota_exceeded">Too many requests. Please try again later.</string>
     <string name="core_ui_error_server">A server error occurred. Please try again later.</string>
     <string name="core_ui_error_unknown">An unknown error occurred.</string>
+    <string name="core_ui_price">KRW %1$s</string>
 </resources>
