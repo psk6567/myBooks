@@ -1,6 +1,8 @@
 package com.psk.mybooks.feature.search.ui
 
 import androidx.paging.PagingData
+import androidx.paging.PagingDataEvent
+import androidx.paging.PagingDataPresenter
 import com.psk.mybooks.core.data.BookRepository
 import com.psk.mybooks.core.data.FavoriteRepository
 import com.psk.mybooks.core.domain.AddFavoriteUseCase
@@ -11,14 +13,20 @@ import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.ui.BookUiModel
+import com.psk.mybooks.core.ui.toUiModel
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -37,12 +45,14 @@ class SearchViewModelTest {
     @get:Rule
     val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule(dispatcher)
 
-    private class FakeBookRepository : BookRepository {
+    private class FakeBookRepository(
+        private val results: List<Book> = emptyList()
+    ) : BookRepository {
         val calls: MutableList<Pair<String, SearchSortType>> = mutableListOf()
 
         override fun searchBooks(query: String, sort: SearchSortType): Flow<PagingData<Book>> {
             calls += query to sort
-            return flowOf(PagingData.empty())
+            return flowOf(if (results.isEmpty()) PagingData.empty() else PagingData.from(results))
         }
     }
 
@@ -83,6 +93,25 @@ class SearchViewModelTest {
         thumbnailUrl = "",
         status = ""
     )
+
+    private class UiPresenter(
+        context: CoroutineContext
+    ) : PagingDataPresenter<BookUiModel>(context) {
+        override suspend fun presentPagingDataEvent(event: PagingDataEvent<BookUiModel>) = Unit
+    }
+
+    /**
+     * 화면(LazyPagingItems)처럼 검색 결과를 수집해 보여 줄 도서를 돌려준다. 변환은 이렇게 수집될 때 실행되므로,
+     * 이때 ViewModel 이 원본을 기억한다. 하트는 이렇게 화면에 내보낸 뒤에 누를 수 있다.
+     */
+    private fun TestScope.load(viewModel: SearchViewModel, query: String): List<BookUiModel> {
+        val presenter: UiPresenter = UiPresenter(dispatcher)
+        backgroundScope.launch { viewModel.books.collectLatest { presenter.collectFrom(it) } }
+        viewModel.onIntent(SearchIntent.ChangeCondition(query, SearchSortType.Accuracy))
+        advanceTimeBy(301)
+        runCurrent()
+        return presenter.snapshot().items
+    }
 
     private fun viewModel(
         repository: FakeBookRepository,
@@ -152,15 +181,26 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun `하트를 누르면 즐겨찾기에 저장되어 켜지고 다시 누르면 꺼진다`() {
-        val favorites: FakeFavoriteRepository = FakeFavoriteRepository()
-        val viewModel: SearchViewModel = viewModel(FakeBookRepository(), favorites)
+    fun `화면에는 도메인 모델이 아니라 표시용 값(UiModel)으로 내보낸다`() = runTest(dispatcher, timeout = 10.seconds) {
+        val viewModel: SearchViewModel = viewModel(FakeBookRepository(listOf(book("1"))))
 
-        viewModel.onIntent(SearchIntent.ToggleFavorite(book("1")))
-        assertEquals(listOf("1"), favorites.books.value.map { it.id })
+        val shown: List<BookUiModel> = load(viewModel, "한강")
+
+        assertEquals(listOf(book("1").toUiModel()), shown)
+    }
+
+    @Test
+    fun `하트를 누르면 불러온 원본이 즐겨찾기에 저장되어 켜지고 다시 누르면 꺼진다`() = runTest(dispatcher, timeout = 10.seconds) {
+        val favorites: FakeFavoriteRepository = FakeFavoriteRepository()
+        val viewModel: SearchViewModel = viewModel(FakeBookRepository(listOf(book("1"))), favorites)
+        load(viewModel, "한강")
+
+        viewModel.onIntent(SearchIntent.ToggleFavorite("1"))
+        // 화면은 id 만 넘겼지만 저장된 것은 원본(Book) 전체다
+        assertEquals(listOf(book("1")), favorites.books.value)
         assertEquals(setOf("1"), viewModel.state.value.favoriteIds)
 
-        viewModel.onIntent(SearchIntent.ToggleFavorite(book("1")))
+        viewModel.onIntent(SearchIntent.ToggleFavorite("1"))
         assertEquals(emptyList<Book>(), favorites.books.value)
         assertEquals(emptySet<String>(), viewModel.state.value.favoriteIds)
     }
@@ -178,16 +218,16 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun `하트를 저장하다 실패하면 오류를 알리고 하트는 그대로다`() = runTest(dispatcher) {
+    fun `하트를 저장하다 실패하면 오류를 알리고 하트는 그대로다`() = runTest(dispatcher, timeout = 10.seconds) {
         val favorites: FakeFavoriteRepository = FakeFavoriteRepository().apply {
-            failure =
-                IllegalStateException("디스크 가득")
+            failure = IllegalStateException("디스크 가득")
         }
-        val viewModel: SearchViewModel = viewModel(FakeBookRepository(), favorites)
+        val viewModel: SearchViewModel = viewModel(FakeBookRepository(listOf(book("1"))), favorites)
+        load(viewModel, "한강")
         val received: MutableList<Throwable> = mutableListOf()
         backgroundScope.launch { viewModel.error.collect { received += it } }
 
-        viewModel.onIntent(SearchIntent.ToggleFavorite(book("1")))
+        viewModel.onIntent(SearchIntent.ToggleFavorite("1"))
 
         assertEquals(listOf("디스크 가득"), received.map { it.message })
         assertEquals(emptySet<String>(), viewModel.state.value.favoriteIds)

@@ -1,6 +1,5 @@
 package com.psk.mybooks.feature.search.ui
 
-import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
 
 /**
@@ -27,8 +26,8 @@ internal sealed interface SearchIntent {
         val error: Throwable
     ) : SearchIntent
 
-    /** 하트를 눌러 즐겨찾기를 켜거나 끔. 켤 때 저장하므로 도서 전체를 받는다. */
+    /** 하트를 눌러 즐겨찾기를 켜거나 끔. 저장할 도서 전체는 ViewModel 이 들고 있으므로 id 만 받는다. */
     data class ToggleFavorite(
-        val book: Book
+        val bookId: String
     ) : SearchIntent
 }

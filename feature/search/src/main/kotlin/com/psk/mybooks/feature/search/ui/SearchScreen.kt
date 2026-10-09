@@ -25,12 +25,12 @@ import com.psk.mybooks.core.designsystem.component.BookGridItem
 import com.psk.mybooks.core.designsystem.component.BookListItem
 import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
-import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
-import com.psk.mybooks.core.model.isOnSale
+import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.core.ui.ErrorEffect
+import com.psk.mybooks.core.ui.priceText
+import com.psk.mybooks.core.ui.salePriceText
 import com.psk.mybooks.feature.search.R
-import java.text.NumberFormat
 import kotlinx.coroutines.flow.flowOf
 
 /**
@@ -44,7 +44,7 @@ import kotlinx.coroutines.flow.flowOf
 fun SearchRoute(query: String, sort: SearchSortType, isGrid: Boolean, modifier: Modifier = Modifier) {
     val viewModel: SearchViewModel = hiltViewModel()
     val state: SearchUiState by viewModel.state.collectAsStateWithLifecycle()
-    val books: LazyPagingItems<Book> = viewModel.books.collectAsLazyPagingItems()
+    val books: LazyPagingItems<BookUiModel> = viewModel.books.collectAsLazyPagingItems()
 
     // 오류를 중요도에 따라 스낵바나 다이얼로그로 알린다
     ErrorEffect(viewModel.error)
@@ -64,7 +64,7 @@ fun SearchRoute(query: String, sort: SearchSortType, isGrid: Boolean, modifier: 
 @Composable
 internal fun SearchScreen(
     state: SearchUiState,
-    books: LazyPagingItems<Book>,
+    books: LazyPagingItems<BookUiModel>,
     isGrid: Boolean,
     onIntent: (SearchIntent) -> Unit,
     modifier: Modifier = Modifier
@@ -89,7 +89,7 @@ internal fun SearchScreen(
 @Composable
 private fun BookList(
     state: SearchUiState,
-    books: LazyPagingItems<Book>,
+    books: LazyPagingItems<BookUiModel>,
     onIntent: (SearchIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -99,24 +99,20 @@ private fun BookList(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(count = books.itemCount, key = books.itemKey { it.id }) { index ->
-            val book: Book = books[index] ?: return@items
+            val book: BookUiModel = books[index] ?: return@items
             BookListItem(
                 status = book.status,
                 title = book.title,
                 publisher = book.publisher,
-                authors = book.authors.joinToString(", "),
-                price = stringResource(R.string.feature_search_price, formatPrice(book.price)),
+                authors = book.authors,
+                price = book.priceText(),
                 // 정가와 판매가가 다를 때만 판매가를 따로 보여 준다
-                salePrice = if (book.isOnSale) {
-                    stringResource(R.string.feature_search_price, formatPrice(book.salePrice))
-                } else {
-                    null
-                },
+                salePrice = book.salePriceText(),
                 thumbnailUrl = book.thumbnailUrl,
                 isFavorite = book.id in state.favoriteIds,
                 // 상세 화면 이동은 detail 을 만들 때 연결한다
                 onClick = {},
-                onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book)) }
+                onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
             )
         }
     }
@@ -125,7 +121,7 @@ private fun BookList(
 @Composable
 private fun BookGrid(
     state: SearchUiState,
-    books: LazyPagingItems<Book>,
+    books: LazyPagingItems<BookUiModel>,
     onIntent: (SearchIntent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -137,47 +133,41 @@ private fun BookGrid(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(count = books.itemCount, key = books.itemKey { it.id }) { index ->
-            val book: Book = books[index] ?: return@items
+            val book: BookUiModel = books[index] ?: return@items
             BookGridItem(
                 title = book.title,
                 publisher = book.publisher,
                 thumbnailUrl = book.thumbnailUrl,
                 isFavorite = book.id in state.favoriteIds,
                 onClick = {},
-                onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book)) }
+                onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
             )
         }
     }
 }
 
-/** 천 단위 구분 (예: 15000 → 15,000) */
-private fun formatPrice(price: Int): String = NumberFormat.getNumberInstance().format(price)
+private fun previewBook(id: String, title: String, price: Int, salePrice: Int?, status: String): BookUiModel =
+    BookUiModel(
+        id = id,
+        status = status,
+        title = title,
+        publisher = "출판사",
+        authors = "저자",
+        price = price,
+        salePrice = salePrice,
+        thumbnailUrl = ""
+    )
 
-private fun previewBook(isbn: String, title: String, price: Int, status: String): Book = Book(
-    id = isbn,
-    title = title,
-    contents = "",
-    url = "",
-    isbn = isbn,
-    publishedAt = "",
-    authors = listOf("저자"),
-    publisher = "출판사",
-    translators = emptyList(),
-    price = price,
-    salePrice = price,
-    thumbnailUrl = "",
-    status = status
-)
-
-private val previewBooks: List<Book> = listOf(
-    previewBook(isbn = "1", title = "도서 제목", price = 18000, status = "정상판매"),
-    previewBook(isbn = "2", title = "아주 긴 도서 제목이 들어가면 두 줄까지 보입니다", price = 1234000, status = "품절")
+private val previewBooks: List<BookUiModel> = listOf(
+    previewBook(id = "1", title = "도서 제목", price = 20000, salePrice = 18000, status = "정상판매"),
+    previewBook(id = "2", title = "아주 긴 도서 제목이 들어가면 두 줄까지 보입니다", price = 1234000, salePrice = null, status = "품절")
 )
 
 private val previewState: SearchUiState = SearchUiState(query = "도서", favoriteIds = setOf("1"))
 
 @Composable
-private fun previewItems(): LazyPagingItems<Book> = flowOf(PagingData.from(previewBooks)).collectAsLazyPagingItems()
+private fun previewItems(): LazyPagingItems<BookUiModel> =
+    flowOf(PagingData.from(previewBooks)).collectAsLazyPagingItems()
 
 @Preview(name = "List", widthDp = 360)
 @Composable

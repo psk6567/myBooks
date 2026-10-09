@@ -3,6 +3,7 @@ package com.psk.mybooks.feature.search.ui
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.psk.mybooks.core.common.MviViewModel
 import com.psk.mybooks.core.domain.AddFavoriteUseCase
 import com.psk.mybooks.core.domain.FetchSearchBooksUseCase
@@ -10,7 +11,10 @@ import com.psk.mybooks.core.domain.ObserveFavoriteIdsUseCase
 import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.ui.BookUiModel
+import com.psk.mybooks.core.ui.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,11 +41,17 @@ internal class SearchViewModel @Inject constructor(
 ) : MviViewModel<SearchUiState, SearchIntent, Nothing>(SearchUiState()) {
 
     /**
+     * 화면에 내보낸 도서의 원본. 하트를 눌러 저장하려면 도서 전체가 필요한데 화면의 [BookUiModel] 은 표시용 값만 가지므로,
+     * 변환하면서 기억해 두었다가 id 로 찾는다. 검색이 바뀌면 비운다. (불러오는 스레드에서 쓰이므로 동시 접근에 안전하게 둔다)
+     */
+    private val loadedBooks: MutableMap<String, Book> = ConcurrentHashMap()
+
+    /**
      * 검색 결과. 검색어나 정렬이 바뀌면 처음부터 다시 불러오고, 화면 회전에도 목록이 유지된다. (cachedIn)
      * 검색어는 입력이 멈춘 뒤에 반영하고(앞뒤 공백은 무시), 정렬은 바로 반영한다.
      */
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    val books: Flow<PagingData<Book>> = combine(
+    val books: Flow<PagingData<BookUiModel>> = combine(
         state.map { it.query.trim() }
             .distinctUntilChanged()
             // 비우는 건 바로 반영해서 지운 즉시 결과가 사라지게 한다
@@ -49,7 +59,17 @@ internal class SearchViewModel @Inject constructor(
         state.map { it.sort }.distinctUntilChanged()
     ) { query: String, sort: SearchSortType -> query to sort }
         .distinctUntilChanged()
-        .flatMapLatest { (query, sort) -> fetchSearchBooks(query, sort) }
+        .flatMapLatest { (query, sort) ->
+            // 새 검색이면 이전 결과의 원본은 필요 없다
+            loadedBooks.clear()
+            fetchSearchBooks(query, sort)
+        }
+        .map { paging ->
+            paging.map { book ->
+                loadedBooks[book.id] = book
+                book.toUiModel()
+            }
+        }
         .cachedIn(viewModelScope)
 
     init {
@@ -60,7 +80,7 @@ internal class SearchViewModel @Inject constructor(
         when (intent) {
             is SearchIntent.ChangeCondition -> reduce { copy(query = intent.query, sort = intent.sort) }
             is SearchIntent.ReportLoadError -> sendError(intent.error)
-            is SearchIntent.ToggleFavorite -> toggleFavorite(intent.book)
+            is SearchIntent.ToggleFavorite -> toggleFavorite(intent.bookId)
         }
     }
 
@@ -74,10 +94,15 @@ internal class SearchViewModel @Inject constructor(
     }
 
     /** 저장소를 바꾸면 위 흐름이 새 id 를 주므로 상태는 직접 바꾸지 않는다. */
-    private fun toggleFavorite(book: Book) {
+    private fun toggleFavorite(bookId: String) {
         viewModelScope.launch {
             try {
-                if (book.id in state.value.favoriteIds) removeFavorite(book.id) else addFavorite(book)
+                if (bookId in state.value.favoriteIds) {
+                    removeFavorite(bookId)
+                } else {
+                    // 화면에 내보낸 도서만 누를 수 있으므로 원본이 없는 경우는 없다
+                    loadedBooks[bookId]?.let { addFavorite(it) }
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
