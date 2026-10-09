@@ -51,6 +51,25 @@ sealed interface DialogButtons {
 /**
  * 화면을 막고 확인이나 선택을 받는 다이얼로그. 열려 있는지는 호출한 쪽이 정한다. (이 함수를 그릴 때만 보인다)
  *
+ * 사용법 (닫는 것은 호출한 쪽이 한다):
+ * ```
+ * var showDialog: Boolean by remember { mutableStateOf(false) }
+ * if (showDialog) {
+ *     MbDialog(
+ *         title = "즐겨찾기 삭제",
+ *         message = "이 도서를 즐겨찾기에서 삭제할까요?",
+ *         buttons = DialogButtons.Two(
+ *             confirmText = "삭제",
+ *             dismissText = "취소",
+ *             onConfirm = { showDialog = false; /* 삭제 */ },
+ *             onDismiss = { showDialog = false }
+ *         ),
+ *         onDismissRequest = { showDialog = false }
+ *     )
+ * }
+ * ```
+ * 확인 버튼 하나만 필요하면 `DialogButtons.One(confirmText, onConfirm)` 을 넘긴다.
+ *
  * @param title 제목. null 이면 메시지만 보인다.
  * @param buttons 버튼 구성. [DialogButtons.One] 또는 [DialogButtons.Two].
  * @param onDismissRequest 바깥을 누르거나 뒤로가기를 눌러 닫으려 할 때. [cancelable] 이 false 면 호출되지 않는다.

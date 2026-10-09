@@ -27,7 +27,10 @@ import com.psk.mybooks.core.designsystem.theme.MbTypography
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.HSpacer
 
-/** 스낵바의 종류. 색과 아이콘이 달라진다. */
+/**
+ * 스낵바의 종류. 색과 아이콘이 달라진다.
+ * 띄우는 방법은 [SnackbarHandle] 에 있다: `LocalSnackbar.current.show(message, SnackbarType.Success)`
+ */
 enum class SnackbarType {
     /** 일반 안내. 아이콘 없이 중립 색으로 보인다. */
     None,
@@ -69,6 +72,18 @@ suspend fun SnackbarHostState.showMessage(
 /**
  * 화면 아래에 스낵바를 그리는 자리. Scaffold 의 `snackbarHost` 에 넣고 [SnackbarHostState] 로 띄운다.
  * [showMessage] 로 띄운 종류에 따라 [MbSnackbar] 모양이 정해진다.
+ *
+ * 사용법 (호스트는 앱에서 한 번만 둔다. 이미 `MainScreen` 에 있다):
+ * ```
+ * // 1. 호스트: Scaffold 를 SnackbarProvider 로 감싸고 슬롯에 넣는다
+ * val hostState: SnackbarHostState = remember { SnackbarHostState() }
+ * SnackbarProvider(hostState) { Scaffold(snackbarHost = { MbSnackbarHost(hostState) }) { ... } }
+ *
+ * // 2. 띄우기: 아래 어느 화면에서든
+ * val snackbar: SnackbarHandle = LocalSnackbar.current
+ * snackbar.show(stringResource(R.string.saved), SnackbarType.Success)
+ * ```
+ * 자세한 동작은 [SnackbarProvider], [SnackbarHandle] 에 있다.
  */
 @Composable
 fun MbSnackbarHost(hostState: SnackbarHostState, modifier: Modifier = Modifier) {
