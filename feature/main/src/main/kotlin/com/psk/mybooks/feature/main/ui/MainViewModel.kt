@@ -13,6 +13,7 @@ internal class MainViewModel : MviViewModel<MainUiState, MainIntent, Nothing>(Ma
             is MainIntent.ChangeFavoriteSort -> reduce { copy(favoriteSort = intent.sort) }
             is MainIntent.ChangeFavoritePriceFilter -> reduce { copy(favoritePriceFilter = intent.priceFilter) }
             is MainIntent.ChangeViewMode -> reduce { copy(viewMode = intent.viewMode) }
+            is MainIntent.SelectBook -> reduce { copy(selectedBook = intent.book) }
         }
     }
 }

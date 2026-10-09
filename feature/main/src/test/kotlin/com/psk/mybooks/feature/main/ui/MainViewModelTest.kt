@@ -3,7 +3,9 @@ package com.psk.mybooks.feature.main.ui
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.ui.BookUiModel
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class MainViewModelTest {
@@ -113,5 +115,30 @@ class MainViewModelTest {
         viewModel.onIntent(MainIntent.ChangeViewMode(ViewMode.Grid))
 
         assertEquals(ViewMode.Grid, viewModel.state.value.viewMode)
+    }
+
+    @Test
+    fun `도서를 고르면 옆 패널에 보일 도서가 정해지고 처음에는 없다`() {
+        val viewModel: MainViewModel = MainViewModel()
+        assertNull(viewModel.state.value.selectedBook)
+        val book: BookUiModel = BookUiModel(
+            id = "1",
+            status = "",
+            title = "제목",
+            contents = "",
+            url = "",
+            isbn = "",
+            publishedAt = "",
+            publisher = "",
+            authors = "",
+            translators = "",
+            price = 0,
+            salePrice = null,
+            thumbnailUrl = ""
+        )
+
+        viewModel.onIntent(MainIntent.SelectBook(book))
+
+        assertEquals(book, viewModel.state.value.selectedBook)
     }
 }

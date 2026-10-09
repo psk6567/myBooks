@@ -22,4 +22,5 @@
     <string name="feature_main_price_filter_invalid">최소 금액이 최대 금액보다 클 수 없습니다</string>
     <string name="feature_main_price_filter_apply">적용</string>
     <string name="feature_main_price_filter_reset">초기화</string>
+    <string name="feature_main_select_book">도서를 선택해 주세요</string>
 </resources>

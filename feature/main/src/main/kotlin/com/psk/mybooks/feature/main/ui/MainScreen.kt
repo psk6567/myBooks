@@ -1,6 +1,7 @@
 package com.psk.mybooks.feature.main.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -17,6 +18,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +38,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.psk.mybooks.core.designsystem.component.BottomSheetHandle
+import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.component.Icon
 import com.psk.mybooks.core.designsystem.component.MbSnackbarHost
 import com.psk.mybooks.core.designsystem.component.OptionItem
@@ -56,10 +59,14 @@ import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.feature.detail.navigation.detailScreen
 import com.psk.mybooks.feature.detail.navigation.navigateToDetail
+import com.psk.mybooks.feature.detail.ui.DetailPane
 import com.psk.mybooks.feature.favorite.ui.FavoriteRoute
 import com.psk.mybooks.feature.main.R
 import com.psk.mybooks.feature.search.ui.SearchRoute
 import kotlinx.serialization.Serializable
+
+/** 넓은 화면에서 목록 영역에 대한 상세 패널의 폭 비율 (목록 1 : 상세 1.3) */
+private const val DETAIL_PANE_WEIGHT: Float = 1.3f
 
 /** 홈(탭 화면)의 이동 경로 */
 @Serializable
@@ -74,20 +81,28 @@ fun MainRoute(modifier: Modifier = Modifier) {
     val navController: NavHostController = rememberNavController()
 
     NavHost(navController = navController, startDestination = HomeDestination, modifier = modifier) {
-        composable<HomeDestination> { MainHome(onBookClick = navController::navigateToDetail) }
+        composable<HomeDestination> { MainHome(onNavigateToDetail = navController::navigateToDetail) }
         detailScreen(onBack = { navController.popBackStack() })
     }
 }
 
-/** 홈 화면. ViewModel 을 연결한다. */
+/**
+ * 홈 화면. ViewModel 을 연결한다.
+ * 도서를 누르면 좁은 화면에서는 상세 화면으로 이동하고, 넓은 화면에서는 이동 없이 목록 옆 패널에 상세를 보여 준다.
+ */
 @Composable
-private fun MainHome(onBookClick: (BookUiModel) -> Unit) {
+private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit) {
     val viewModel: MainViewModel = viewModel()
     val state: MainUiState by viewModel.state.collectAsStateWithLifecycle()
+    val isWide: Boolean = isWideScreen()
+    val onBookClick: (BookUiModel) -> Unit = { book ->
+        if (isWide) viewModel.onIntent(MainIntent.SelectBook(book)) else onNavigateToDetail(book)
+    }
 
     MainScreen(
         state = state,
         onIntent = viewModel::onIntent,
+        detailContent = { book -> DetailPane(book = book) },
         pageContent = { tab ->
             when (tab) {
                 MainTab.Search -> SearchRoute(
@@ -112,12 +127,14 @@ private fun MainHome(onBookClick: (BookUiModel) -> Unit) {
  * 상태와 콜백을 파라미터로만 받는 UI. Preview·UI 테스트 대상.
  *
  * @param pageContent 탭별 화면. 다른 feature 의 ViewModel 을 직접 만들지 않도록 호출하는 쪽에서 넘긴다.
+ * @param detailContent 넓은 화면에서 목록 옆 패널에 보일 상세. 선택한 도서를 받는다.
  */
 @Composable
 internal fun MainScreen(
     state: MainUiState,
     onIntent: (MainIntent) -> Unit,
     pageContent: @Composable (MainTab) -> Unit,
+    detailContent: @Composable (BookUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val pagerState: PagerState = rememberPagerState(initialPage = state.selectedTab.ordinal) { MainTab.entries.size }
@@ -218,6 +235,7 @@ internal fun MainScreen(
                         onTabSelected = { onIntent(MainIntent.SelectTab(MainTab.entries[it])) }
                     )
                 }
+                // 목록 영역. 넓은 화면에서는 오른쪽에 상세 패널이 붙으므로 남는 폭을 나눠 쓴다.
                 // 페이지 안 목록의 스크롤이 nestedScroll 로 올라와 정렬·보기 방식 줄을 숨기고 보인다
                 Column(modifier = Modifier.weight(1f).fillMaxHeight().nestedScroll(hideOnScrollState.connection)) {
                     Column(modifier = Modifier.hideOnScroll(hideOnScrollState)) {
@@ -262,6 +280,17 @@ internal fun MainScreen(
                         pageContent(MainTab.entries[page])
                     }
                 }
+                if (isWide) {
+                    VerticalDivider(color = MyBooksTheme.colors.divider)
+                    Box(modifier = Modifier.weight(DETAIL_PANE_WEIGHT).fillMaxHeight()) {
+                        val selectedBook: BookUiModel? = state.selectedBook
+                        if (selectedBook == null) {
+                            EmptyMessage(message = stringResource(R.string.feature_main_select_book))
+                        } else {
+                            detailContent(selectedBook)
+                        }
+                    }
+                }
             }
         }
     }
@@ -297,7 +326,7 @@ private fun rememberTabItems(): List<TabItem> {
 @Composable
 private fun MainScreenSearchPreview() {
     MyBooksTheme {
-        MainScreen(state = MainUiState(MainTab.Search), onIntent = {}, pageContent = {})
+        MainScreen(state = MainUiState(MainTab.Search), onIntent = {}, pageContent = {}, detailContent = {})
     }
 }
 
@@ -305,6 +334,7 @@ private fun MainScreenSearchPreview() {
 @Composable
 private fun MainScreenFavoriteDarkPreview() {
     MyBooksTheme(darkTheme = true) {
-        MainScreen(state = MainUiState(MainTab.Favorite, searchText = "해리 포터"), onIntent = {}, pageContent = {})
+        MainScreen(state = MainUiState(MainTab.Favorite, searchText = "해리 포터"), onIntent = {
+        }, pageContent = {}, detailContent = {})
     }
 }

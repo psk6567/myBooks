@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.feature.main.R
 
 /** 하단 탭 순서. Pager 의 페이지 순서와 같다. */
@@ -37,7 +38,9 @@ internal data class MainUiState(
     val favoriteSort: FavoriteSortType = FavoriteSortType.TitleAsc,
     /** 금액 필터는 즐겨찾기 탭에만 있다. 검색은 서버가 결과를 주므로 앱에서 거르지 않는다. */
     val favoritePriceFilter: PriceFilter = PriceFilter(),
-    val viewMode: ViewMode = ViewMode.List
+    val viewMode: ViewMode = ViewMode.List,
+    /** 넓은 화면에서 목록 옆 패널에 보이는 도서. 없으면 "도서를 선택해 주세요"가 보인다. */
+    val selectedBook: BookUiModel? = null
 )
 
 internal sealed interface MainIntent {
@@ -64,6 +67,11 @@ internal sealed interface MainIntent {
     /** 즐겨찾기 금액 필터가 바뀜. 필터를 없애려면 빈 [PriceFilter] 를 보낸다. */
     data class ChangeFavoritePriceFilter(
         val priceFilter: PriceFilter
+    ) : MainIntent
+
+    /** 넓은 화면에서 목록의 도서를 골라 옆 패널에 상세를 보여 줌 */
+    data class SelectBook(
+        val book: BookUiModel
     ) : MainIntent
 
     /** 격자/목록 보기 방식이 바뀜 */

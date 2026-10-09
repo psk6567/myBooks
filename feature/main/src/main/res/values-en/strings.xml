@@ -22,4 +22,5 @@
     <string name="feature_main_price_filter_invalid">Min price cannot be greater than max price</string>
     <string name="feature_main_price_filter_apply">Apply</string>
     <string name="feature_main_price_filter_reset">Reset</string>
+    <string name="feature_main_select_book">Select a book</string>
 </resources>
