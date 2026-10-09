@@ -50,15 +50,20 @@ class SearchViewModelTest {
     private class FakeFavoriteRepository : FavoriteRepository {
         val books: MutableStateFlow<List<Book>> = MutableStateFlow(emptyList())
 
+        /** 설정하면 담기·빼기가 이 예외로 실패한다 */
+        var failure: Exception? = null
+
         override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> = books
 
         override fun observeFavoriteIds(): Flow<Set<String>> = books.map { list -> list.map { it.id }.toSet() }
 
         override suspend fun add(book: Book) {
+            failure?.let { throw it }
             books.value = books.value.filterNot { it.id == book.id } + book
         }
 
         override suspend fun remove(bookId: String) {
+            failure?.let { throw it }
             books.value = books.value.filterNot { it.id == bookId }
         }
     }
@@ -170,5 +175,37 @@ class SearchViewModelTest {
 
         favorites.books.value = listOf(book("2"))
         assertEquals(setOf("2"), viewModel.state.value.favoriteIds)
+    }
+
+    @Test
+    fun `하트를 저장하다 실패하면 오류를 알리고 하트는 그대로다`() = runTest(dispatcher) {
+        val favorites: FakeFavoriteRepository = FakeFavoriteRepository().apply {
+            failure =
+                IllegalStateException("디스크 가득")
+        }
+        val viewModel: SearchViewModel = viewModel(FakeBookRepository(), favorites)
+        val received: MutableList<Throwable> = mutableListOf()
+        backgroundScope.launch { viewModel.error.collect { received += it } }
+
+        viewModel.onIntent(SearchIntent.ToggleFavorite(book("1")))
+
+        assertEquals(listOf("디스크 가득"), received.map { it.message })
+        assertEquals(emptySet<String>(), viewModel.state.value.favoriteIds)
+    }
+
+    @Test
+    fun `불러오기 오류를 알리면 그대로 전달하고 같은 오류는 한 번만 전달한다`() = runTest(dispatcher) {
+        val viewModel: SearchViewModel = viewModel(FakeBookRepository())
+        val received: MutableList<Throwable> = mutableListOf()
+        backgroundScope.launch { viewModel.error.collect { received += it } }
+        val first: Exception = Exception("첫 번째")
+        val second: Exception = Exception("두 번째")
+
+        viewModel.onIntent(SearchIntent.ReportLoadError(first))
+        viewModel.onIntent(SearchIntent.ReportLoadError(first))
+        viewModel.onIntent(SearchIntent.ReportLoadError(second))
+        viewModel.onIntent(SearchIntent.ReportLoadError(first))
+
+        assertEquals(listOf<Throwable>(first, second, first), received)
     }
 }

@@ -22,6 +22,11 @@ internal sealed interface SearchIntent {
         val sort: SearchSortType
     ) : SearchIntent
 
+    /** 검색 결과를 불러오다 실패함. 화면의 로드 상태에서 읽어 알려 준다. 같은 오류는 한 번만 알린다. */
+    data class ReportLoadError(
+        val error: Throwable
+    ) : SearchIntent
+
     /** 하트를 눌러 즐겨찾기를 켜거나 끔. 켤 때 저장하므로 도서 전체를 받는다. */
     data class ToggleFavorite(
         val book: Book

@@ -15,6 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -26,6 +28,7 @@ import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.core.model.isOnSale
+import com.psk.mybooks.core.ui.ErrorEffect
 import com.psk.mybooks.feature.search.R
 import java.text.NumberFormat
 import kotlinx.coroutines.flow.flowOf
@@ -42,6 +45,14 @@ fun SearchRoute(query: String, sort: SearchSortType, isGrid: Boolean, modifier: 
     val viewModel: SearchViewModel = hiltViewModel()
     val state: SearchUiState by viewModel.state.collectAsStateWithLifecycle()
     val books: LazyPagingItems<Book> = viewModel.books.collectAsLazyPagingItems()
+
+    // 오류를 중요도에 따라 스낵바나 다이얼로그로 알린다
+    ErrorEffect(viewModel.error)
+    // 불러오기 실패(처음이든 다음 페이지든)는 화면의 로드 상태로만 알 수 있으므로 ViewModel 에 알린다
+    val loadStates: CombinedLoadStates = books.loadState
+    val loadError: Throwable? = (loadStates.refresh as? LoadState.Error)?.error
+        ?: (loadStates.append as? LoadState.Error)?.error
+    LaunchedEffect(loadError) { loadError?.let { viewModel.onIntent(SearchIntent.ReportLoadError(it)) } }
 
     // main 이 가진 검색어와 정렬을 이 화면의 상태로 맞춘다
     LaunchedEffect(query, sort) { viewModel.onIntent(SearchIntent.ChangeCondition(query, sort)) }
