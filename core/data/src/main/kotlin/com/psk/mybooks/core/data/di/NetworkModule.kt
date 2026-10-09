@@ -2,6 +2,7 @@ package com.psk.mybooks.core.data.di
 
 import com.psk.mybooks.core.data.BuildConfig
 import com.psk.mybooks.core.data.remote.BookApi
+import com.psk.mybooks.core.data.remote.BookApiErrorHandler
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -56,6 +57,8 @@ internal object NetworkModule {
                     .build()
                 chain.proceed(request)
             }
+            // 오류 응답을 BookApiException 으로 바꾼다. 이 클라이언트(BookApi)에만 붙인다.
+            .addInterceptor(BookApiErrorHandler())
             .build()
 
         return Retrofit.Builder()

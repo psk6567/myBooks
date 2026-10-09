@@ -33,7 +33,7 @@ internal class BookPagingSource(
     private val sentPages: ConcurrentHashMap<String, Int> = ConcurrentHashMap()
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Book> {
-        // 빈 검색어는 서버가 400 을 돌려주므로 부르지 않는다
+        // 빈 검색어는 결과가 없으므로 서버를 부르지 않는다. (서버도 200 과 빈 목록을 준다)
         if (query.isBlank()) return LoadResult.Page(data = emptyList(), prevKey = null, nextKey = null)
 
         val page: Int = params.key ?: 1
