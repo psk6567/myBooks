@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -26,6 +25,7 @@ import com.psk.mybooks.core.designsystem.component.MbDialog
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
+import com.psk.mybooks.core.ui.BookGridColumns
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.core.ui.ErrorEffect
 import com.psk.mybooks.core.ui.priceText
@@ -134,7 +134,7 @@ private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
 @Composable
 private fun BookGrid(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit, modifier: Modifier = Modifier) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
+        columns = BookGridColumns,
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
