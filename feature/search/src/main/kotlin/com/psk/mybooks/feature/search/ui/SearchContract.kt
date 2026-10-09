@@ -1,5 +1,6 @@
 package com.psk.mybooks.feature.search.ui
 
+import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
 
 /**
@@ -10,7 +11,7 @@ import com.psk.mybooks.core.model.SearchSortType
 internal data class SearchUiState(
     val query: String = "",
     val sort: SearchSortType = SearchSortType.Accuracy,
-    /** 즐겨찾기한 도서의 id */
+    /** 즐겨찾기한 도서의 id. 어디서든 담거나 빼면 바로 바뀐다. */
     val favoriteIds: Set<String> = emptySet()
 )
 
@@ -21,8 +22,8 @@ internal sealed interface SearchIntent {
         val sort: SearchSortType
     ) : SearchIntent
 
-    /** 하트를 눌러 즐겨찾기를 켜거나 끔 */
+    /** 하트를 눌러 즐겨찾기를 켜거나 끔. 켤 때 저장하므로 도서 전체를 받는다. */
     data class ToggleFavorite(
-        val bookId: String
+        val book: Book
     ) : SearchIntent
 }

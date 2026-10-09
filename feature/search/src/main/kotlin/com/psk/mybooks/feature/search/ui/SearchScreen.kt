@@ -98,7 +98,7 @@ private fun BookList(
                 isFavorite = book.id in state.favoriteIds,
                 // 상세 화면 이동은 detail 을 만들 때 연결한다
                 onClick = {},
-                onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
+                onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book)) }
             )
         }
     }
@@ -126,7 +126,7 @@ private fun BookGrid(
                 thumbnailUrl = book.thumbnailUrl,
                 isFavorite = book.id in state.favoriteIds,
                 onClick = {},
-                onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
+                onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book)) }
             )
         }
     }

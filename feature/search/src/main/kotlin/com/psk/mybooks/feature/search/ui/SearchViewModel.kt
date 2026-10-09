@@ -4,7 +4,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.psk.mybooks.core.common.MviViewModel
+import com.psk.mybooks.core.domain.AddFavoriteUseCase
 import com.psk.mybooks.core.domain.FetchSearchBooksUseCase
+import com.psk.mybooks.core.domain.ObserveFavoriteIdsUseCase
+import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +20,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 /** 입력이 멈춘 뒤 이만큼 기다렸다가 검색한다 */
 private const val QUERY_DEBOUNCE_MILLIS: Long = 300
@@ -24,7 +28,10 @@ private const val QUERY_DEBOUNCE_MILLIS: Long = 300
 /** Effect 가 없어서 `Nothing` */
 @HiltViewModel
 internal class SearchViewModel @Inject constructor(
-    private val fetchSearchBooks: FetchSearchBooksUseCase
+    private val fetchSearchBooks: FetchSearchBooksUseCase,
+    private val observeFavoriteIds: ObserveFavoriteIdsUseCase,
+    private val addFavorite: AddFavoriteUseCase,
+    private val removeFavorite: RemoveFavoriteUseCase
 ) : MviViewModel<SearchUiState, SearchIntent, Nothing>(SearchUiState()) {
 
     /**
@@ -43,17 +50,28 @@ internal class SearchViewModel @Inject constructor(
         .flatMapLatest { (query, sort) -> fetchSearchBooks(query, sort) }
         .cachedIn(viewModelScope)
 
+    init {
+        observeFavorites()
+    }
+
     override fun onIntent(intent: SearchIntent) {
         when (intent) {
             is SearchIntent.ChangeCondition -> reduce { copy(query = intent.query, sort = intent.sort) }
-            is SearchIntent.ToggleFavorite -> toggleFavorite(intent.bookId)
+            is SearchIntent.ToggleFavorite -> toggleFavorite(intent.book)
         }
     }
 
-    private fun toggleFavorite(bookId: String) {
-        reduce {
-            val ids: Set<String> = if (bookId in favoriteIds) favoriteIds - bookId else favoriteIds + bookId
-            copy(favoriteIds = ids)
+    /** 즐겨찾기한 id 를 계속 받아 하트에 반영한다. 즐겨찾기 탭에서 빼도 여기 하트가 꺼진다. */
+    private fun observeFavorites() {
+        viewModelScope.launch {
+            observeFavoriteIds().collect { ids -> reduce { copy(favoriteIds = ids) } }
+        }
+    }
+
+    /** 저장소를 바꾸면 위 흐름이 새 id 를 주므로 상태는 직접 바꾸지 않는다. */
+    private fun toggleFavorite(book: Book) {
+        viewModelScope.launch {
+            if (book.id in state.value.favoriteIds) removeFavorite(book.id) else addFavorite(book)
         }
     }
 }

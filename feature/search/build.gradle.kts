@@ -7,6 +7,6 @@ android {
 }
 
 dependencies {
-    // 테스트에서 가짜 BookRepository 로 UseCase 를 만든다. 앱 코드는 데이터 계층을 모른다.
+    // 테스트에서 가짜 Repository 로 UseCase 를 만든다. 앱 코드는 데이터 계층을 모른다.
     testImplementation(project(":core:data"))
 }
