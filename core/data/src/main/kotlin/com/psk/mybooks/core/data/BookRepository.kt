@@ -1,11 +1,11 @@
-package com.psk.mybooks.core.domain
+package com.psk.mybooks.core.data
 
 import androidx.paging.PagingData
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
 import kotlinx.coroutines.flow.Flow
 
-/** 도서 데이터의 단일 창구. 화면(ViewModel)은 API 나 DB 를 직접 모르고 이것만 쓴다. */
+/** 도서 데이터의 단일 창구. UseCase 는 API 나 DB 를 직접 모르고 이것만 쓴다. */
 interface BookRepository {
 
     /**

@@ -1,13 +1,13 @@
 package com.psk.mybooks.core.data.di
 
+import com.psk.mybooks.core.data.BookRepository
 import com.psk.mybooks.core.data.BookRepositoryImpl
-import com.psk.mybooks.core.domain.BookRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 
-/** 도메인의 인터페이스에 데이터 계층의 구현을 연결한다. feature 는 구현을 볼 수 없다. */
+/** Repository 인터페이스에 구현을 연결한다. 구현은 internal 이라 이 모듈 밖에서는 볼 수 없다. */
 @Module
 @InstallIn(SingletonComponent::class)
 internal abstract class DataModule {

@@ -13,6 +13,8 @@ dependencies {
     // UseCase 가 Flow<PagingData> 를 돌려주므로 쓰는 쪽에도 보여야 한다
     api(libs.androidx.paging.common)
     api(libs.kotlinx.coroutines.core)
+    // UseCase 가 Repository 를 쓴다. implementation 이라 feature 에는 데이터 계층이 보이지 않는다.
+    implementation(project(":core:data"))
     // 실행 Dispatcher 를 구분하는 @IoDispatcher
     implementation(project(":core:common"))
 

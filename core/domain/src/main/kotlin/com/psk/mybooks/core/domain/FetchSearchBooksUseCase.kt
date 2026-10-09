@@ -2,6 +2,7 @@ package com.psk.mybooks.core.domain
 
 import androidx.paging.PagingData
 import com.psk.mybooks.core.common.IoDispatcher
+import com.psk.mybooks.core.data.BookRepository
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
 import javax.inject.Inject

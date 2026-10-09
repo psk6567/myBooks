@@ -1,7 +1,7 @@
 package com.psk.mybooks.feature.search.ui
 
 import androidx.paging.PagingData
-import com.psk.mybooks.core.domain.BookRepository
+import com.psk.mybooks.core.data.BookRepository
 import com.psk.mybooks.core.domain.FetchSearchBooksUseCase
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType

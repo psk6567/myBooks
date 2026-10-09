@@ -25,8 +25,10 @@ android {
 }
 
 dependencies {
-    // Repository 인터페이스를 가진 도메인 계층. 구현(이 모듈)이 도메인을 의존한다.
-    api(project(":core:domain"))
+    api(project(":core:model"))
+    // Repository 가 Flow<PagingData> 를 돌려주므로 쓰는 쪽에도 보여야 한다
+    api(libs.androidx.paging.common)
+    api(libs.kotlinx.coroutines.core)
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.kotlinx.serialization)

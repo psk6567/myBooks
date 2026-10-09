@@ -5,7 +5,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.psk.mybooks.core.data.remote.BookApi
 import com.psk.mybooks.core.data.remote.SearchSort
-import com.psk.mybooks.core.domain.BookRepository
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
 import javax.inject.Inject

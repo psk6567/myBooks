@@ -16,7 +16,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
             "implementation"(project(":core:common"))
             "implementation"(project(":core:designsystem"))
             "implementation"(project(":core:model"))
-            // 데이터 계층(구현)은 의존하지 않는다. Repository 는 core:domain 의 인터페이스로만 본다.
+            // 데이터 계층(core:data)은 의존하지 않는다. 데이터는 core:domain 의 UseCase 를 거쳐서만 쓴다.
             "implementation"(project(":core:domain"))
 
             "implementation"(libs.library("androidx-lifecycle-viewmodel-compose"))
