@@ -4,16 +4,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.androidx.room)
 }
 
 // 어디서도 아직 주입하지 않는 바인딩까지 모두 검증한다 (그래프 오류를 빌드에서 바로 잡는다)
 ksp {
     arg("dagger.fullBindingGraphValidation", "ERROR")
-}
-
-room {
-    schemaDirectory("$projectDir/schemas")
 }
 
 android {
@@ -68,10 +63,6 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.kotlinx.serialization)
