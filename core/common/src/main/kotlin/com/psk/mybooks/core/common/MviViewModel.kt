@@ -18,6 +18,8 @@ import kotlinx.coroutines.launch
  * - [I] Intent : 사용자 행동 등 화면이 ViewModel 에 보내는 입력. [onIntent] 로만 들어온다.
  * - [E] Effect : 한 번만 처리할 일(토스트, 화면 이동 등). [effect] 로 내보내고, 없으면 `Nothing`.
  *
+ * - 오류 : 화면별 Effect 와 따로, 모든 화면이 같은 방식으로 사용자에게 알릴 오류를 [error] 로 내보낸다. [sendError] 로 보낸다.
+ *
  * 상태 변경은 [reduce] 로만 한다. (Intent → reduce → State)
  */
 abstract class MviViewModel<S : Any, I : Any, E : Any>(
@@ -30,6 +32,14 @@ abstract class MviViewModel<S : Any, I : Any, E : Any>(
     private val _effect: Channel<E> = Channel(Channel.BUFFERED)
     val effect: Flow<E> = _effect.receiveAsFlow()
 
+    private val _error: Channel<Throwable> = Channel(Channel.BUFFERED)
+
+    /**
+     * 사용자에게 알릴 오류. 한 번만 전달되고, 구독자가 없으면 쌓아 두었다가 구독하면 전달한다.
+     * 모든 화면이 같은 방식으로 처리하므로 화면별 Effect 가 아니라 이 흐름을 쓴다.
+     */
+    val error: Flow<Throwable> = _error.receiveAsFlow()
+
     abstract fun onIntent(intent: I)
 
     protected fun reduce(reducer: S.() -> S) {
@@ -38,5 +48,10 @@ abstract class MviViewModel<S : Any, I : Any, E : Any>(
 
     protected fun sendEffect(effect: E) {
         viewModelScope.launch { _effect.send(effect) }
+    }
+
+    /** 사용자에게 알릴 오류를 [error] 로 보낸다. 어떤 예외든 보낼 수 있고, 화면이 알릴 종류로 바꾼다. */
+    protected fun sendError(throwable: Throwable) {
+        viewModelScope.launch { _error.send(throwable) }
     }
 }
