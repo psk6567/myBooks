@@ -1,6 +1,5 @@
 package com.psk.mybooks.feature.detail.ui
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.psk.mybooks.core.common.MviViewModel
 import com.psk.mybooks.core.domain.AddFavoriteUseCase
@@ -8,20 +7,30 @@ import com.psk.mybooks.core.domain.ObserveFavoriteIdsUseCase
 import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.core.ui.toBook
-import com.psk.mybooks.feature.detail.navigation.readBook
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-internal class DetailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+/**
+ * 보여 줄 도서를 직접 받는다. 화면 이동(전체 화면)과 목록 옆 패널(넓은 화면)이 같은 상세를 쓰기 위해서다.
+ * 도서마다 ViewModel 이 따로 만들어진다.
+ */
+@HiltViewModel(assistedFactory = DetailViewModel.Factory::class)
+internal class DetailViewModel @AssistedInject constructor(
+    @Assisted book: BookUiModel,
     private val observeFavoriteIds: ObserveFavoriteIdsUseCase,
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase
-) : MviViewModel<DetailUiState, DetailIntent, DetailEffect>(DetailUiState(book = savedStateHandle.readBook())) {
+) : MviViewModel<DetailUiState, DetailIntent, DetailEffect>(DetailUiState(book = book)) {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(book: BookUiModel): DetailViewModel
+    }
 
     init {
         observeFavorite()

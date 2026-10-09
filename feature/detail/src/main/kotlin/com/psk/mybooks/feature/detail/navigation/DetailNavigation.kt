@@ -2,11 +2,11 @@ package com.psk.mybooks.feature.detail.navigation
 
 import android.net.Uri
 import android.os.Bundle
-import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.feature.detail.ui.DetailRoute
 import kotlin.reflect.typeOf
@@ -32,20 +32,11 @@ data class DetailDestination(
 
 /** NavHost 에 상세 화면을 등록한다. @param onBack 뒤로가기를 눌렀을 때 */
 fun NavGraphBuilder.detailScreen(onBack: () -> Unit) {
-    composable<DetailDestination>(typeMap = mapOf(typeOf<BookUiModel>() to BookUiModelNavType)) {
-        DetailRoute(onBack = onBack)
+    composable<DetailDestination>(typeMap = mapOf(typeOf<BookUiModel>() to BookUiModelNavType)) { entry ->
+        val destination: DetailDestination = entry.toRoute()
+        DetailRoute(book = destination.book, onBack = onBack)
     }
 }
-
-/**
- * 이동 인자 이름. [DetailDestination.book] 의 속성 이름이다. Navigation 이 인자를 이 이름으로 담고,
- * [BookUiModelNavType] 이 JSON 문자열로 넣는다.
- */
-private val BOOK_ARG: String = DetailDestination::book.name
-
-/** 상세 화면의 ViewModel 이 이동 인자(보여 줄 도서)를 읽는다. */
-internal fun SavedStateHandle.readBook(): BookUiModel =
-    Json.decodeFromString<BookUiModel>(requireNotNull(get<String>(BOOK_ARG)) { "상세 화면의 도서 인자가 없다" })
 
 /** [book] 의 상세 화면으로 이동한다. */
 fun NavController.navigateToDetail(book: BookUiModel) {

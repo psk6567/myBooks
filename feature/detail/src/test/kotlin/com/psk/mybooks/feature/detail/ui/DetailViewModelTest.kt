@@ -1,6 +1,5 @@
 package com.psk.mybooks.feature.detail.ui
 
-import androidx.lifecycle.SavedStateHandle
 import com.psk.mybooks.core.data.FavoriteRepository
 import com.psk.mybooks.core.domain.AddFavoriteUseCase
 import com.psk.mybooks.core.domain.ObserveFavoriteIdsUseCase
@@ -20,8 +19,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -76,9 +73,8 @@ class DetailViewModelTest {
         thumbnailUrl = "https://example.com/7.jpg"
     )
 
-    /** Navigation 이 이동 인자를 SavedStateHandle 에 담는 것과 같은 모양(속성 이름 `book` 에 JSON)으로 만든다. */
     private fun viewModel(repository: FakeFavoriteRepository): DetailViewModel = DetailViewModel(
-        SavedStateHandle(mapOf("book" to Json.encodeToString(book))),
+        book,
         ObserveFavoriteIdsUseCase(repository, dispatcher),
         AddFavoriteUseCase(repository, dispatcher),
         RemoveFavoriteUseCase(repository, dispatcher)

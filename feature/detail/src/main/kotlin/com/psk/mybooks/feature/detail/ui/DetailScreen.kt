@@ -3,16 +3,19 @@ package com.psk.mybooks.feature.detail.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,19 +57,25 @@ private val LABEL_WIDTH: Dp = 88.dp
  * ViewModel 을 연결하는 진입점. 이 화면은 자기 Scaffold 를 가지므로 스낵바 호스트도 여기서 둔다.
  * (홈의 호스트는 홈 화면 안에만 있어서, 상세에서 난 오류는 이 화면의 호스트로 보여 준다)
  *
- * @param onBack 뒤로가기를 눌렀을 때. 화면 이동은 main 이 연결한다.
+ * @param book 보여 줄 도서
+ * @param onBack 뒤로가기를 눌렀을 때. 화면 이동은 main 이 연결한다. null 이면 뒤로가기 버튼이 없는
+ * 목록 옆 패널(넓은 화면)로 그려진다.
  */
 @Composable
-internal fun DetailRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
-    val viewModel: DetailViewModel = hiltViewModel()
+internal fun DetailRoute(book: BookUiModel, onBack: (() -> Unit)?, modifier: Modifier = Modifier) {
+    // 도서마다 ViewModel 을 따로 만든다. 패널에서 다른 도서를 고르면 그 도서의 상태로 바뀐다.
+    val viewModel: DetailViewModel = hiltViewModel<DetailViewModel, DetailViewModel.Factory>(
+        key = book.id,
+        creationCallback = { factory -> factory.create(book) }
+    )
     val state: DetailUiState by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
-    val currentOnBack: () -> Unit by rememberUpdatedState(onBack)
+    val currentOnBack: (() -> Unit)? by rememberUpdatedState(onBack)
 
     LaunchedEffect(viewModel) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                DetailEffect.Close -> currentOnBack()
+                DetailEffect.Close -> currentOnBack?.invoke()
             }
         }
     }
@@ -78,6 +87,7 @@ internal fun DetailRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
             state = state,
             onIntent = viewModel::onIntent,
             snackbarHostState = snackbarHostState,
+            isEmbedded = onBack == null,
             modifier = modifier
         )
     }
@@ -86,13 +96,17 @@ internal fun DetailRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
 /**
  * 위에 표지, 아래에 도서 정보를 라벨과 값으로 나열한다. 값이 없는 항목은 보이지 않는다.
  * 상단 바 오른쪽에 즐겨찾기 버튼이 있다.
+ *
+ * @param isEmbedded 목록 옆 패널로 그려지는지. 그러면 뒤로가기 버튼이 없고, 이미 홈의 상단 바와 시스템 바가 위를 차지하므로
+ * 상태 표시줄과 시스템 바 여백을 다시 두지 않는다.
  */
 @Composable
 internal fun DetailScreen(
     state: DetailUiState,
     onIntent: (DetailIntent) -> Unit,
     snackbarHostState: SnackbarHostState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isEmbedded: Boolean = false
 ) {
     val book: BookUiModel = state.book
     val rows: List<Pair<String, String>> = detailRows(book)
@@ -100,11 +114,13 @@ internal fun DetailScreen(
     Scaffold(
         modifier = modifier,
         containerColor = MyBooksTheme.colors.background,
+        contentWindowInsets = if (isEmbedded) WindowInsets(0) else ScaffoldDefaults.contentWindowInsets,
         snackbarHost = { MbSnackbarHost(snackbarHostState) },
         topBar = {
             TitleBar(
                 label = stringResource(R.string.feature_detail_title),
-                onBackClick = { onIntent(DetailIntent.Back) },
+                onBackClick = if (isEmbedded) null else ({ onIntent(DetailIntent.Back) }),
+                windowInsets = if (isEmbedded) WindowInsets(0) else WindowInsets.statusBars,
                 rightArea = {
                     FavoriteButton(
                         isFavorite = state.isFavorite,
@@ -176,6 +192,14 @@ private fun InfoRow(label: String, value: String) {
         )
         Text(text = value, style = typography.normal14, color = colors.textPrimary, modifier = Modifier.weight(1f))
     }
+}
+
+/**
+ * 넓은 화면에서 목록 옆에 보이는 상세. 뒤로가기 버튼이 없다. 화면 이동 없이 [book] 만 바꿔서 다른 도서를 보여 준다.
+ */
+@Composable
+fun DetailPane(book: BookUiModel, modifier: Modifier = Modifier) {
+    DetailRoute(book = book, onBack = null, modifier = modifier)
 }
 
 private val previewBook: BookUiModel = BookUiModel(
