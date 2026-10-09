@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,14 +36,30 @@ import com.psk.mybooks.feature.favorite.R
  * @param sort 정렬 기준. main 의 칩 값이다.
  * @param priceFilter 금액 필터. main 의 칩 값이다.
  * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
+ * @param onBookClick 도서를 눌러 상세 화면을 열 때. 화면 이동은 main 이 연결한다.
  */
 @Composable
-fun FavoriteRoute(sort: FavoriteSortType, priceFilter: PriceFilter, isGrid: Boolean, modifier: Modifier = Modifier) {
+fun FavoriteRoute(
+    sort: FavoriteSortType,
+    priceFilter: PriceFilter,
+    isGrid: Boolean,
+    onBookClick: (BookUiModel) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val viewModel: FavoriteViewModel = hiltViewModel()
     val state: FavoriteUiState by viewModel.state.collectAsStateWithLifecycle()
 
     // 오류를 중요도에 따라 스낵바나 다이얼로그로 알린다
     ErrorEffect(viewModel.error)
+    // ViewModel 이 내보낸 이동 요청을 받아 main 에 알린다
+    val currentOnBookClick: (BookUiModel) -> Unit by rememberUpdatedState(onBookClick)
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is FavoriteEffect.OpenDetail -> currentOnBookClick(effect.book)
+            }
+        }
+    }
 
     // main 이 가진 정렬과 금액 필터를 이 화면의 상태로 맞춘다
     LaunchedEffect(sort, priceFilter) { viewModel.onIntent(FavoriteIntent.ChangeCondition(sort, priceFilter)) }
@@ -91,8 +108,7 @@ private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 thumbnailUrl = book.thumbnailUrl,
                 // 즐겨찾기 목록의 책은 모두 즐겨찾기 상태다
                 isFavorite = true,
-                // 상세 화면 이동은 detail 을 만들 때 연결한다
-                onClick = {},
+                onClick = { onIntent(FavoriteIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(FavoriteIntent.RemoveFavorite(book.id)) }
             )
         }
@@ -114,7 +130,7 @@ private fun BookGrid(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 publisher = book.publisher,
                 thumbnailUrl = book.thumbnailUrl,
                 isFavorite = true,
-                onClick = {},
+                onClick = { onIntent(FavoriteIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(FavoriteIntent.RemoveFavorite(book.id)) }
             )
         }

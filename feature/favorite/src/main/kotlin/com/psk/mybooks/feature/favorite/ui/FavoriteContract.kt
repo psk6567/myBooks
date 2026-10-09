@@ -14,7 +14,20 @@ internal data class FavoriteUiState(
     val priceFilter: PriceFilter = PriceFilter()
 )
 
+/** 한 번만 처리할 일 */
+internal sealed interface FavoriteEffect {
+    /** 상세 화면으로 이동 */
+    data class OpenDetail(
+        val book: BookUiModel
+    ) : FavoriteEffect
+}
+
 internal sealed interface FavoriteIntent {
+    /** 목록의 도서를 눌러 상세 화면을 열려고 함 */
+    data class OpenDetail(
+        val book: BookUiModel
+    ) : FavoriteIntent
+
     /** main 에서 정렬이나 금액 필터가 바뀜 */
     data class ChangeCondition(
         val sort: FavoriteSortType,

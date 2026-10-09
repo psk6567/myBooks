@@ -248,4 +248,16 @@ class SearchViewModelTest {
 
         assertEquals(listOf<Throwable>(first, second, first), received)
     }
+
+    @Test
+    fun `도서를 누르면 상세 화면으로 이동하라는 요청을 한 번 내보낸다`() = runTest(dispatcher) {
+        val viewModel: SearchViewModel = viewModel(FakeBookRepository())
+        val received: MutableList<SearchEffect> = mutableListOf()
+        backgroundScope.launch { viewModel.effect.collect { received += it } }
+        val ui: BookUiModel = book("1").toUiModel()
+
+        viewModel.onIntent(SearchIntent.OpenDetail(ui))
+
+        assertEquals(listOf<SearchEffect>(SearchEffect.OpenDetail(ui)), received)
+    }
 }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,15 +40,31 @@ import kotlinx.coroutines.flow.flowOf
  * @param query 검색어. main 의 검색창 값이다.
  * @param sort 정렬 기준. main 의 칩 값이다.
  * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
+ * @param onBookClick 도서를 눌러 상세 화면을 열 때. 화면 이동은 main 이 연결한다.
  */
 @Composable
-fun SearchRoute(query: String, sort: SearchSortType, isGrid: Boolean, modifier: Modifier = Modifier) {
+fun SearchRoute(
+    query: String,
+    sort: SearchSortType,
+    isGrid: Boolean,
+    onBookClick: (BookUiModel) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val viewModel: SearchViewModel = hiltViewModel()
     val state: SearchUiState by viewModel.state.collectAsStateWithLifecycle()
     val books: LazyPagingItems<BookUiModel> = viewModel.books.collectAsLazyPagingItems()
 
     // 오류를 중요도에 따라 스낵바나 다이얼로그로 알린다
     ErrorEffect(viewModel.error)
+    // ViewModel 이 내보낸 이동 요청을 받아 main 에 알린다
+    val currentOnBookClick: (BookUiModel) -> Unit by rememberUpdatedState(onBookClick)
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is SearchEffect.OpenDetail -> currentOnBookClick(effect.book)
+            }
+        }
+    }
     // 불러오기 실패(처음이든 다음 페이지든)는 화면의 로드 상태로만 알 수 있으므로 ViewModel 에 알린다
     val loadStates: CombinedLoadStates = books.loadState
     val loadError: Throwable? = (loadStates.refresh as? LoadState.Error)?.error
@@ -110,8 +127,7 @@ private fun BookList(
                 salePrice = book.salePriceText(),
                 thumbnailUrl = book.thumbnailUrl,
                 isFavorite = book.id in state.favoriteIds,
-                // 상세 화면 이동은 detail 을 만들 때 연결한다
-                onClick = {},
+                onClick = { onIntent(SearchIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
             )
         }
@@ -139,7 +155,7 @@ private fun BookGrid(
                 publisher = book.publisher,
                 thumbnailUrl = book.thumbnailUrl,
                 isFavorite = book.id in state.favoriteIds,
-                onClick = {},
+                onClick = { onIntent(SearchIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
             )
         }

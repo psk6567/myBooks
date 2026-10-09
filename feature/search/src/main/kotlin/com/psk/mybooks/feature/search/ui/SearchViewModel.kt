@@ -31,14 +31,13 @@ import kotlinx.coroutines.launch
 /** 입력이 멈춘 뒤 이만큼 기다렸다가 검색한다 */
 private const val QUERY_DEBOUNCE_MILLIS: Long = 300
 
-/** Effect 가 없어서 `Nothing` */
 @HiltViewModel
 internal class SearchViewModel @Inject constructor(
     private val fetchSearchBooks: FetchSearchBooksUseCase,
     private val observeFavoriteIds: ObserveFavoriteIdsUseCase,
     private val addFavorite: AddFavoriteUseCase,
     private val removeFavorite: RemoveFavoriteUseCase
-) : MviViewModel<SearchUiState, SearchIntent, Nothing>(SearchUiState()) {
+) : MviViewModel<SearchUiState, SearchIntent, SearchEffect>(SearchUiState()) {
 
     /**
      * 화면에 내보낸 도서의 원본. 하트를 눌러 저장하려면 도서 전체가 필요한데 화면의 [BookUiModel] 은 표시용 값만 가지므로,
@@ -79,6 +78,7 @@ internal class SearchViewModel @Inject constructor(
     override fun onIntent(intent: SearchIntent) {
         when (intent) {
             is SearchIntent.ChangeCondition -> reduce { copy(query = intent.query, sort = intent.sort) }
+            is SearchIntent.OpenDetail -> sendEffect(SearchEffect.OpenDetail(intent.book))
             is SearchIntent.ReportLoadError -> sendError(intent.error)
             is SearchIntent.ToggleFavorite -> toggleFavorite(intent.bookId)
         }

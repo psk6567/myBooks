@@ -1,6 +1,7 @@
 package com.psk.mybooks.feature.search.ui
 
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.ui.BookUiModel
 
 /**
  * 검색 조건과 화면 상태. 도서 목록은 상태가 아니라 [SearchViewModel.books] 흐름(Paging)으로 나온다.
@@ -14,11 +15,24 @@ internal data class SearchUiState(
     val favoriteIds: Set<String> = emptySet()
 )
 
+/** 한 번만 처리할 일 */
+internal sealed interface SearchEffect {
+    /** 상세 화면으로 이동 */
+    data class OpenDetail(
+        val book: BookUiModel
+    ) : SearchEffect
+}
+
 internal sealed interface SearchIntent {
     /** main 에서 검색어나 정렬이 바뀜 */
     data class ChangeCondition(
         val query: String,
         val sort: SearchSortType
+    ) : SearchIntent
+
+    /** 목록의 도서를 눌러 상세 화면을 열려고 함 */
+    data class OpenDetail(
+        val book: BookUiModel
     ) : SearchIntent
 
     /** 검색 결과를 불러오다 실패함. 화면의 로드 상태에서 읽어 알려 준다. 같은 오류 객체는 한 번만 전달된다. ([com.psk.mybooks.core.common.MviViewModel.sendError] 참고) */

@@ -15,12 +15,11 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-/** Effect 가 없어서 `Nothing` */
 @HiltViewModel
 internal class FavoriteViewModel @Inject constructor(
     private val observeFavorites: ObserveFavoritesUseCase,
     private val removeFavorite: RemoveFavoriteUseCase
-) : MviViewModel<FavoriteUiState, FavoriteIntent, Nothing>(FavoriteUiState()) {
+) : MviViewModel<FavoriteUiState, FavoriteIntent, FavoriteEffect>(FavoriteUiState()) {
 
     init {
         observeBooks()
@@ -29,6 +28,7 @@ internal class FavoriteViewModel @Inject constructor(
     override fun onIntent(intent: FavoriteIntent) {
         when (intent) {
             is FavoriteIntent.ChangeCondition -> reduce { copy(sort = intent.sort, priceFilter = intent.priceFilter) }
+            is FavoriteIntent.OpenDetail -> sendEffect(FavoriteEffect.OpenDetail(intent.book))
             is FavoriteIntent.RemoveFavorite -> remove(intent.bookId)
         }
     }

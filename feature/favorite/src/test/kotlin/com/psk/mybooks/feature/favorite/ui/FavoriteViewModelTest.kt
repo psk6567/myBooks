@@ -6,6 +6,7 @@ import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
+import com.psk.mybooks.core.ui.BookUiModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -160,5 +161,17 @@ class FavoriteViewModelTest {
 
         assertEquals(listOf("디스크 오류"), received.map { it.message })
         assertEquals(listOf("1"), viewModel.state.value.books.map { it.id })
+    }
+
+    @Test
+    fun `도서를 누르면 상세 화면으로 이동하라는 요청을 한 번 내보낸다`() = runTest(dispatcher) {
+        val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"))))
+        val received: MutableList<FavoriteEffect> = mutableListOf()
+        backgroundScope.launch { viewModel.effect.collect { received += it } }
+        val ui: BookUiModel = viewModel.state.value.books.first()
+
+        viewModel.onIntent(FavoriteIntent.OpenDetail(ui))
+
+        assertEquals(listOf<FavoriteEffect>(FavoriteEffect.OpenDetail(ui)), received)
     }
 }

@@ -30,6 +30,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.psk.mybooks.core.designsystem.component.BottomSheetHandle
 import com.psk.mybooks.core.designsystem.component.Icon
 import com.psk.mybooks.core.designsystem.component.MbSnackbarHost
@@ -46,32 +50,55 @@ import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.VSpacer
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.ui.BookUiModel
+import com.psk.mybooks.feature.detail.navigation.detailScreen
+import com.psk.mybooks.feature.detail.navigation.navigateToDetail
 import com.psk.mybooks.feature.favorite.ui.FavoriteRoute
 import com.psk.mybooks.feature.main.R
 import com.psk.mybooks.feature.search.ui.SearchRoute
+import kotlinx.serialization.Serializable
 
-/** ViewModel 을 연결하는 진입점. Navigation 도입 후에는 internal 로 바꾼다. */
+/** 홈(탭 화면)의 이동 경로 */
+@Serializable
+private data object HomeDestination
+
+/**
+ * 앱의 화면 이동을 맡는 진입점. 홈(검색·즐겨찾기 탭)에서 도서를 누르면 상세 화면으로 이동한다.
+ * 화면끼리는 서로를 모르므로(feature 는 다른 feature 를 의존하지 않는다) 이동은 main 이 연결한다.
+ */
 @Composable
 fun MainRoute(modifier: Modifier = Modifier) {
+    val navController: NavHostController = rememberNavController()
+
+    NavHost(navController = navController, startDestination = HomeDestination, modifier = modifier) {
+        composable<HomeDestination> { MainHome(onBookClick = navController::navigateToDetail) }
+        detailScreen(onBack = { navController.popBackStack() })
+    }
+}
+
+/** 홈 화면. ViewModel 을 연결한다. */
+@Composable
+private fun MainHome(onBookClick: (BookUiModel) -> Unit) {
     val viewModel: MainViewModel = viewModel()
     val state: MainUiState by viewModel.state.collectAsStateWithLifecycle()
 
     MainScreen(
         state = state,
         onIntent = viewModel::onIntent,
-        modifier = modifier,
         pageContent = { tab ->
             when (tab) {
                 MainTab.Search -> SearchRoute(
                     query = state.searchText,
                     sort = state.searchSort,
-                    isGrid = state.viewMode == ViewMode.Grid
+                    isGrid = state.viewMode == ViewMode.Grid,
+                    onBookClick = onBookClick
                 )
 
                 MainTab.Favorite -> FavoriteRoute(
                     sort = state.favoriteSort,
                     priceFilter = state.favoritePriceFilter,
-                    isGrid = state.viewMode == ViewMode.Grid
+                    isGrid = state.viewMode == ViewMode.Grid,
+                    onBookClick = onBookClick
                 )
             }
         }
