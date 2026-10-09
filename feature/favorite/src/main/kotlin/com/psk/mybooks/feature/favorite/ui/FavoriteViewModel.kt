@@ -6,7 +6,9 @@ import com.psk.mybooks.core.domain.ObserveFavoritesUseCase
 import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -26,7 +28,7 @@ internal class FavoriteViewModel @Inject constructor(
     override fun onIntent(intent: FavoriteIntent) {
         when (intent) {
             is FavoriteIntent.ChangeCondition -> reduce { copy(sort = intent.sort, priceFilter = intent.priceFilter) }
-            is FavoriteIntent.RemoveFavorite -> viewModelScope.launch { removeFavorite(intent.bookId) }
+            is FavoriteIntent.RemoveFavorite -> remove(intent.bookId)
         }
     }
 
@@ -37,7 +39,20 @@ internal class FavoriteViewModel @Inject constructor(
             state.map { it.sort to it.priceFilter }
                 .distinctUntilChanged()
                 .flatMapLatest { (sort, priceFilter) -> observeFavorites(sort, priceFilter) }
+                .catch { sendError(it) }
                 .collect { books -> reduce { copy(books = books) } }
+        }
+    }
+
+    private fun remove(bookId: String) {
+        viewModelScope.launch {
+            try {
+                removeFavorite(bookId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                sendError(e)
+            }
         }
     }
 }

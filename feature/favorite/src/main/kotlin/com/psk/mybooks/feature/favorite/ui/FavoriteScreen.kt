@@ -25,6 +25,7 @@ import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.isOnSale
+import com.psk.mybooks.core.ui.ErrorEffect
 import com.psk.mybooks.feature.favorite.R
 import java.text.NumberFormat
 
@@ -39,6 +40,9 @@ import java.text.NumberFormat
 fun FavoriteRoute(sort: FavoriteSortType, priceFilter: PriceFilter, isGrid: Boolean, modifier: Modifier = Modifier) {
     val viewModel: FavoriteViewModel = hiltViewModel()
     val state: FavoriteUiState by viewModel.state.collectAsStateWithLifecycle()
+
+    // 오류를 중요도에 따라 스낵바나 다이얼로그로 알린다
+    ErrorEffect(viewModel.error)
 
     // main 이 가진 정렬과 금액 필터를 이 화면의 상태로 맞춘다
     LaunchedEffect(sort, priceFilter) { viewModel.onIntent(FavoriteIntent.ChangeCondition(sort, priceFilter)) }

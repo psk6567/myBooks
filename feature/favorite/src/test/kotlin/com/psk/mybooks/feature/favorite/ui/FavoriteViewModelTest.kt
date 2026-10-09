@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -33,6 +35,9 @@ class FavoriteViewModelTest {
         val books: MutableStateFlow<List<Book>> = MutableStateFlow(initial)
         val requestedSorts: MutableList<FavoriteSortType> = mutableListOf()
 
+        /** 설정하면 빼기가 이 예외로 실패한다 */
+        var failure: Exception? = null
+
         override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> {
             requestedSorts += sort
             return books.map { all ->
@@ -51,6 +56,7 @@ class FavoriteViewModelTest {
         override suspend fun add(book: Book) = Unit
 
         override suspend fun remove(bookId: String) {
+            failure?.let { throw it }
             books.value = books.value.filterNot { it.id == bookId }
         }
     }
@@ -139,5 +145,20 @@ class FavoriteViewModelTest {
         viewModel.state.value.books.map { it.id }.forEach { viewModel.onIntent(FavoriteIntent.RemoveFavorite(it)) }
 
         assertTrue(viewModel.state.value.books.isEmpty())
+    }
+
+    @Test
+    fun `하트를 눌러 빼다 실패하면 오류를 알리고 목록은 그대로다`() = runTest(dispatcher) {
+        val repository: FakeFavoriteRepository = FakeFavoriteRepository(listOf(book("1", "가"))).apply {
+            failure = IllegalStateException("디스크 오류")
+        }
+        val viewModel: FavoriteViewModel = viewModel(repository)
+        val received: MutableList<Throwable> = mutableListOf()
+        backgroundScope.launch { viewModel.error.collect { received += it } }
+
+        viewModel.onIntent(FavoriteIntent.RemoveFavorite("1"))
+
+        assertEquals(listOf("디스크 오류"), received.map { it.message })
+        assertEquals(listOf("1"), viewModel.state.value.books.map { it.id })
     }
 }
