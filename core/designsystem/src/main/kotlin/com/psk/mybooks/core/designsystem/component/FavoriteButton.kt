@@ -18,9 +18,13 @@ import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MbColors
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 
-/** 도서 아이템 위에 올리는 동그란 즐겨찾기(하트) 버튼. 아이콘은 버튼 크기의 9/16 이다. */
+/**
+ * 동그란 즐겨찾기(하트) 버튼. 도서 아이템 위나 상세 화면의 상단 바 오른쪽에 쓴다. 아이콘은 버튼 크기의 9/16 이다.
+ *
+ * @param isFavorite 즐겨찾기 여부. 켜져 있으면 하트가 채워지고 낭독 설명이 "해제"로 바뀐다.
+ */
 @Composable
-internal fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 32.dp) {
+fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, size: Dp = 32.dp) {
     val colors: MbColors = MyBooksTheme.colors
     Box(
         modifier = modifier

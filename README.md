@@ -136,7 +136,7 @@ HomeDestination (검색·즐겨찾기 탭) ──도서 클릭──▶ DetailDe
 ```
 
 - feature끼리는 서로를 의존하지 않으므로, 목록 화면은 ViewModel이 `OpenDetail` Effect를 내보내고 Route가 `onBookClick`으로 main에 알리면 main이 `navigateToDetail`을 부릅니다.
-- 상세 화면은 `BookUiModel` 전체를 이동 인자(JSON)로 받아서 저장소 조회나 ViewModel이 필요 없습니다. 검색 결과는 저장하지 않고 카카오 API에 id 조회가 없기 때문입니다.
+- 상세 화면은 `BookUiModel` 전체를 이동 인자(JSON)로 받아서 보여 줄 도서를 저장소에서 다시 찾지 않습니다. 검색 결과는 저장하지 않고 카카오 API에 id 조회가 없기 때문입니다. 상단 바의 즐겨찾기 버튼은 `DetailViewModel`이 저장소를 관찰해 반영하고, 담을 때는 `BookUiModel.toBook()`으로 도메인 모델을 되돌려 저장합니다.
 - **앱 스킴**(`mybooks://book/...`)으로 상세를 바로 여는 것은 아직 지원하지 않습니다. 필요한 것은 `DetailNavigation.kt`의 NOTE에 적어 두었습니다.
 
 ### 화면용 모델 (UiModel)

@@ -13,8 +13,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,12 +27,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.psk.mybooks.core.designsystem.component.FavoriteButton
+import com.psk.mybooks.core.designsystem.component.MbSnackbarHost
 import com.psk.mybooks.core.designsystem.component.NetworkImage
+import com.psk.mybooks.core.designsystem.component.SnackbarProvider
 import com.psk.mybooks.core.designsystem.component.TitleBar
 import com.psk.mybooks.core.designsystem.theme.MbColors
 import com.psk.mybooks.core.designsystem.theme.MbTypography
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
+import com.psk.mybooks.core.designsystem.util.HSpacer
 import com.psk.mybooks.core.ui.BookUiModel
+import com.psk.mybooks.core.ui.ErrorEffect
 import com.psk.mybooks.core.ui.priceText
 import com.psk.mybooks.core.ui.salePriceText
 import com.psk.mybooks.feature.detail.R
@@ -39,25 +51,70 @@ private val THUMBNAIL_WIDTH: Dp = 180.dp
 private val LABEL_WIDTH: Dp = 88.dp
 
 /**
- * 상세 화면 진입점. 보여 줄 도서를 이동 인자로 받아서 상태나 ViewModel 이 필요 없다.
+ * ViewModel 을 연결하는 진입점. 이 화면은 자기 Scaffold 를 가지므로 스낵바 호스트도 여기서 둔다.
+ * (홈의 호스트는 홈 화면 안에만 있어서, 상세에서 난 오류는 이 화면의 호스트로 보여 준다)
  *
- * @param book 보여 줄 도서
- * @param onBack 뒤로가기를 눌렀을 때
+ * @param onBack 뒤로가기를 눌렀을 때. 화면 이동은 main 이 연결한다.
  */
 @Composable
-internal fun DetailRoute(book: BookUiModel, onBack: () -> Unit, modifier: Modifier = Modifier) {
-    DetailScreen(book = book, onBackClick = onBack, modifier = modifier)
+internal fun DetailRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
+    val viewModel: DetailViewModel = hiltViewModel()
+    val state: DetailUiState by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    val currentOnBack: () -> Unit by rememberUpdatedState(onBack)
+
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                DetailEffect.Close -> currentOnBack()
+            }
+        }
+    }
+
+    SnackbarProvider(snackbarHostState) {
+        // 오류를 중요도에 따라 스낵바나 다이얼로그로 알린다
+        ErrorEffect(viewModel.error)
+        DetailScreen(
+            state = state,
+            onIntent = viewModel::onIntent,
+            snackbarHostState = snackbarHostState,
+            modifier = modifier
+        )
+    }
 }
 
-/** 위에 표지, 아래에 도서 정보를 라벨과 값으로 나열한다. 값이 없는 항목은 보이지 않는다. */
+/**
+ * 위에 표지, 아래에 도서 정보를 라벨과 값으로 나열한다. 값이 없는 항목은 보이지 않는다.
+ * 상단 바 오른쪽에 즐겨찾기 버튼이 있다.
+ */
 @Composable
-internal fun DetailScreen(book: BookUiModel, onBackClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun DetailScreen(
+    state: DetailUiState,
+    onIntent: (DetailIntent) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier
+) {
+    val book: BookUiModel = state.book
     val rows: List<Pair<String, String>> = detailRows(book)
 
     Scaffold(
         modifier = modifier,
         containerColor = MyBooksTheme.colors.background,
-        topBar = { TitleBar(label = stringResource(R.string.feature_detail_title), onBackClick = onBackClick) }
+        snackbarHost = { MbSnackbarHost(snackbarHostState) },
+        topBar = {
+            TitleBar(
+                label = stringResource(R.string.feature_detail_title),
+                onBackClick = { onIntent(DetailIntent.Back) },
+                rightArea = {
+                    FavoriteButton(
+                        isFavorite = state.isFavorite,
+                        onClick = { onIntent(DetailIntent.ToggleFavorite) },
+                        size = 40.dp
+                    )
+                    HSpacer(8.dp)
+                }
+            )
+        }
     ) { innerPadding: PaddingValues ->
         Column(
             modifier = Modifier
@@ -141,7 +198,11 @@ private val previewBook: BookUiModel = BookUiModel(
 @Composable
 private fun DetailScreenPreview() {
     MyBooksTheme {
-        DetailScreen(book = previewBook, onBackClick = {})
+        DetailScreen(
+            state = DetailUiState(book = previewBook, isFavorite = true),
+            onIntent = {},
+            snackbarHostState = remember { SnackbarHostState() }
+        )
     }
 }
 
@@ -149,6 +210,10 @@ private fun DetailScreenPreview() {
 @Composable
 private fun DetailScreenDarkPreview() {
     MyBooksTheme(darkTheme = true) {
-        DetailScreen(book = previewBook.copy(salePrice = null, translators = "번역자"), onBackClick = {})
+        DetailScreen(
+            state = DetailUiState(book = previewBook.copy(salePrice = null, translators = "번역자")),
+            onIntent = {},
+            snackbarHostState = remember { SnackbarHostState() }
+        )
     }
 }
