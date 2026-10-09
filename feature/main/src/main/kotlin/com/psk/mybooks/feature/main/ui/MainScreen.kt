@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
@@ -43,11 +44,13 @@ import com.psk.mybooks.core.designsystem.component.SearchBar
 import com.psk.mybooks.core.designsystem.component.SnackbarProvider
 import com.psk.mybooks.core.designsystem.component.TabBar
 import com.psk.mybooks.core.designsystem.component.TabItem
+import com.psk.mybooks.core.designsystem.component.TabRail
 import com.psk.mybooks.core.designsystem.component.TitleBar
 import com.psk.mybooks.core.designsystem.component.rememberBottomSheet
 import com.psk.mybooks.core.designsystem.icon.MbIcon
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.VSpacer
+import com.psk.mybooks.core.designsystem.util.isWideScreen
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.core.ui.BookUiModel
@@ -173,6 +176,9 @@ internal fun MainScreen(
 
     // 하위 화면(검색, 즐겨찾기 등)이 LocalSnackbar 로 스낵바를 띄울 수 있게 호스트를 여기서 한 번 둔다
     val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    // 넓은 화면(태블릿, 펼친 폴더블)에서는 아래 탭바 대신 왼쪽 탭 레일을 쓴다
+    val isWide: Boolean = isWideScreen()
+    val tabItems: List<TabItem> = rememberTabItems()
 
     SnackbarProvider(snackbarHostState) {
         Scaffold(
@@ -195,55 +201,66 @@ internal fun MainScreen(
                 }
             },
             bottomBar = {
-                TabBar(
-                    tabs = rememberTabItems(),
-                    selectedIndex = state.selectedTab.ordinal,
-                    onTabSelected = { onIntent(MainIntent.SelectTab(MainTab.entries[it])) }
-                )
+                if (!isWide) {
+                    TabBar(
+                        tabs = tabItems,
+                        selectedIndex = state.selectedTab.ordinal,
+                        onTabSelected = { onIntent(MainIntent.SelectTab(MainTab.entries[it])) }
+                    )
+                }
             }
         ) { innerPadding ->
-            // 페이지 안 목록의 스크롤이 nestedScroll 로 올라와 정렬·보기 방식 줄을 숨기고 보인다
-            Column(modifier = Modifier.padding(innerPadding).fillMaxSize().nestedScroll(hideOnScrollState.connection)) {
-                Column(modifier = Modifier.hideOnScroll(hideOnScrollState)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedChip(
-                                text = stringResource(
-                                    when (state.selectedTab) {
-                                        MainTab.Search -> state.searchSort.labelRes()
-                                        MainTab.Favorite -> state.favoriteSort.labelRes()
-                                    }
-                                ),
-                                onClick = sortSheet::show
-                            )
-                            // 금액 필터는 앱에서 거르는 즐겨찾기에만 있다
-                            if (state.selectedTab == MainTab.Favorite) {
-                                OutlinedChip(
-                                    text = priceFilterLabel(state.favoritePriceFilter),
-                                    onClick = priceFilterSheet::show,
-                                    selected = state.favoritePriceFilter.isActive
-                                )
-                            }
-                        }
-                        // 격자/목록 상태만 바꾸고, 실제 화면 반영은 검색·즐겨찾기 화면을 만들 때 연결한다
-                        ViewModeToggle(
-                            selected = state.viewMode,
-                            onSelect = { onIntent(MainIntent.ChangeViewMode(it)) }
-                        )
-                    }
-                    VSpacer(12.dp)
+            Row(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+                if (isWide) {
+                    TabRail(
+                        tabs = tabItems,
+                        selectedIndex = state.selectedTab.ordinal,
+                        onTabSelected = { onIntent(MainIntent.SelectTab(MainTab.entries[it])) }
+                    )
                 }
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    // 탭이 둘뿐이라 둘 다 유지해서 탭을 오가도 스크롤·입력 상태가 남게 한다
-                    beyondViewportPageCount = MainTab.entries.size - 1
-                ) { page ->
-                    pageContent(MainTab.entries[page])
+                // 페이지 안 목록의 스크롤이 nestedScroll 로 올라와 정렬·보기 방식 줄을 숨기고 보인다
+                Column(modifier = Modifier.weight(1f).fillMaxHeight().nestedScroll(hideOnScrollState.connection)) {
+                    Column(modifier = Modifier.hideOnScroll(hideOnScrollState)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedChip(
+                                    text = stringResource(
+                                        when (state.selectedTab) {
+                                            MainTab.Search -> state.searchSort.labelRes()
+                                            MainTab.Favorite -> state.favoriteSort.labelRes()
+                                        }
+                                    ),
+                                    onClick = sortSheet::show
+                                )
+                                // 금액 필터는 앱에서 거르는 즐겨찾기에만 있다
+                                if (state.selectedTab == MainTab.Favorite) {
+                                    OutlinedChip(
+                                        text = priceFilterLabel(state.favoritePriceFilter),
+                                        onClick = priceFilterSheet::show,
+                                        selected = state.favoritePriceFilter.isActive
+                                    )
+                                }
+                            }
+                            // 격자/목록 상태만 바꾸고, 실제 화면 반영은 검색·즐겨찾기 화면을 만들 때 연결한다
+                            ViewModeToggle(
+                                selected = state.viewMode,
+                                onSelect = { onIntent(MainIntent.ChangeViewMode(it)) }
+                            )
+                        }
+                        VSpacer(12.dp)
+                    }
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        // 탭이 둘뿐이라 둘 다 유지해서 탭을 오가도 스크롤·입력 상태가 남게 한다
+                        beyondViewportPageCount = MainTab.entries.size - 1
+                    ) { page ->
+                        pageContent(MainTab.entries[page])
+                    }
                 }
             }
         }

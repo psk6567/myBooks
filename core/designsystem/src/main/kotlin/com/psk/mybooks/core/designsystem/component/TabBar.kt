@@ -97,7 +97,7 @@ fun TabBar(
 
 /** 미리보기·예시용 탭 목록: 검색은 기본 아이콘 색, 즐겨찾기는 선택 시 favorite 색 */
 @Composable
-private fun rememberSampleTabs(): List<TabItem> = remember {
+internal fun rememberSampleTabs(): List<TabItem> = remember {
     listOf(
         TabItem(label = "검색") { selected ->
             Icon(
