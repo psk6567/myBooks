@@ -5,6 +5,7 @@ import androidx.paging.PagingState
 import com.psk.mybooks.core.data.remote.BookApi
 import com.psk.mybooks.core.data.remote.BookPage
 import com.psk.mybooks.core.data.remote.SearchSort
+import com.psk.mybooks.core.data.remote.toAppException
 import com.psk.mybooks.core.data.remote.toBookPage
 import com.psk.mybooks.core.model.Book
 import java.util.concurrent.ConcurrentHashMap
@@ -52,7 +53,7 @@ internal class BookPagingSource(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            LoadResult.Error(e)
+            LoadResult.Error(e.toAppException())
         }
     }
 

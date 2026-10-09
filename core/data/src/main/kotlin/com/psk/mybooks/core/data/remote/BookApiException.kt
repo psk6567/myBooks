@@ -1,5 +1,7 @@
 package com.psk.mybooks.core.data.remote
 
+import com.psk.mybooks.core.model.AppException
+import com.psk.mybooks.core.model.ErrorReason
 import java.io.IOException
 
 /**
@@ -60,4 +62,31 @@ internal sealed class BookApiException(
         errorCode: Int?,
         errorType: String?
     ) : BookApiException(httpStatus, errorCode, errorType)
+}
+
+/**
+ * 도서 검색 중 생긴 예외를 화면에 알릴 [AppException] 으로 바꾼다. 원래 예외는 원인으로 남긴다.
+ * API 오류는 [BookApiException] 종류대로, 응답을 받지 못한 IOException(연결 실패, 시간 초과 등)은 [ErrorReason.Network] 로 나눈다.
+ */
+internal fun Throwable.toAppException(): AppException {
+    if (this is AppException) return this
+    val reason: ErrorReason = when (this) {
+        is BookApiException.Unauthorized -> ErrorReason.Unauthorized
+
+        is BookApiException.Forbidden -> ErrorReason.Forbidden
+
+        is BookApiException.InvalidRequest -> ErrorReason.InvalidRequest
+
+        is BookApiException.QuotaExceeded -> ErrorReason.QuotaExceeded
+
+        is BookApiException.ServerError -> ErrorReason.Server
+
+        is BookApiException.Unknown -> ErrorReason.Unknown
+
+        // BookApiException 도 IOException 이라 위에서 먼저 걸러야 한다
+        is IOException -> ErrorReason.Network
+
+        else -> ErrorReason.Unknown
+    }
+    return AppException(reason, this)
 }

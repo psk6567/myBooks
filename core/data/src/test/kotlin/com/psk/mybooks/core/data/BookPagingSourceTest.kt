@@ -2,10 +2,14 @@ package com.psk.mybooks.core.data
 
 import androidx.paging.PagingSource
 import com.psk.mybooks.core.data.remote.BookApi
+import com.psk.mybooks.core.data.remote.BookApiException
 import com.psk.mybooks.core.data.remote.BookSearchResponse
 import com.psk.mybooks.core.data.remote.SearchSort
 import com.psk.mybooks.core.data.remote.SearchTarget
 import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.model.ErrorReason
+import com.psk.mybooks.core.model.ErrorSeverity
+import com.psk.mybooks.core.model.toErrorReason
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
@@ -145,12 +149,36 @@ class BookPagingSourceTest {
     }
 
     @Test
-    fun `네트워크 오류는 예외가 아니라 Error 결과로 돌려준다`() = runTest {
+    fun `네트워크 오류는 예외가 아니라 Network 로 분류한 Error 결과로 돌려준다`() = runTest {
         val error: IOException = IOException("offline")
 
         val result = source(FakeBookApi { throw error }).load(refresh())
 
-        assertSame(error, (result as PagingSource.LoadResult.Error).throwable)
+        val thrown: Throwable = (result as PagingSource.LoadResult.Error).throwable
+        assertEquals(ErrorReason.Network, thrown.toErrorReason())
+        assertSame(error, thrown.cause)
+    }
+
+    @Test
+    fun `API 오류는 종류에 맞는 이유로 분류한다`() = runTest {
+        suspend fun reasonOf(error: Exception): ErrorReason =
+            (source(FakeBookApi { throw error }).load(refresh()) as PagingSource.LoadResult.Error)
+                .throwable.toErrorReason()
+
+        assertEquals(ErrorReason.Unauthorized, reasonOf(BookApiException.Unauthorized(401, null, "AccessDeniedError")))
+        assertEquals(ErrorReason.Forbidden, reasonOf(BookApiException.Forbidden(403, -3, null)))
+        assertEquals(ErrorReason.InvalidRequest, reasonOf(BookApiException.InvalidRequest(400, -2, null)))
+        assertEquals(ErrorReason.QuotaExceeded, reasonOf(BookApiException.QuotaExceeded(429, null, null)))
+        assertEquals(ErrorReason.Server, reasonOf(BookApiException.ServerError(500, null, null)))
+        assertEquals(ErrorReason.Unknown, reasonOf(BookApiException.Unknown(418, null, null)))
+        assertEquals(ErrorReason.Unknown, reasonOf(IllegalStateException("예상 밖")))
+    }
+
+    @Test
+    fun `중요도는 인증과 권한 오류만 High 이고 나머지는 Low 다`() {
+        val high: List<ErrorReason> = ErrorReason.entries.filter { it.severity == ErrorSeverity.High }
+
+        assertEquals(listOf(ErrorReason.Unauthorized, ErrorReason.Forbidden), high)
     }
 
     @Test
