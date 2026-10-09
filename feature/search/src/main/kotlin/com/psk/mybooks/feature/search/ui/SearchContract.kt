@@ -22,7 +22,7 @@ internal sealed interface SearchIntent {
         val sort: SearchSortType
     ) : SearchIntent
 
-    /** 검색 결과를 불러오다 실패함. 화면의 로드 상태에서 읽어 알려 준다. 같은 오류는 한 번만 알린다. */
+    /** 검색 결과를 불러오다 실패함. 화면의 로드 상태에서 읽어 알려 준다. 같은 오류 객체는 한 번만 전달된다. ([com.psk.mybooks.core.common.MviViewModel.sendError] 참고) */
     data class ReportLoadError(
         val error: Throwable
     ) : SearchIntent

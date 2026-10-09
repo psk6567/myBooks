@@ -52,9 +52,6 @@ internal class SearchViewModel @Inject constructor(
         .flatMapLatest { (query, sort) -> fetchSearchBooks(query, sort) }
         .cachedIn(viewModelScope)
 
-    /** 마지막으로 알린 불러오기 오류. 같은 오류 객체를 다시 알리지 않는다(화면을 회전해도 로드 상태가 같은 오류를 다시 준다). */
-    private var lastReportedLoadError: Throwable? = null
-
     init {
         observeFavorites()
     }
@@ -62,7 +59,7 @@ internal class SearchViewModel @Inject constructor(
     override fun onIntent(intent: SearchIntent) {
         when (intent) {
             is SearchIntent.ChangeCondition -> reduce { copy(query = intent.query, sort = intent.sort) }
-            is SearchIntent.ReportLoadError -> reportLoadError(intent.error)
+            is SearchIntent.ReportLoadError -> sendError(intent.error)
             is SearchIntent.ToggleFavorite -> toggleFavorite(intent.book)
         }
     }
@@ -87,11 +84,5 @@ internal class SearchViewModel @Inject constructor(
                 sendError(e)
             }
         }
-    }
-
-    private fun reportLoadError(error: Throwable) {
-        if (error === lastReportedLoadError) return
-        lastReportedLoadError = error
-        sendError(error)
     }
 }
