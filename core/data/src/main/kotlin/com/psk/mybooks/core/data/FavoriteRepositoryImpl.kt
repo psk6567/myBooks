@@ -36,11 +36,11 @@ internal class FavoriteRepositoryImpl(
 
 /**
  * 같은 값끼리는 DAO 가 준 순서(최근에 담은 순)를 그대로 둔다. sortedWith 는 순서를 바꾸지 않는 정렬이다.
- * 가격은 목록에 보이는 정가(price)다.
+ * 가격은 금액 필터와 같은 판매가(sellingPrice)다.
  */
 private fun FavoriteSortType.comparator(): Comparator<Book> = when (this) {
     FavoriteSortType.TitleAsc -> compareBy<Book> { it.title }
     FavoriteSortType.TitleDesc -> compareByDescending<Book> { it.title }
-    FavoriteSortType.PriceAsc -> compareBy<Book> { it.price }
-    FavoriteSortType.PriceDesc -> compareByDescending<Book> { it.price }
+    FavoriteSortType.PriceAsc -> compareBy<Book> { it.sellingPrice }
+    FavoriteSortType.PriceDesc -> compareByDescending<Book> { it.sellingPrice }
 }

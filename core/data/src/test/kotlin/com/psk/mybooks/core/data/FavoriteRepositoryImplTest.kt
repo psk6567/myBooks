@@ -122,6 +122,18 @@ class FavoriteRepositoryImplTest {
     }
 
     @Test
+    fun `가격 정렬은 판매가 기준이고 판매가를 모르면 정가로 정렬한다`() = runTest {
+        repository.add(book("1", price = 50000, salePrice = 9000))
+        repository.add(book("2", price = 20000, salePrice = -1))
+        repository.add(book("3", price = 12000, salePrice = 30000))
+
+        suspend fun ids(sort: FavoriteSortType): List<String> = repository.observeFavorites(sort).first().map { it.id }
+
+        assertEquals(listOf("1", "2", "3"), ids(FavoriteSortType.PriceAsc))
+        assertEquals(listOf("3", "2", "1"), ids(FavoriteSortType.PriceDesc))
+    }
+
+    @Test
     fun `정렬 기준이 같으면 최근에 담은 것이 먼저다`() = runTest {
         repository.add(book("1", price = 10000))
         repository.add(book("2", price = 10000))
