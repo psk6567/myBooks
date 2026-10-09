@@ -9,30 +9,36 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.psk.mybooks.core.designsystem.component.BookGridItem
 import com.psk.mybooks.core.designsystem.component.BookListItem
 import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.feature.favorite.R
 import java.text.NumberFormat
 
 /**
  * ViewModel 을 연결하는 진입점. Navigation 도입 후에는 internal 로 바꾼다.
  *
+ * @param sort 정렬 기준. main 의 칩 값이다.
  * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
  */
 @Composable
-fun FavoriteRoute(isGrid: Boolean, modifier: Modifier = Modifier) {
-    val viewModel: FavoriteViewModel = viewModel()
+fun FavoriteRoute(sort: FavoriteSortType, isGrid: Boolean, modifier: Modifier = Modifier) {
+    val viewModel: FavoriteViewModel = hiltViewModel()
     val state: FavoriteUiState by viewModel.state.collectAsStateWithLifecycle()
+
+    // main 이 가진 정렬을 이 화면의 상태로 맞춘다
+    LaunchedEffect(sort) { viewModel.onIntent(FavoriteIntent.ChangeSort(sort)) }
 
     FavoriteScreen(state = state, isGrid = isGrid, onIntent = viewModel::onIntent, modifier = modifier)
 }

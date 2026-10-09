@@ -1,38 +1,120 @@
 package com.psk.mybooks.feature.favorite.ui
 
+import com.psk.mybooks.core.data.FavoriteRepository
+import com.psk.mybooks.core.domain.ObserveFavoritesUseCase
+import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
+import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.model.FavoriteSortType
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class FavoriteViewModelTest {
 
+    private val dispatcher: TestDispatcher = UnconfinedTestDispatcher()
+
     @get:Rule
-    val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule()
+    val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule(dispatcher)
+
+    /** 담은 도서를 들고 있고 정렬 기준과 뺀 id 를 기록하는 메모리 Repository */
+    private class FakeFavoriteRepository(
+        initial: List<Book>
+    ) : FavoriteRepository {
+        val books: MutableStateFlow<List<Book>> = MutableStateFlow(initial)
+        val requestedSorts: MutableList<FavoriteSortType> = mutableListOf()
+
+        override fun observeFavorites(sort: FavoriteSortType): Flow<List<Book>> {
+            requestedSorts += sort
+            return books.map { list ->
+                when (sort) {
+                    FavoriteSortType.TitleAsc -> list.sortedBy { it.title }
+                    FavoriteSortType.TitleDesc -> list.sortedByDescending { it.title }
+                    FavoriteSortType.PriceAsc -> list.sortedBy { it.price }
+                    FavoriteSortType.PriceDesc -> list.sortedByDescending { it.price }
+                }
+            }
+        }
+
+        override fun observeFavoriteIds(): Flow<Set<String>> = emptyFlow()
+
+        override suspend fun add(book: Book) = Unit
+
+        override suspend fun remove(bookId: String) {
+            books.value = books.value.filterNot { it.id == bookId }
+        }
+    }
+
+    private fun book(id: String, title: String, price: Int = 10000): Book = Book(
+        id = id,
+        title = title,
+        contents = "",
+        url = "",
+        isbn = "",
+        publishedAt = "",
+        authors = emptyList(),
+        publisher = "",
+        translators = emptyList(),
+        price = price,
+        salePrice = -1,
+        thumbnailUrl = "",
+        status = ""
+    )
+
+    private fun viewModel(repository: FakeFavoriteRepository): FavoriteViewModel = FavoriteViewModel(
+        ObserveFavoritesUseCase(repository, dispatcher),
+        RemoveFavoriteUseCase(repository, dispatcher)
+    )
 
     @Test
-    fun `시작하면 즐겨찾기 목록이 채워져 있다`() {
-        val viewModel: FavoriteViewModel = FavoriteViewModel()
+    fun `시작하면 저장된 즐겨찾기 목록이 제목순으로 채워진다`() {
+        val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("2", "나"), book("1", "가"))))
 
-        assertTrue(viewModel.state.value.books.isNotEmpty())
+        assertEquals(listOf("1", "2"), viewModel.state.value.books.map { it.id })
+    }
+
+    @Test
+    fun `정렬을 바꾸면 그 순서로 다시 받는다`() {
+        val viewModel: FavoriteViewModel = viewModel(
+            FakeFavoriteRepository(listOf(book("1", "가", price = 30000), book("2", "나", price = 10000)))
+        )
+
+        viewModel.onIntent(FavoriteIntent.ChangeSort(FavoriteSortType.PriceAsc))
+
+        assertEquals(FavoriteSortType.PriceAsc, viewModel.state.value.sort)
+        assertEquals(listOf("2", "1"), viewModel.state.value.books.map { it.id })
+    }
+
+    @Test
+    fun `같은 정렬을 다시 받아도 다시 불러오지 않는다`() {
+        val repository: FakeFavoriteRepository = FakeFavoriteRepository(emptyList())
+        val viewModel: FavoriteViewModel = viewModel(repository)
+
+        viewModel.onIntent(FavoriteIntent.ChangeSort(FavoriteSortType.TitleAsc))
+
+        assertEquals(listOf(FavoriteSortType.TitleAsc), repository.requestedSorts)
     }
 
     @Test
     fun `하트를 누르면 그 도서만 목록에서 빠진다`() {
-        val viewModel: FavoriteViewModel = FavoriteViewModel()
-        val before: List<String> = viewModel.state.value.books.map { it.id }
+        val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"), book("2", "나"))))
 
-        viewModel.onIntent(FavoriteIntent.RemoveFavorite(before.first()))
+        viewModel.onIntent(FavoriteIntent.RemoveFavorite("1"))
 
-        val after: List<String> = viewModel.state.value.books.map { it.id }
-        assertFalse(before.first() in after)
-        assertEquals(before.drop(1), after)
+        assertEquals(listOf("2"), viewModel.state.value.books.map { it.id })
     }
 
     @Test
     fun `모두 빼면 목록이 비어 있다`() {
-        val viewModel: FavoriteViewModel = FavoriteViewModel()
+        val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"), book("2", "나"))))
 
         viewModel.state.value.books.map { it.id }.forEach { viewModel.onIntent(FavoriteIntent.RemoveFavorite(it)) }
 
