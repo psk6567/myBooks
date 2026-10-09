@@ -21,13 +21,13 @@ import com.psk.mybooks.core.designsystem.component.BookGridItem
 import com.psk.mybooks.core.designsystem.component.BookListItem
 import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
-import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
-import com.psk.mybooks.core.model.isOnSale
+import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.core.ui.ErrorEffect
+import com.psk.mybooks.core.ui.priceText
+import com.psk.mybooks.core.ui.salePriceText
 import com.psk.mybooks.feature.favorite.R
-import java.text.NumberFormat
 
 /**
  * ViewModel 을 연결하는 진입점. Navigation 도입 후에는 internal 로 바꾼다.
@@ -84,14 +84,10 @@ private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 status = book.status,
                 title = book.title,
                 publisher = book.publisher,
-                authors = book.authors.joinToString(", "),
-                price = stringResource(R.string.feature_favorite_price, formatPrice(book.price)),
+                authors = book.authors,
+                price = book.priceText(),
                 // 정가와 판매가가 다를 때만 판매가를 따로 보여 준다
-                salePrice = if (book.isOnSale) {
-                    stringResource(R.string.feature_favorite_price, formatPrice(book.salePrice))
-                } else {
-                    null
-                },
+                salePrice = book.salePriceText(),
                 thumbnailUrl = book.thumbnailUrl,
                 // 즐겨찾기 목록의 책은 모두 즐겨찾기 상태다
                 isFavorite = true,
@@ -125,29 +121,22 @@ private fun BookGrid(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
     }
 }
 
-/** 천 단위 구분 (예: 15000 → 15,000) */
-private fun formatPrice(price: Int): String = NumberFormat.getNumberInstance().format(price)
-
-private fun previewBook(isbn: String, title: String, price: Int, status: String): Book = Book(
-    id = isbn,
-    title = title,
-    contents = "",
-    url = "",
-    isbn = isbn,
-    publishedAt = "",
-    authors = listOf("저자"),
-    publisher = "출판사",
-    translators = emptyList(),
-    price = price,
-    salePrice = price,
-    thumbnailUrl = "",
-    status = status
-)
+private fun previewBook(id: String, title: String, price: Int, salePrice: Int?, status: String): BookUiModel =
+    BookUiModel(
+        id = id,
+        status = status,
+        title = title,
+        publisher = "출판사",
+        authors = "저자",
+        price = price,
+        salePrice = salePrice,
+        thumbnailUrl = ""
+    )
 
 private val previewState: FavoriteUiState = FavoriteUiState(
     books = listOf(
-        previewBook(isbn = "1", title = "도서 제목", price = 18000, status = "정상판매"),
-        previewBook(isbn = "2", title = "아주 긴 도서 제목이 들어가면 두 줄까지 보입니다", price = 1234000, status = "품절")
+        previewBook(id = "1", title = "도서 제목", price = 20000, salePrice = 18000, status = "정상판매"),
+        previewBook(id = "2", title = "아주 긴 도서 제목이 들어가면 두 줄까지 보입니다", price = 1234000, salePrice = null, status = "품절")
     )
 )
 

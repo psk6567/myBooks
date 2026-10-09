@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.psk.mybooks.core.common.MviViewModel
 import com.psk.mybooks.core.domain.ObserveFavoritesUseCase
 import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
+import com.psk.mybooks.core.ui.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -40,7 +41,7 @@ internal class FavoriteViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .flatMapLatest { (sort, priceFilter) -> observeFavorites(sort, priceFilter) }
                 .catch { sendError(it) }
-                .collect { books -> reduce { copy(books = books) } }
+                .collect { books -> reduce { copy(books = books.map { it.toUiModel() }) } }
         }
     }
 
