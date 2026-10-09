@@ -4,7 +4,7 @@ import org.gradle.kotlin.dsl.dependencies
 
 /**
  * feature 모듈 공통 설정.
- * 모듈 내부 구조: {Name}Route.kt / ui (+ feature 전용 로직이 있을 때만 domain, data)
+ * 모듈 내부 구조: ui (UseCase 는 core:domain, 데이터는 core:data)
  */
 class AndroidFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {

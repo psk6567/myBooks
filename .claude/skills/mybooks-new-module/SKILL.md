@@ -12,15 +12,16 @@ description: 새 feature/core 모듈을 추가하거나 새 화면 단위를 만
 | 종류 | 위치 | 용도 |
 |---|---|---|
 | feature | `feature/{name}` | 화면 단위 기능 (main, search, favorite, detail ...) |
-| core | `core/{name}` | 여러 feature 가 공유하는 것 (common, designsystem, model, data) |
+| core | `core/{name}` | 여러 feature 가 공유하는 것 (common, designsystem, model, domain, data) |
 
 - **배치 기준: 두 개 이상의 feature 가 쓰면 core, 한 feature 만 쓰면 그 feature 안.**
-  - 공유 도메인 모델, Repository 인터페이스, 여러 feature 가 쓰는 UseCase → `core:domain` (순수 Kotlin)
-  - Repository 구현(internal), API, DB → `core:data`
-  - 한 feature 만 쓰는 UseCase → 그 feature 의 `domain/`
+  - 모든 계층이 쓰는 모델 → `core:model` (순수 Kotlin)
+  - UseCase → `core:domain` (한 feature 만 쓰더라도)
+  - Repository 인터페이스와 구현(internal), API, DB → `core:data`
+- 의존 방향은 `feature → core:domain → core:data`, 모두 `core:model` 을 의존한다. (Android 아키텍처 가이드의 UI → Domain → Data)
 - feature 는 **다른 feature 를 의존하지 않는다.** 화면 간 이동 연결은 `feature:main` 만 한다.
-- feature 는 `core:common`, `core:designsystem`, `core:domain` 을 의존한다. (Convention Plugin 이 자동 추가)
-- **feature 는 `core:data` 를 의존하지 않는다.** Repository 는 `core:domain` 의 인터페이스로만 쓴다. 구현을 DI 에 묶는 것은 `app` 이 한다.
+- feature 는 `core:common`, `core:designsystem`, `core:model`, `core:domain` 을 의존한다. (Convention Plugin 이 자동 추가)
+- **feature 는 `core:data` 를 의존하지 않는다.** 데이터는 `core:domain` 의 UseCase 를 거쳐서만 쓴다. (`core:domain` 이 `core:data` 를 `implementation` 으로 의존해 feature 에 노출되지 않는다)
 
 ## feature 모듈 구조 (필수)
 
@@ -35,13 +36,9 @@ feature/{name}/
     │   ├── {Name}Contract.kt   # State / Intent / (Effect) 정의 (MVI)
     │   ├── {Name}ViewModel.kt  # `MviViewModel` 상속 (internal)
     │   └── {Name}UiState.kt    # UI 모델 (필요할 때)
-    ├── domain/                 # (선택) 이 feature 만 쓰는 UseCase
-    └── data/                   # (선택) 이 feature 만 쓰는 데이터 소스
 ```
 
-- feature 는 기본적으로 **UI 레이어(Screen, ViewModel, UI 모델)** 만 가진다.
-- `domain/`, `data/` 는 **이 feature 전용 로직이 생길 때만** 만든다. 빈 폴더를 미리 만들지 않는다.
-  - 다른 feature 도 쓰게 되면 core 로 옮긴다.
+- feature 는 **UI 레이어(Screen, ViewModel, UI 모델)** 만 가진다. UseCase 는 `core:domain`, 데이터는 `core:data` 에 둔다.
 - feature 마다 `-data`, `-domain` 모듈을 따로 만들지 않는다.
 - `{Name}Route` 와 `{Name}Screen` 은 **같은 파일**(`ui/{Name}Screen.kt`)에 둔다.
   - `Route`: ViewModel 을 만들고 `Screen` 에 상태·콜백을 넘기는 얇은 어댑터
@@ -69,7 +66,7 @@ android {
 ## core 모듈
 
 - Compose 를 쓰면 `mybooks.android.library.compose`, 아니면 `mybooks.android.library`.
-- Android 에 의존하지 않는 모듈(`core:domain`)은 `kotlin.jvm` 플러그인을 쓴다.
+- Android 에 의존하지 않는 모듈(`core:model`)은 `kotlin.jvm` 플러그인을 쓴다.
 - 패키지는 `com.psk.mybooks.core.{name}`.
 
 ## 등록 절차

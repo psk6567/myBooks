@@ -46,8 +46,9 @@ build-logic             Convention Plugin (모듈 공통 Gradle 설정)
 core
 ├── common              공통 유틸
 ├── designsystem        색상·컴포넌트 등 디자인 시스템
-├── domain              도메인 모델, Repository 인터페이스, 여러 feature가 쓰는 UseCase (순수 Kotlin)
-└── data                Repository 구현(internal), API, DB
+├── model               모든 계층이 함께 쓰는 모델 (순수 Kotlin)
+├── domain              UseCase
+└── data                Repository(인터페이스 + 구현), API, DB
 feature
 ├── main                하단 탭 + 화면 이동 연결
 ├── search              검색
@@ -55,22 +56,21 @@ feature
 └── detail              도서 상세
 ```
 
-- **배치 기준: 두 개 이상의 feature가 쓰면 core, 한 feature만 쓰면 그 feature 안에 둡니다.**
-- 이 앱의 데이터(도서, 즐겨찾기)는 세 화면이 모두 공유하므로 `core:domain`(모델, 인터페이스)과 `core:data`(구현)에 둡니다.
+- **배치 기준: 두 개 이상의 feature가 쓰면 core, 한 feature만 쓰면 그 feature 안에 둡니다.** 단, UseCase는 모두 `core:domain`에 둡니다.
 - feature는 core만 의존하고, 다른 feature를 의존하지 않습니다. 화면 간 이동은 `feature:main`이 연결합니다.
 
-#### 의존성 역전
+#### 계층과 의존 방향
+
+[Android 앱 아키텍처 가이드](https://developer.android.com/topic/architecture)의 계층 구조(UI → Domain → Data)를 따릅니다.
 
 ```
-feature:search ──▶ core:domain ◀── core:data
-   (UI, UseCase)   (Repository 인터페이스)   (구현 internal, API/DB)
-                          ▲
-                        app ──▶ core:data   (DI 로 인터페이스와 구현을 묶는다)
+feature(UI) ──▶ core:domain(UseCase) ──▶ core:data(Repository, API, DB)
+     └──────────────────┴──────────────────────┴──▶ core:model(Book 등)
 ```
 
-- **Repository 인터페이스는 도메인(`core:domain`)이 소유하고, 데이터 계층이 그것을 구현합니다.** 화살표가 안쪽(도메인)을 향합니다.
-- **feature는 `core:data`를 의존하지 않습니다.** 구현 클래스나 Retrofit API를 import하면 컴파일 에러가 납니다. `app`만 데이터 계층을 알고, DI에서 인터페이스와 구현을 연결합니다.
-- `core:domain`은 Android에 의존하지 않는 순수 Kotlin 모듈입니다.
+- **Repository는 인터페이스와 구현 모두 `core:data`에 있습니다.** API 응답(DTO)과 DB 엔티티는 `core:data` 안에서 `core:model`로 바꿔서 내보냅니다. UI는 `core:model`만 압니다.
+- **feature는 `core:data`를 의존하지 않습니다.** `core:domain`이 `core:data`를 `implementation`으로 의존하므로, feature에서 Repository를 import하면 컴파일 에러가 납니다. 데이터는 UseCase를 거쳐서만 씁니다.
+- **모델을 `core:model`로 분리한 이유:** data가 모델을 돌려주고 domain이 data를 의존하므로, 모델을 domain에 두면 서로를 의존하게 됩니다.
 - 화면 표시 설정(예: 격자/목록)처럼 도메인이 아닌 값은 그것을 정하는 feature가 가집니다.
 - 모듈 공통 설정(SDK 버전, Java 버전, Compose)은 `build-logic`의 Convention Plugin이 담당합니다.
 
@@ -84,8 +84,6 @@ feature/{name}/src/main/kotlin/com/psk/mybooks/feature/{name}/
 ├── ui/
 │   ├── {Name}Screen.kt     {Name}Route(ViewModel 연결) + {Name}Screen(UI)
 │   └── {Name}ViewModel.kt  상태 관리 (internal)
-├── domain/                 (선택) 이 feature만 쓰는 UseCase (예: feature:search 의 FetchSearchBooksUseCase)
-└── data/                   (선택) 이 feature만 쓰는 데이터 소스
 ```
 
 ```kotlin
@@ -105,7 +103,7 @@ android {
 |-----------------------------------|----------------------------------|
 | `mybooks.android.library`         | Android 라이브러리 모듈 공통 설정           |
 | `mybooks.android.library.compose` | 위 설정 + Compose                   |
-| `mybooks.android.feature`         | 위 설정 + core 모듈 4개, ViewModel 의존성 |
+| `mybooks.android.feature`         | 위 설정 + core 모듈 4개(common, designsystem, model, domain), ViewModel 의존성 |
 
 새 모듈은 기존 플러그인으로 충분하며, 새로운 종류의 모듈이 필요할 때만 `build-logic`에 추가합니다.
 
