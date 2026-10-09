@@ -26,11 +26,15 @@ import org.junit.Test
 /** Paging 이 실제로 내는 로드 상태로, 결과 0건과 "불러오지 않은 빈 목록"이 구분되는지 확인한다. */
 class SearchLoadStateTest {
 
-    private class StringPresenter(context: CoroutineContext) : PagingDataPresenter<String>(context) {
+    private class StringPresenter(
+        context: CoroutineContext
+    ) : PagingDataPresenter<String>(context) {
         override suspend fun presentPagingDataEvent(event: PagingDataEvent<String>) = Unit
     }
 
-    private class FixedSource(private val items: List<String>) : PagingSource<Int, String>() {
+    private class FixedSource(
+        private val items: List<String>
+    ) : PagingSource<Int, String>() {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
             LoadResult.Page(data = items, prevKey = null, nextKey = null)
 

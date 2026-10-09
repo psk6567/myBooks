@@ -24,7 +24,9 @@ internal interface BookApi {
 }
 
 /** 결과 문서 정렬 방식. Retrofit 이 `toString()` 을 쿼리 값으로 쓰므로 API 값을 돌려준다. */
-internal enum class SearchSort(private val value: String) {
+internal enum class SearchSort(
+    private val value: String
+) {
     /** 정확도순 */
     Accuracy("accuracy"),
 
@@ -35,7 +37,9 @@ internal enum class SearchSort(private val value: String) {
 }
 
 /** 검색 필드 제한 */
-internal enum class SearchTarget(private val value: String) {
+internal enum class SearchTarget(
+    private val value: String
+) {
     Title("title"),
     Isbn("isbn"),
     Publisher("publisher"),

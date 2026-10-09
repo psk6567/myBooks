@@ -20,7 +20,9 @@ import kotlinx.coroutines.launch
  *
  * 상태 변경은 [reduce] 로만 한다. (Intent → reduce → State)
  */
-abstract class MviViewModel<S : Any, I : Any, E : Any>(initialState: S) : ViewModel() {
+abstract class MviViewModel<S : Any, I : Any, E : Any>(
+    initialState: S
+) : ViewModel() {
 
     private val _state: MutableStateFlow<S> = MutableStateFlow(initialState)
     val state: StateFlow<S> = _state.asStateFlow()

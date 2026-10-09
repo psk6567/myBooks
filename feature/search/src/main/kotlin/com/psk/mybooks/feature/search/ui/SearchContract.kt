@@ -16,8 +16,13 @@ internal data class SearchUiState(
 
 internal sealed interface SearchIntent {
     /** main 에서 검색어나 정렬이 바뀜 */
-    data class ChangeCondition(val query: String, val sort: SearchSortType) : SearchIntent
+    data class ChangeCondition(
+        val query: String,
+        val sort: SearchSortType
+    ) : SearchIntent
 
     /** 하트를 눌러 즐겨찾기를 켜거나 끔 */
-    data class ToggleFavorite(val bookId: String) : SearchIntent
+    data class ToggleFavorite(
+        val bookId: String
+    ) : SearchIntent
 }

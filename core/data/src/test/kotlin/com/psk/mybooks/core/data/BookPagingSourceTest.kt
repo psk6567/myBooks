@@ -18,7 +18,9 @@ import org.junit.Test
 
 class BookPagingSourceTest {
 
-    private class FakeBookApi(var onCall: (page: Int) -> BookSearchResponse) : BookApi {
+    private class FakeBookApi(
+        var onCall: (page: Int) -> BookSearchResponse
+    ) : BookApi {
         var callCount: Int = 0
         var lastQuery: String? = null
         var lastSort: SearchSort? = null

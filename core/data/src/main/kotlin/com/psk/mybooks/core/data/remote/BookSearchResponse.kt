@@ -5,7 +5,10 @@ import kotlinx.serialization.Serializable
 
 /** 카카오 도서 검색 응답 */
 @Serializable
-internal data class BookSearchResponse(val meta: Meta, val documents: List<BookDocument>) {
+internal data class BookSearchResponse(
+    val meta: Meta,
+    val documents: List<BookDocument>
+) {
     @Serializable
     data class Meta(
         @SerialName("total_count") val totalCount: Int,

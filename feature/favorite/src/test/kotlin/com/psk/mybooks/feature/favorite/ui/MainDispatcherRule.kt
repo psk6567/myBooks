@@ -11,7 +11,9 @@ import org.junit.runner.Description
 
 /** viewModelScope 가 쓰는 Main 디스패처를 테스트 디스패처로 바꾼다. (JVM 테스트에는 Main 이 없다) */
 @OptIn(ExperimentalCoroutinesApi::class)
-class MainDispatcherRule(private val dispatcher: TestDispatcher = UnconfinedTestDispatcher()) : TestWatcher() {
+class MainDispatcherRule(
+    private val dispatcher: TestDispatcher = UnconfinedTestDispatcher()
+) : TestWatcher() {
     override fun starting(description: Description) {
         Dispatchers.setMain(dispatcher)
     }

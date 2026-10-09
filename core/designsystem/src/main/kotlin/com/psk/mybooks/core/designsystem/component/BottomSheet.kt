@@ -129,7 +129,9 @@ fun rememberBottomSheet(
 
 /** [rememberBottomSheet] 가 돌려주는 손잡이 */
 @Stable
-class BottomSheetHandle internal constructor(private val isShown: MutableState<Boolean>) {
+class BottomSheetHandle internal constructor(
+    private val isShown: MutableState<Boolean>
+) {
     fun show() {
         isShown.value = true
     }

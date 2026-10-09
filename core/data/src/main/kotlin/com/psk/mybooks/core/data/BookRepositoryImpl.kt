@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.Flow
 /** 한 번에 불러오는 문서 수. API 는 1~50 이다. */
 internal const val SEARCH_PAGE_SIZE: Int = 20
 
-internal class BookRepositoryImpl @Inject constructor(private val api: BookApi) : BookRepository {
+internal class BookRepositoryImpl @Inject constructor(
+    private val api: BookApi
+) : BookRepository {
 
     override fun searchBooks(query: String, sort: SearchSortType): Flow<PagingData<Book>> = Pager(
         config = PagingConfig(

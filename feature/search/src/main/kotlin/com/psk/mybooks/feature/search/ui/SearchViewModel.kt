@@ -23,8 +23,9 @@ private const val QUERY_DEBOUNCE_MILLIS: Long = 300
 
 /** Effect 가 없어서 `Nothing` */
 @HiltViewModel
-internal class SearchViewModel @Inject constructor(private val fetchSearchBooks: FetchSearchBooksUseCase) :
-    MviViewModel<SearchUiState, SearchIntent, Nothing>(SearchUiState()) {
+internal class SearchViewModel @Inject constructor(
+    private val fetchSearchBooks: FetchSearchBooksUseCase
+) : MviViewModel<SearchUiState, SearchIntent, Nothing>(SearchUiState()) {
 
     /**
      * 검색 결과. 검색어나 정렬이 바뀌면 처음부터 다시 불러오고, 화면 회전에도 목록이 유지된다. (cachedIn)

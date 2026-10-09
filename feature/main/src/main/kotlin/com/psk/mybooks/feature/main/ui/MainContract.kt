@@ -6,7 +6,9 @@ import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.feature.main.R
 
 /** 하단 탭 순서. Pager 의 페이지 순서와 같다. */
-internal enum class MainTab(@StringRes val labelRes: Int) {
+internal enum class MainTab(
+    @StringRes val labelRes: Int
+) {
     Search(R.string.feature_main_tab_search),
     Favorite(R.string.feature_main_tab_favorite)
 }
@@ -37,17 +39,27 @@ internal data class MainUiState(
 
 internal sealed interface MainIntent {
     /** 탭을 누르거나 Pager 를 넘겨서 탭이 바뀜 */
-    data class SelectTab(val tab: MainTab) : MainIntent
+    data class SelectTab(
+        val tab: MainTab
+    ) : MainIntent
 
     /** 검색창 입력이 바뀜 */
-    data class ChangeSearchText(val text: String) : MainIntent
+    data class ChangeSearchText(
+        val text: String
+    ) : MainIntent
 
     /** 검색 정렬 기준이 바뀜 */
-    data class ChangeSearchSort(val sort: SearchSortType) : MainIntent
+    data class ChangeSearchSort(
+        val sort: SearchSortType
+    ) : MainIntent
 
     /** 즐겨찾기 정렬 기준이 바뀜 */
-    data class ChangeFavoriteSort(val sort: FavoriteSortType) : MainIntent
+    data class ChangeFavoriteSort(
+        val sort: FavoriteSortType
+    ) : MainIntent
 
     /** 격자/목록 보기 방식이 바뀜 */
-    data class ChangeViewMode(val viewMode: ViewMode) : MainIntent
+    data class ChangeViewMode(
+        val viewMode: ViewMode
+    ) : MainIntent
 }

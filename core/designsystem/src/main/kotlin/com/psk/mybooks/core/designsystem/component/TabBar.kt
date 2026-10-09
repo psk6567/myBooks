@@ -38,7 +38,10 @@ import com.psk.mybooks.core.designsystem.util.VSpacer
  * 디자인 시스템 [Icon] 으로 그리고, 선택되지 않았을 때는 `colors.iconInactive` 를 쓴다.
  */
 @Immutable
-data class TabItem(val label: String, val icon: @Composable (selected: Boolean) -> Unit)
+data class TabItem(
+    val label: String,
+    val icon: @Composable (selected: Boolean) -> Unit
+)
 
 /**
  * 탭 바. 탭 개수와 내용은 호출하는 쪽이 정한다.
