@@ -44,7 +44,17 @@ data class MbColors(
     val salePrice: Color,
 
     // 상태
-    val error: Color
+    val error: Color,
+    /** error 배경 위 글자·아이콘 */
+    val onError: Color,
+    val success: Color,
+    /** success 배경 위 글자·아이콘 */
+    val onSuccess: Color,
+
+    // 스낵바
+    /** 종류가 없는(None) 스낵바 배경 */
+    val snackbar: Color,
+    val onSnackbar: Color
 )
 
 internal val LightMbColors: MbColors = MbColors(
@@ -63,7 +73,12 @@ internal val LightMbColors: MbColors = MbColors(
     brand = Red55,
     favorite = Red55,
     salePrice = Red55,
-    error = Error40
+    error = Error40,
+    onError = Gray100,
+    success = Green40,
+    onSuccess = Gray100,
+    snackbar = Gray10,
+    onSnackbar = Gray100
 )
 
 internal val DarkMbColors: MbColors = MbColors(
@@ -82,7 +97,12 @@ internal val DarkMbColors: MbColors = MbColors(
     brand = Red55,
     favorite = Red60,
     salePrice = Red60,
-    error = Error80
+    error = Error80,
+    onError = Error20,
+    success = Green80,
+    onSuccess = Green20,
+    snackbar = Gray90,
+    onSnackbar = Gray10
 )
 
 internal val LocalMbColors: ProvidableCompositionLocal<MbColors> = staticCompositionLocalOf { LightMbColors }

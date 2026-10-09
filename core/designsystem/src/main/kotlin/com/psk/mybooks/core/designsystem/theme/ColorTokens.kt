@@ -36,6 +36,11 @@ internal val Teal60: Color = Color(0xFF21A291)
 internal val Teal80: Color = Color(0xFF67D9C7)
 internal val Teal99: Color = Color(0xFFF4FFFB)
 
+// Green: 성공 계열
+internal val Green20: Color = Color(0xFF00391A)
+internal val Green40: Color = Color(0xFF1B7F3B)
+internal val Green80: Color = Color(0xFF8FD9A5)
+
 // Error
 internal val Error20: Color = Color(0xFF690005)
 internal val Error30: Color = Color(0xFF93000A)
