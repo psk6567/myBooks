@@ -25,6 +25,7 @@ import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.isOnSale
 import com.psk.mybooks.feature.search.R
 import java.text.NumberFormat
 import kotlinx.coroutines.flow.flowOf
@@ -94,6 +95,12 @@ private fun BookList(
                 publisher = book.publisher,
                 authors = book.authors.joinToString(", "),
                 price = stringResource(R.string.feature_search_price, formatPrice(book.price)),
+                // 정가와 판매가가 다를 때만 판매가를 따로 보여 준다
+                salePrice = if (book.isOnSale) {
+                    stringResource(R.string.feature_search_price, formatPrice(book.salePrice))
+                } else {
+                    null
+                },
                 thumbnailUrl = book.thumbnailUrl,
                 isFavorite = book.id in state.favoriteIds,
                 // 상세 화면 이동은 detail 을 만들 때 연결한다

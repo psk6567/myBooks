@@ -37,3 +37,6 @@ data class Book(
 
 /** 실제로 지불하는 금액. 금액 필터가 이 값을 쓴다. 판매가를 모르면(-1) 정가를 쓴다. */
 val Book.sellingPrice: Int get() = if (salePrice >= 0) salePrice else price
+
+/** 판매가를 알고 정가와 다르면 할인 중이다. 목록에서 정가에 취소선을 긋고 판매가를 강조할 때 쓴다. */
+val Book.isOnSale: Boolean get() = salePrice >= 0 && salePrice != price

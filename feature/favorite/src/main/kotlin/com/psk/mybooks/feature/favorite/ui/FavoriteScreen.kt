@@ -24,6 +24,7 @@ import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
+import com.psk.mybooks.core.model.isOnSale
 import com.psk.mybooks.feature.favorite.R
 import java.text.NumberFormat
 
@@ -81,6 +82,12 @@ private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 publisher = book.publisher,
                 authors = book.authors.joinToString(", "),
                 price = stringResource(R.string.feature_favorite_price, formatPrice(book.price)),
+                // 정가와 판매가가 다를 때만 판매가를 따로 보여 준다
+                salePrice = if (book.isOnSale) {
+                    stringResource(R.string.feature_favorite_price, formatPrice(book.salePrice))
+                } else {
+                    null
+                },
                 thumbnailUrl = book.thumbnailUrl,
                 // 즐겨찾기 목록의 책은 모두 즐겨찾기 상태다
                 isFavorite = true,

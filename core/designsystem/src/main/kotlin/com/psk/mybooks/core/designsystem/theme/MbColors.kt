@@ -40,6 +40,8 @@ data class MbColors(
     val brand: Color,
     /** 즐겨찾기(하트) 활성 */
     val favorite: Color,
+    /** 정가와 다른 판매가 강조 */
+    val salePrice: Color,
 
     // 상태
     val error: Color
@@ -60,6 +62,7 @@ internal val LightMbColors: MbColors = MbColors(
     divider = Gray90,
     brand = Red55,
     favorite = Red55,
+    salePrice = Red55,
     error = Error40
 )
 
@@ -78,6 +81,7 @@ internal val DarkMbColors: MbColors = MbColors(
     divider = Gray22,
     brand = Red55,
     favorite = Red60,
+    salePrice = Red60,
     error = Error80
 )
 

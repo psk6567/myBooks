@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,7 +38,8 @@ import com.psk.mybooks.core.designsystem.util.VSpacer
  * @param status 제목 위의 판매 상태 (예: 정상판매, 품절)
  * @param publisher 출판사. "출판사 : " 라벨은 이 컴포넌트가 붙인다.
  * @param authors 저자. "저자 : " 라벨은 이 컴포넌트가 붙인다.
- * @param price 오른쪽 아래 가격 (포맷된 문자열)
+ * @param price 오른쪽 아래 가격 (포맷된 문자열). [salePrice] 가 있으면 정가로 보고 취소선을 긋는다.
+ * @param salePrice 정가와 다른 판매가 (포맷된 문자열). 있을 때만 정가 옆에 빨간 글씨로 보인다. 없으면 [price] 만 보인다.
  * @param thumbnailUrl 표지 이미지 URL. 불러오는 중·실패·빈 값 표시는 [NetworkImage] 가 맡는다.
  */
 @Composable
@@ -51,7 +53,8 @@ fun BookListItem(
     isFavorite: Boolean,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    salePrice: String? = null
 ) {
     val colors: MbColors = MyBooksTheme.colors
     val typography: MbTypography = MyBooksTheme.typography
@@ -109,14 +112,24 @@ fun BookListItem(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                Text(
-                    text = price,
-                    style = typography.normal16,
-                    color = colors.textPrimary,
+                Row(
                     modifier = Modifier
                         .align(Alignment.End)
-                        .padding(top = 4.dp, end = 4.dp, bottom = 4.dp)
-                )
+                        .padding(top = 4.dp, end = 4.dp, bottom = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (salePrice == null) {
+                        Text(text = price, style = typography.normal16, color = colors.textPrimary)
+                    } else {
+                        Text(
+                            text = price,
+                            style = typography.normal12.copy(textDecoration = TextDecoration.LineThrough),
+                            color = colors.textTertiary
+                        )
+                        HSpacer(8.dp)
+                        Text(text = salePrice, style = typography.bold16, color = colors.salePrice)
+                    }
+                }
             }
         }
         FavoriteButton(
@@ -137,6 +150,44 @@ private fun ListItemFavoritePreview() {
             publisher = "출판사",
             authors = "저자",
             price = "18,000원",
+            thumbnailUrl = "",
+            isFavorite = true,
+            onClick = {},
+            onFavoriteClick = {}
+        )
+    }
+}
+
+@Preview(name = "On sale", widthDp = 360)
+@Composable
+private fun ListItemOnSalePreview() {
+    MyBooksTheme {
+        BookListItem(
+            status = "정상판매",
+            title = "도서 제목",
+            publisher = "출판사",
+            authors = "저자",
+            price = "20,000원",
+            salePrice = "18,000원",
+            thumbnailUrl = "",
+            isFavorite = false,
+            onClick = {},
+            onFavoriteClick = {}
+        )
+    }
+}
+
+@Preview(name = "On sale (Dark)", widthDp = 360)
+@Composable
+private fun ListItemOnSaleDarkPreview() {
+    MyBooksTheme(darkTheme = true) {
+        BookListItem(
+            status = "정상판매",
+            title = "도서 제목",
+            publisher = "출판사",
+            authors = "저자",
+            price = "20,000원",
+            salePrice = "18,000원",
             thumbnailUrl = "",
             isFavorite = true,
             onClick = {},
