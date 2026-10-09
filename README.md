@@ -161,6 +161,24 @@ snackbar.show(stringResource(R.string.saved), SnackbarType.Success)   // None, S
 - 새 메시지가 오면 떠 있던 것을 닫고 바로 보여 줍니다. 호스트가 없으면(프리뷰, 테스트) 아무 일도 하지 않습니다.
 - 손잡이는 호스트와 같은 수명이라 호출한 화면이 사라져도 스낵바가 끊기지 않습니다.
 
+### Dialog 띄우기
+화면을 막고 확인이나 선택을 받는 `MbDialog`는 버튼 구성을 `DialogButtons`로 고릅니다. 열려 있는지는 호출한 쪽이 정하고, 그릴 때만 보입니다.
+
+```kotlin
+if (showDialog) {
+    MbDialog(
+        title = "즐겨찾기 삭제",
+        message = "이 도서를 즐겨찾기에서 삭제할까요?",
+        buttons = DialogButtons.Two(confirmText = "삭제", dismissText = "취소", onConfirm = { ... }, onDismiss = { ... }),
+        onDismissRequest = { showDialog = false }
+    )
+}
+```
+
+- 버튼 하나는 `DialogButtons.One(confirmText, onConfirm)`, 두 개는 `DialogButtons.Two(...)`입니다. 제목(`title`)은 생략할 수 있습니다.
+- 버튼을 눌러도 닫히지 않으므로, 닫는 것은 `onConfirm`/`onDismiss` 안에서 호출한 쪽이 합니다.
+- `cancelable = false`면 바깥을 누르거나 뒤로가기를 눌러도 닫히지 않고 버튼으로만 닫힙니다. 사용자가 반드시 확인해야 하는 오류에 씁니다.
+
 ## 디자인 시스템 - 색상
 
 색상은 두 단계로 나눕니다.
