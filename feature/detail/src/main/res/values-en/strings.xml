@@ -1,0 +1,14 @@
+<resources>
+    <string name="feature_detail_title">Book details</string>
+    <string name="feature_detail_label_title">Title</string>
+    <string name="feature_detail_label_authors">Authors</string>
+    <string name="feature_detail_label_translators">Translators</string>
+    <string name="feature_detail_label_publisher">Publisher</string>
+    <string name="feature_detail_label_published_at">Published</string>
+    <string name="feature_detail_label_isbn">ISBN</string>
+    <string name="feature_detail_label_price">List price</string>
+    <string name="feature_detail_label_sale_price">Sale price</string>
+    <string name="feature_detail_label_status">Status</string>
+    <string name="feature_detail_label_contents">Description</string>
+    <string name="feature_detail_label_url">URL</string>
+</resources>

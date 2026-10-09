@@ -1,0 +1,14 @@
+<resources>
+    <string name="feature_detail_title">도서 상세</string>
+    <string name="feature_detail_label_title">제목</string>
+    <string name="feature_detail_label_authors">저자</string>
+    <string name="feature_detail_label_translators">번역자</string>
+    <string name="feature_detail_label_publisher">출판사</string>
+    <string name="feature_detail_label_published_at">출판일</string>
+    <string name="feature_detail_label_isbn">ISBN</string>
+    <string name="feature_detail_label_price">정가</string>
+    <string name="feature_detail_label_sale_price">판매가</string>
+    <string name="feature_detail_label_status">판매 상태</string>
+    <string name="feature_detail_label_contents">소개</string>
+    <string name="feature_detail_label_url">상세 URL</string>
+</resources>
