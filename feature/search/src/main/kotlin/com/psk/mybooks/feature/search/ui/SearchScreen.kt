@@ -154,6 +154,8 @@ private fun BookGrid(
                 title = book.title,
                 publisher = book.publisher,
                 thumbnailUrl = book.thumbnailUrl,
+                price = book.priceText(),
+                salePrice = book.salePriceText(),
                 isFavorite = book.id in state.favoriteIds,
                 onClick = { onIntent(SearchIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }

@@ -145,6 +145,8 @@ private fun BookGrid(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 title = book.title,
                 publisher = book.publisher,
                 thumbnailUrl = book.thumbnailUrl,
+                price = book.priceText(),
+                salePrice = book.salePriceText(),
                 isFavorite = true,
                 onClick = { onIntent(FavoriteIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(FavoriteIntent.RequestRemove(book)) }

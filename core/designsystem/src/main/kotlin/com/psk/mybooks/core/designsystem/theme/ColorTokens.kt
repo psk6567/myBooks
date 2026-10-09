@@ -50,6 +50,7 @@ internal val Error90: Color = Color(0xFFFFDAD6)
 
 // Gray: 무채색
 internal val Gray0: Color = Color(0xFF000000)
+internal val Scrim: Color = Color(0x80000000) // 검정 50%
 internal val Gray4: Color = Color(0xFF0E0E0E)
 internal val Gray6: Color = Color(0xFF131313)
 internal val Gray10: Color = Color(0xFF1B1B1B)

@@ -51,6 +51,12 @@ data class MbColors(
     /** success 배경 위 글자·아이콘 */
     val onSuccess: Color,
 
+    // 이미지 위
+    /** 표지 같은 이미지 위에 글자를 올릴 때 깔아 글자가 읽히게 하는 어두운 반투명 막. 라이트·다크 모두 같다. */
+    val imageOverlay: Color,
+    /** [imageOverlay] 위의 글자 */
+    val onImageOverlay: Color,
+
     // 스낵바
     /** 종류가 없는(None) 스낵바 배경 */
     val snackbar: Color,
@@ -78,7 +84,9 @@ internal val LightMbColors: MbColors = MbColors(
     success = Green40,
     onSuccess = Gray100,
     snackbar = Gray10,
-    onSnackbar = Gray100
+    onSnackbar = Gray100,
+    imageOverlay = Scrim,
+    onImageOverlay = Gray100
 )
 
 internal val DarkMbColors: MbColors = MbColors(
@@ -102,7 +110,9 @@ internal val DarkMbColors: MbColors = MbColors(
     success = Green80,
     onSuccess = Green20,
     snackbar = Gray90,
-    onSnackbar = Gray10
+    onSnackbar = Gray10,
+    imageOverlay = Scrim,
+    onImageOverlay = Gray100
 )
 
 internal val LocalMbColors: ProvidableCompositionLocal<MbColors> = staticCompositionLocalOf { LightMbColors }
