@@ -10,4 +10,16 @@
     <string name="feature_main_sort_price_desc">Price (high to low)</string>
     <string name="feature_main_view_mode_grid">Grid view</string>
     <string name="feature_main_view_mode_list">List view</string>
+    <string name="feature_main_price_filter">Price</string>
+    <string name="feature_main_price_filter_min_only">KRW %1$s or more</string>
+    <string name="feature_main_price_filter_max_only">KRW %1$s or less</string>
+    <string name="feature_main_price_filter_range">KRW %1$s–%2$s</string>
+    <string name="feature_main_price_filter_title">Filter by price</string>
+    <string name="feature_main_price_filter_min">Min price</string>
+    <string name="feature_main_price_filter_max">Max price</string>
+    <string name="feature_main_price_filter_separator">~</string>
+    <string name="feature_main_price_unit">KRW</string>
+    <string name="feature_main_price_filter_invalid">Min price cannot be greater than max price</string>
+    <string name="feature_main_price_filter_apply">Apply</string>
+    <string name="feature_main_price_filter_reset">Reset</string>
 </resources>

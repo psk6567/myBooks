@@ -116,6 +116,16 @@ internal fun MainScreen(
         }
     }
 
+    val priceFilterSheet: BottomSheetHandle = rememberBottomSheet { dismiss ->
+        PriceFilterSheet(
+            filter = state.favoritePriceFilter,
+            onApply = { priceFilter ->
+                onIntent(MainIntent.ChangeFavoritePriceFilter(priceFilter))
+                dismiss()
+            }
+        )
+    }
+
     val hideOnScrollState: HideOnScrollState = remember { HideOnScrollState() }
     // 탭이나 검색어가 바뀌어 목록이 짧아지면 스크롤할 수 없어 줄이 숨겨진 채 남을 수 있으므로 다시 보인다
     LaunchedEffect(state.selectedTab, state.searchText) { hideOnScrollState.show() }
@@ -165,15 +175,25 @@ internal fun MainScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    OutlinedChip(
-                        text = stringResource(
-                            when (state.selectedTab) {
-                                MainTab.Search -> state.searchSort.labelRes()
-                                MainTab.Favorite -> state.favoriteSort.labelRes()
-                            }
-                        ),
-                        onClick = sortSheet::show
-                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedChip(
+                            text = stringResource(
+                                when (state.selectedTab) {
+                                    MainTab.Search -> state.searchSort.labelRes()
+                                    MainTab.Favorite -> state.favoriteSort.labelRes()
+                                }
+                            ),
+                            onClick = sortSheet::show
+                        )
+                        // 금액 필터는 앱에서 거르는 즐겨찾기에만 있다
+                        if (state.selectedTab == MainTab.Favorite) {
+                            OutlinedChip(
+                                text = priceFilterLabel(state.favoritePriceFilter),
+                                onClick = priceFilterSheet::show,
+                                selected = state.favoritePriceFilter.isActive
+                            )
+                        }
+                    }
                     // 격자/목록 상태만 바꾸고, 실제 화면 반영은 검색·즐겨찾기 화면을 만들 때 연결한다
                     ViewModeToggle(
                         selected = state.viewMode,
