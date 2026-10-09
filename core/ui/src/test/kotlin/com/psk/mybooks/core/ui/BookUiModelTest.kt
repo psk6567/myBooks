@@ -78,6 +78,27 @@ class BookUiModelTest {
     }
 
     @Test
+    fun `도메인 모델로 되돌려도 다시 화면용으로 바꾸면 같은 값이다`() {
+        val sale: BookUiModel = book(price = 20000, salePrice = 18000, authors = listOf("롤링", "저자 B"))
+            .copy(translators = listOf("번역자1", "번역자2")).toUiModel()
+        val noSale: BookUiModel = book(price = 20000, salePrice = -1, authors = emptyList()).toUiModel()
+
+        assertEquals(sale, sale.toBook().toUiModel())
+        assertEquals(noSale, noSale.toBook().toUiModel())
+    }
+
+    @Test
+    fun `되돌린 도메인 모델은 저자와 번역자를 다시 나누고 판매가를 모르면 -1 이다`() {
+        val restored: Book = book(price = 20000, salePrice = 20000, authors = listOf("롤링", "저자 B"))
+            .copy(translators = listOf("번역자")).toUiModel().toBook()
+
+        assertEquals(listOf("롤링", "저자 B"), restored.authors)
+        assertEquals(listOf("번역자"), restored.translators)
+        assertEquals(-1, restored.salePrice)
+        assertEquals(emptyList<String>(), book(authors = emptyList()).toUiModel().toBook().authors)
+    }
+
+    @Test
     fun `저자가 없으면 빈 글자다`() {
         assertEquals("", book(authors = emptyList()).toUiModel().authors)
     }

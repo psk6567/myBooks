@@ -68,6 +68,35 @@ fun Book.toUiModel(): BookUiModel = BookUiModel(
     thumbnailUrl = thumbnailUrl
 )
 
+/**
+ * 화면용 값을 도메인 모델로 되돌린다. 상세 화면이 즐겨찾기에 담을 때 도서 전체가 필요해서 쓴다.
+ *
+ * 화면에 보이지 않는 부분은 되살릴 수 없다. 출판일은 날짜만 남고(시각은 없음), 저자·번역자 이름 안에 `, ` 가 있으면
+ * 여러 명으로 나뉜다. 그래도 이 값을 다시 [toUiModel] 로 바꾸면 같은 값이 되므로 화면에 보이는 것은 달라지지 않는다.
+ * 판매가를 모르거나 정가와 같으면 [Book.salePrice] 는 `-1`(알 수 없음)이다.
+ */
+fun BookUiModel.toBook(): Book = Book(
+    id = id,
+    title = title,
+    contents = contents,
+    url = url,
+    isbn = isbn,
+    publishedAt = publishedAt,
+    authors = authors.splitNames(),
+    publisher = publisher,
+    translators = translators.splitNames(),
+    price = price,
+    salePrice = salePrice ?: UNKNOWN_SALE_PRICE,
+    thumbnailUrl = thumbnailUrl,
+    status = status
+)
+
+/** [Book.salePrice] 가 알 수 없을 때 쓰는 값 */
+private const val UNKNOWN_SALE_PRICE: Int = -1
+
+/** 쉼표로 이어 붙인 이름을 다시 나눈다. 비어 있으면 빈 목록이다. */
+private fun String.splitNames(): List<String> = if (isBlank()) emptyList() else split(", ")
+
 /** 정가를 화면에 보일 글자로 만든다. (예: 15,000원) */
 @Composable
 fun BookUiModel.priceText(): String = stringResource(R.string.core_ui_price, formatPrice(price))
