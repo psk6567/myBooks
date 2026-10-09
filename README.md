@@ -128,6 +128,13 @@ android {
 - `Screen`은 `state`와 `onIntent`만 받습니다. ViewModel을 직접 모르므로 Preview와 테스트가 쉽습니다.
 - ViewModel은 Android 의존 없이 JUnit만으로 테스트합니다. (예: `MainViewModelTest`)
 
+### 화면용 모델 (UiModel)
+화면(State, Screen)은 도메인 모델(`Book`)을 직접 쓰지 않고 `core:ui`의 `BookUiModel`을 씁니다.
+
+- UiModel은 원시 타입(문자열, 숫자)만 가지며, 표시용 가공(저자 합치기, 할인가 판단)은 `Book.toUiModel()` 한 곳에서 합니다.
+- ViewModel이 도메인 모델을 읽어서 **내보낼 때** 변환합니다. 하트처럼 도메인 모델 전체가 필요한 동작은 화면이 `id`만 넘기고, ViewModel이 들고 있던 원본으로 처리합니다. (검색 결과는 Paging 변환 시점에 원본을 기억하고 새 검색이면 비웁니다)
+- 검색과 즐겨찾기가 같은 목록을 그리므로 UiModel도 하나를 공유합니다.
+
 ### 오류 알리기
 오류는 화면별 Effect가 아니라 `MviViewModel`의 공통 `error` 흐름으로 보냅니다. 화면은 한 줄로 받아서 중요도에 따라 알립니다.
 

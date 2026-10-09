@@ -80,6 +80,7 @@ android {
 
 ## 하지 말 것
 
+- 화면(State, Screen)에서 도메인 모델(`Book` 등)을 직접 쓰지 않는다. `core:ui` 의 UiModel(예: `BookUiModel`)을 쓰고, ViewModel 이 도메인 모델을 읽어 내보낼 때 `toUiModel()` 로 변환한다. 도메인 모델 전체가 필요한 동작(저장 등)은 화면이 id 만 넘기고 ViewModel 이 처리한다. 새 목록 항목이 필요하면 `core:ui` 에 UiModel 을 추가한다.
 - `build-logic` 을 수정하지 않는다. 새 모듈은 기존 Convention Plugin 으로 충분하다. 새로운 "종류"의 모듈이 필요할 때만 사용자에게 먼저 확인한다.
 - 모듈마다 `compileSdk`, `minSdk`, Java 버전을 직접 적지 않는다.
 - 색상은 `MyBooksTheme.colors.xxx`(시맨틱)만 쓴다. `Color(0x...)`, 토큰(`Red55` 등), `MaterialTheme.colorScheme` 을 화면·컴포넌트에서 직접 쓰지 않는다. 필요한 용도의 색이 없으면 `MbColors` 에 시맨틱 이름을 추가한다.
