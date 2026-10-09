@@ -20,7 +20,7 @@ import com.psk.mybooks.core.designsystem.component.BookGridItem
 import com.psk.mybooks.core.designsystem.component.BookListItem
 import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
-import com.psk.mybooks.core.domain.model.Book
+import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.feature.favorite.R
 import java.text.NumberFormat
 

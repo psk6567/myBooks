@@ -6,7 +6,7 @@ import com.psk.mybooks.core.data.remote.BookApi
 import com.psk.mybooks.core.data.remote.BookPage
 import com.psk.mybooks.core.data.remote.SearchSort
 import com.psk.mybooks.core.data.remote.toBookPage
-import com.psk.mybooks.core.domain.model.Book
+import com.psk.mybooks.core.model.Book
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
 

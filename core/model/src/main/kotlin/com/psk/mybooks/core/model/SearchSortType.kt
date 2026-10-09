@@ -1,4 +1,4 @@
-package com.psk.mybooks.core.domain.model
+package com.psk.mybooks.core.model
 
 /** 도서 검색 정렬 기준. 서버(카카오 API)가 정렬해 주는 방식만 지원한다. */
 enum class SearchSortType {

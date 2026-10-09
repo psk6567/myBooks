@@ -4,8 +4,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.psk.mybooks.core.common.MviViewModel
-import com.psk.mybooks.core.domain.model.Book
-import com.psk.mybooks.core.domain.model.SearchSortType
+import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.feature.search.domain.FetchSearchBooksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

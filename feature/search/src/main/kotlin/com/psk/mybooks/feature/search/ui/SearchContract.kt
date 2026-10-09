@@ -1,6 +1,6 @@
 package com.psk.mybooks.feature.search.ui
 
-import com.psk.mybooks.core.domain.model.SearchSortType
+import com.psk.mybooks.core.model.SearchSortType
 
 /**
  * 검색 조건과 화면 상태. 도서 목록은 상태가 아니라 [SearchViewModel.books] 흐름(Paging)으로 나온다.

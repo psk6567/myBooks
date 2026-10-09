@@ -1,6 +1,6 @@
 package com.psk.mybooks.core.data.remote
 
-import com.psk.mybooks.core.domain.model.Book
+import com.psk.mybooks.core.model.Book
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test

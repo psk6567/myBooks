@@ -1,6 +1,6 @@
 package com.psk.mybooks.feature.favorite.ui
 
-import com.psk.mybooks.core.domain.model.Book
+import com.psk.mybooks.core.model.Book
 
 internal data class FavoriteUiState(val books: List<Book> = emptyList())
 

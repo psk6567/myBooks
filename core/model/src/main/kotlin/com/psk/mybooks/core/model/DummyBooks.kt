@@ -1,4 +1,4 @@
-package com.psk.mybooks.core.domain.model
+package com.psk.mybooks.core.model
 
 // TODO: 검색 API·Room 으로 만든 Repository 가 생기면 제거하고, 검색·즐겨찾기 ViewModel 이 UseCase 에서 가져온다
 // 임시 데이터라 Book 옆에 둔다. Repository 가 연결되면 이 파일을 지운다.

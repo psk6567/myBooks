@@ -1,6 +1,6 @@
 package com.psk.mybooks.core.data.remote
 
-import com.psk.mybooks.core.domain.model.Book
+import com.psk.mybooks.core.model.Book
 
 /** 상세 URL 의 `bookId=숫자`. 도서 항목마다 하나씩이고 제목이 바뀌어도 변하지 않는다. */
 private val BOOK_ID_REGEX: Regex = Regex("""bookId=(\d+)""")

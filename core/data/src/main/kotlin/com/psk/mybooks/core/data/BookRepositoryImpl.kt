@@ -6,8 +6,8 @@ import androidx.paging.PagingData
 import com.psk.mybooks.core.data.remote.BookApi
 import com.psk.mybooks.core.data.remote.SearchSort
 import com.psk.mybooks.core.domain.BookRepository
-import com.psk.mybooks.core.domain.model.Book
-import com.psk.mybooks.core.domain.model.SearchSortType
+import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.model.SearchSortType
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
