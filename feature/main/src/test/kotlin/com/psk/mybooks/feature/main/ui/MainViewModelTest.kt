@@ -86,6 +86,14 @@ class MainViewModelTest {
     }
 
     @Test
+    fun `기본 보기 방식은 목록이고 토글에는 목록, 격자 순서로 나온다`() {
+        val viewModel: MainViewModel = MainViewModel()
+
+        assertEquals(ViewMode.List, viewModel.state.value.viewMode)
+        assertEquals(listOf(ViewMode.List, ViewMode.Grid), ViewMode.entries)
+    }
+
+    @Test
     fun `ChangeViewMode Intent 를 보내면 보기 방식이 바뀐다`() {
         val viewModel: MainViewModel = MainViewModel()
 
