@@ -1,4 +1,5 @@
 <resources>
     <string name="feature_favorite_empty">No favorite books yet</string>
+    <string name="feature_favorite_no_match">No books match the filter</string>
     <string name="feature_favorite_price">KRW %1$s</string>
 </resources>

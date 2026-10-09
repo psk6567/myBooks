@@ -35,7 +35,8 @@ class FavoriteViewModelTest {
 
         override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> {
             requestedSorts += sort
-            return books.map { list ->
+            return books.map { all ->
+                val list: List<Book> = all.filter { priceFilter.matches(it.price) }
                 when (sort) {
                     FavoriteSortType.TitleAsc -> list.sortedBy { it.title }
                     FavoriteSortType.TitleDesc -> list.sortedByDescending { it.title }
@@ -88,10 +89,28 @@ class FavoriteViewModelTest {
             FakeFavoriteRepository(listOf(book("1", "가", price = 30000), book("2", "나", price = 10000)))
         )
 
-        viewModel.onIntent(FavoriteIntent.ChangeSort(FavoriteSortType.PriceAsc))
+        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.PriceAsc, PriceFilter()))
 
         assertEquals(FavoriteSortType.PriceAsc, viewModel.state.value.sort)
         assertEquals(listOf("2", "1"), viewModel.state.value.books.map { it.id })
+    }
+
+    @Test
+    fun `금액 필터를 걸면 맞는 도서만 남고 풀면 다시 모두 나온다`() {
+        val viewModel: FavoriteViewModel = viewModel(
+            FakeFavoriteRepository(
+                listOf(book("1", "가", price = 5000), book("2", "나", price = 15000), book("3", "다", price = 30000))
+            )
+        )
+
+        viewModel.onIntent(
+            FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter(min = 10000, max = 20000))
+        )
+        assertEquals(PriceFilter(min = 10000, max = 20000), viewModel.state.value.priceFilter)
+        assertEquals(listOf("2"), viewModel.state.value.books.map { it.id })
+
+        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter()))
+        assertEquals(listOf("1", "2", "3"), viewModel.state.value.books.map { it.id })
     }
 
     @Test
@@ -99,7 +118,7 @@ class FavoriteViewModelTest {
         val repository: FakeFavoriteRepository = FakeFavoriteRepository(emptyList())
         val viewModel: FavoriteViewModel = viewModel(repository)
 
-        viewModel.onIntent(FavoriteIntent.ChangeSort(FavoriteSortType.TitleAsc))
+        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter()))
 
         assertEquals(listOf(FavoriteSortType.TitleAsc), repository.requestedSorts)
     }

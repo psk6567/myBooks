@@ -67,6 +67,7 @@ fun MainRoute(modifier: Modifier = Modifier) {
 
                 MainTab.Favorite -> FavoriteRoute(
                     sort = state.favoriteSort,
+                    priceFilter = state.favoritePriceFilter,
                     isGrid = state.viewMode == ViewMode.Grid
                 )
             }

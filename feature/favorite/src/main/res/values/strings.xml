@@ -1,4 +1,5 @@
 <resources>
     <string name="feature_favorite_empty">즐겨찾기한 도서가 없습니다</string>
+    <string name="feature_favorite_no_match">조건에 맞는 도서가 없습니다</string>
     <string name="feature_favorite_price">%1$s원</string>
 </resources>

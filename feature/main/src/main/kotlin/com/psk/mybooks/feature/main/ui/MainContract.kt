@@ -2,6 +2,7 @@ package com.psk.mybooks.feature.main.ui
 
 import androidx.annotation.StringRes
 import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.feature.main.R
 
@@ -34,6 +35,8 @@ internal data class MainUiState(
     /** 정렬은 탭마다 따로 가진다. 검색은 서버가, 즐겨찾기는 앱이 정렬해서 고를 수 있는 항목이 다르다. */
     val searchSort: SearchSortType = SearchSortType.Accuracy,
     val favoriteSort: FavoriteSortType = FavoriteSortType.TitleAsc,
+    /** 금액 필터는 즐겨찾기 탭에만 있다. 검색은 서버가 결과를 주므로 앱에서 거르지 않는다. */
+    val favoritePriceFilter: PriceFilter = PriceFilter(),
     val viewMode: ViewMode = ViewMode.List
 )
 
@@ -56,6 +59,11 @@ internal sealed interface MainIntent {
     /** 즐겨찾기 정렬 기준이 바뀜 */
     data class ChangeFavoriteSort(
         val sort: FavoriteSortType
+    ) : MainIntent
+
+    /** 즐겨찾기 금액 필터가 바뀜. 필터를 없애려면 빈 [PriceFilter] 를 보낸다. */
+    data class ChangeFavoritePriceFilter(
+        val priceFilter: PriceFilter
     ) : MainIntent
 
     /** 격자/목록 보기 방식이 바뀜 */

@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.psk.mybooks.core.common.MviViewModel
 import com.psk.mybooks.core.domain.ObserveFavoritesUseCase
 import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
-import com.psk.mybooks.core.model.FavoriteSortType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,18 +25,18 @@ internal class FavoriteViewModel @Inject constructor(
 
     override fun onIntent(intent: FavoriteIntent) {
         when (intent) {
-            is FavoriteIntent.ChangeSort -> reduce { copy(sort = intent.sort) }
+            is FavoriteIntent.ChangeCondition -> reduce { copy(sort = intent.sort, priceFilter = intent.priceFilter) }
             is FavoriteIntent.RemoveFavorite -> viewModelScope.launch { removeFavorite(intent.bookId) }
         }
     }
 
-    /** 정렬이 바뀌면 그 순서로 다시 받고, 어디서든 담거나 빼면 목록이 바로 바뀐다. */
+    /** 정렬이나 필터가 바뀌면 그 조건으로 다시 받고, 어디서든 담거나 빼면 목록이 바로 바뀐다. */
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeBooks() {
         viewModelScope.launch {
-            state.map { it.sort }
+            state.map { it.sort to it.priceFilter }
                 .distinctUntilChanged()
-                .flatMapLatest { sort: FavoriteSortType -> observeFavorites(sort) }
+                .flatMapLatest { (sort, priceFilter) -> observeFavorites(sort, priceFilter) }
                 .collect { books -> reduce { copy(books = books) } }
         }
     }

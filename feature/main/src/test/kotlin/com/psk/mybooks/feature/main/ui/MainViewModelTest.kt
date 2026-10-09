@@ -1,6 +1,7 @@
 package com.psk.mybooks.feature.main.ui
 
 import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -83,6 +84,18 @@ class MainViewModelTest {
         assertEquals(MainTab.Favorite, viewModel.state.value.selectedTab)
         assertEquals("해리 포터", viewModel.state.value.searchText)
         assertEquals(FavoriteSortType.PriceAsc, viewModel.state.value.favoriteSort)
+    }
+
+    @Test
+    fun `즐겨찾기 금액 필터는 기본으로 없고 바꾸거나 없앨 수 있다`() {
+        val viewModel: MainViewModel = MainViewModel()
+        assertEquals(PriceFilter(), viewModel.state.value.favoritePriceFilter)
+
+        viewModel.onIntent(MainIntent.ChangeFavoritePriceFilter(PriceFilter(min = 1000, max = 20000)))
+        assertEquals(PriceFilter(min = 1000, max = 20000), viewModel.state.value.favoritePriceFilter)
+
+        viewModel.onIntent(MainIntent.ChangeFavoritePriceFilter(PriceFilter()))
+        assertEquals(PriceFilter(), viewModel.state.value.favoritePriceFilter)
     }
 
     @Test

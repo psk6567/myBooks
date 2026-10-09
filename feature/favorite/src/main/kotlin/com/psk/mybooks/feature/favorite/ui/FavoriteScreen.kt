@@ -23,6 +23,7 @@ import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.feature.favorite.R
 import java.text.NumberFormat
 
@@ -30,15 +31,16 @@ import java.text.NumberFormat
  * ViewModel 을 연결하는 진입점. Navigation 도입 후에는 internal 로 바꾼다.
  *
  * @param sort 정렬 기준. main 의 칩 값이다.
+ * @param priceFilter 금액 필터. main 의 칩 값이다.
  * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
  */
 @Composable
-fun FavoriteRoute(sort: FavoriteSortType, isGrid: Boolean, modifier: Modifier = Modifier) {
+fun FavoriteRoute(sort: FavoriteSortType, priceFilter: PriceFilter, isGrid: Boolean, modifier: Modifier = Modifier) {
     val viewModel: FavoriteViewModel = hiltViewModel()
     val state: FavoriteUiState by viewModel.state.collectAsStateWithLifecycle()
 
-    // main 이 가진 정렬을 이 화면의 상태로 맞춘다
-    LaunchedEffect(sort) { viewModel.onIntent(FavoriteIntent.ChangeSort(sort)) }
+    // main 이 가진 정렬과 금액 필터를 이 화면의 상태로 맞춘다
+    LaunchedEffect(sort, priceFilter) { viewModel.onIntent(FavoriteIntent.ChangeCondition(sort, priceFilter)) }
 
     FavoriteScreen(state = state, isGrid = isGrid, onIntent = viewModel::onIntent, modifier = modifier)
 }
@@ -52,7 +54,10 @@ internal fun FavoriteScreen(
     modifier: Modifier = Modifier
 ) {
     if (state.books.isEmpty()) {
-        EmptyMessage(message = stringResource(R.string.feature_favorite_empty), modifier = modifier)
+        // 필터 때문에 비었으면 즐겨찾기가 없는 것이 아니라 조건에 맞는 도서가 없는 것이다
+        val message: Int =
+            if (state.priceFilter.isActive) R.string.feature_favorite_no_match else R.string.feature_favorite_empty
+        EmptyMessage(message = stringResource(message), modifier = modifier)
         return
     }
     if (isGrid) {
