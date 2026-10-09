@@ -48,6 +48,25 @@ class BookUiModelTest {
     }
 
     @Test
+    fun `상세에 필요한 값도 옮기고 번역자는 쉼표로 이어 붙이며 출판일은 날짜만 남긴다`() {
+        val ui: BookUiModel = book().copy(translators = listOf("번역자1", "번역자2"), isbn = " 9791193478165").toUiModel()
+
+        assertEquals("소개", ui.contents)
+        assertEquals("https://search.daum.net/search?bookId=7", ui.url)
+        assertEquals("9791193478165", ui.isbn)
+        assertEquals("2024-01-01", ui.publishedAt)
+        assertEquals("번역자1, 번역자2", ui.translators)
+    }
+
+    @Test
+    fun `출판일을 모르면 빈 글자고 번역자가 없으면 빈 글자다`() {
+        val ui: BookUiModel = book().copy(publishedAt = "", translators = emptyList()).toUiModel()
+
+        assertEquals("", ui.publishedAt)
+        assertEquals("", ui.translators)
+    }
+
+    @Test
     fun `저자가 없으면 빈 글자다`() {
         assertEquals("", book(authors = emptyList()).toUiModel().authors)
     }

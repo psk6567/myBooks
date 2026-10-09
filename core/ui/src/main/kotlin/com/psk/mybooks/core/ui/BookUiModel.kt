@@ -7,14 +7,19 @@ import com.psk.mybooks.core.model.isOnSale
 import java.text.NumberFormat
 
 /**
- * 도서 목록 항목(검색, 즐겨찾기)이 그리는 값. 화면은 도메인 모델([Book])이 아니라 이것만 안다.
+ * 도서 목록 항목(검색, 즐겨찾기)과 상세 화면이 그리는 값. 화면은 도메인 모델([Book])이 아니라 이것만 안다.
  * 원시 타입(문자열, 숫자)만 가져서 도메인이 바뀌어도 화면이 영향을 받지 않고, 리컴포지션 판단도 안정적이다.
  * 표시용으로 가공한 값(저자 합치기, 할인 여부)은 [Book.toUiModel] 한 곳에서 만든다.
  *
  * 하트를 눌러 저장하려면 도서 전체가 필요하지만 여기에는 표시에 필요한 값만 있다.
  * 원본 [Book] 은 ViewModel 이 들고 있고, 화면은 [id] 만 넘긴다.
  *
+ * @param contents 도서 소개. 목록용으로 잘려서 온다.
+ * @param url 도서 상세 URL
+ * @param isbn ISBN10 과 ISBN13 중 하나 이상. 둘 다 있으면 공백으로 구분한다.
+ * @param publishedAt 출판일(`2013-12-24`). 알 수 없으면 빈 문자열.
  * @param authors 화면에 보일 저자. 여러 명이면 쉼표로 이어 붙인 한 줄이다.
+ * @param translators 화면에 보일 번역자. 여러 명이면 쉼표로 이어 붙인 한 줄이고 없으면 빈 문자열이다.
  * @param price 정가(원)
  * @param salePrice 정가와 다른 판매가(원). 같거나 알 수 없으면 null 이라 정가만 보인다.
  */
@@ -22,20 +27,34 @@ data class BookUiModel(
     val id: String,
     val status: String,
     val title: String,
+    val contents: String,
+    val url: String,
+    val isbn: String,
+    val publishedAt: String,
     val publisher: String,
     val authors: String,
+    val translators: String,
     val price: Int,
     val salePrice: Int?,
     val thumbnailUrl: String
 )
+
+/** `yyyy-MM-dd` 의 길이 */
+private const val PUBLISHED_DATE_LENGTH: Int = 10
 
 /** 도메인 모델을 화면용으로 바꾼다. */
 fun Book.toUiModel(): BookUiModel = BookUiModel(
     id = id,
     status = status,
     title = title,
+    contents = contents,
+    url = url,
+    isbn = isbn.trim(),
+    // API 가 주는 ISO 8601(2013-12-24T00:00:00.000+09:00)에서 날짜만 보인다
+    publishedAt = publishedAt.take(PUBLISHED_DATE_LENGTH),
     publisher = publisher,
     authors = authors.joinToString(", "),
+    translators = translators.joinToString(", "),
     price = price,
     salePrice = if (isOnSale) salePrice else null,
     thumbnailUrl = thumbnailUrl
