@@ -9,6 +9,7 @@ import com.psk.mybooks.core.domain.ObserveFavoriteIdsUseCase
 import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -49,7 +50,7 @@ class SearchViewModelTest {
     private class FakeFavoriteRepository : FavoriteRepository {
         val books: MutableStateFlow<List<Book>> = MutableStateFlow(emptyList())
 
-        override fun observeFavorites(sort: FavoriteSortType): Flow<List<Book>> = books
+        override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> = books
 
         override fun observeFavoriteIds(): Flow<Set<String>> = books.map { list -> list.map { it.id }.toSet() }
 

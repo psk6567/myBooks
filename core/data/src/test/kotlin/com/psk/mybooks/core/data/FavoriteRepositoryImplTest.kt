@@ -4,6 +4,7 @@ import com.psk.mybooks.core.data.local.FavoriteDao
 import com.psk.mybooks.core.data.local.FavoriteEntity
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.PriceFilter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -141,6 +142,48 @@ class FavoriteRepositoryImplTest {
                 it.id
             }
         )
+    }
+
+    @Test
+    fun `금액 필터는 최소와 최대 금액을 포함해서 그 사이의 도서만 남긴다`() = runTest {
+        repository.add(book("1", price = 5000))
+        repository.add(book("2", price = 10000))
+        repository.add(book("3", price = 20000))
+        repository.add(book("4", price = 30000))
+
+        suspend fun ids(filter: PriceFilter): List<String> =
+            repository.observeFavorites(FavoriteSortType.PriceAsc, filter).first().map { it.id }
+
+        assertEquals(listOf("1", "2", "3", "4"), ids(PriceFilter()))
+        assertEquals(listOf("2", "3", "4"), ids(PriceFilter(min = 10000)))
+        assertEquals(listOf("1", "2", "3"), ids(PriceFilter(max = 20000)))
+        assertEquals(listOf("2", "3"), ids(PriceFilter(min = 10000, max = 20000)))
+        assertEquals(listOf("2"), ids(PriceFilter(min = 10000, max = 10000)))
+    }
+
+    @Test
+    fun `금액 필터에 맞는 도서가 없으면 빈 목록이고 최소가 최대보다 크면 모두 걸러진다`() = runTest {
+        repository.add(book("1", price = 10000))
+
+        assertTrue(
+            repository.observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(min = 20000)).first().isEmpty()
+        )
+        assertTrue(
+            repository.observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(min = 20000, max = 5000)).first()
+                .isEmpty()
+        )
+    }
+
+    @Test
+    fun `금액 필터를 건 목록도 정렬 기준대로 나온다`() = runTest {
+        repository.add(book("1", title = "다", price = 10000))
+        repository.add(book("2", title = "가", price = 20000))
+        repository.add(book("3", title = "나", price = 30000))
+
+        val ids: List<String> = repository.observeFavorites(FavoriteSortType.TitleDesc, PriceFilter(max = 20000))
+            .first().map { it.id }
+
+        assertEquals(listOf("1", "2"), ids)
     }
 
     @Test

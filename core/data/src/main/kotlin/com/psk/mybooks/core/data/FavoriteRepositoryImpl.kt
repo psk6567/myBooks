@@ -5,6 +5,7 @@ import com.psk.mybooks.core.data.local.toBook
 import com.psk.mybooks.core.data.local.toEntity
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.PriceFilter
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -18,8 +19,10 @@ internal class FavoriteRepositoryImpl(
     @Inject
     constructor(dao: FavoriteDao) : this(dao, System::currentTimeMillis)
 
-    override fun observeFavorites(sort: FavoriteSortType): Flow<List<Book>> =
-        dao.observeAll().map { entities -> entities.map { it.toBook() }.sortedWith(sort.comparator()) }
+    override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> =
+        dao.observeAll().map { entities ->
+            entities.filter { priceFilter.matches(it.price) }.map { it.toBook() }.sortedWith(sort.comparator())
+        }
 
     override fun observeFavoriteIds(): Flow<Set<String>> = dao.observeIds().map { ids -> ids.toSet() }
 

@@ -3,6 +3,7 @@ package com.psk.mybooks.core.domain
 import com.psk.mybooks.core.data.FavoriteRepository
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.PriceFilter
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,7 +22,7 @@ class RemoveFavoriteUseCaseTest {
         val removed: MutableList<String> = mutableListOf()
         var removedOn: Thread? = null
 
-        override fun observeFavorites(sort: FavoriteSortType): Flow<List<Book>> = emptyFlow()
+        override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> = emptyFlow()
 
         override fun observeFavoriteIds(): Flow<Set<String>> = emptyFlow()
 

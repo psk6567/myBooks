@@ -5,6 +5,7 @@ import com.psk.mybooks.core.domain.ObserveFavoritesUseCase
 import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.PriceFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +33,7 @@ class FavoriteViewModelTest {
         val books: MutableStateFlow<List<Book>> = MutableStateFlow(initial)
         val requestedSorts: MutableList<FavoriteSortType> = mutableListOf()
 
-        override fun observeFavorites(sort: FavoriteSortType): Flow<List<Book>> {
+        override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> {
             requestedSorts += sort
             return books.map { list ->
                 when (sort) {

@@ -3,6 +3,7 @@ package com.psk.mybooks.core.domain
 import com.psk.mybooks.core.data.FavoriteRepository
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.FavoriteSortType
+import com.psk.mybooks.core.model.PriceFilter
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,11 +22,13 @@ class ObserveFavoritesUseCaseTest {
 
     private class FakeFavoriteRepository : FavoriteRepository {
         var lastSort: FavoriteSortType? = null
+        var lastFilter: PriceFilter? = null
         var collectedOn: Thread? = null
         val books: List<Book> = emptyList()
 
-        override fun observeFavorites(sort: FavoriteSortType): Flow<List<Book>> {
+        override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> {
             lastSort = sort
+            lastFilter = priceFilter
             return flow {
                 collectedOn = Thread.currentThread()
                 emit(books)
@@ -40,13 +43,17 @@ class ObserveFavoritesUseCaseTest {
     }
 
     @Test
-    fun `정렬 기준을 Repository 에 그대로 전달하고 결과를 돌려준다`() = runTest {
+    fun `정렬 기준과 금액 필터를 Repository 에 그대로 전달하고 결과를 돌려준다`() = runTest {
         val repository: FakeFavoriteRepository = FakeFavoriteRepository()
         val dispatcher: CoroutineDispatcher = StandardTestDispatcher(testScheduler)
 
-        val result: List<Book> = ObserveFavoritesUseCase(repository, dispatcher)(FavoriteSortType.PriceDesc).first()
+        val filter: PriceFilter = PriceFilter(min = 1000, max = 20000)
+
+        val result: List<Book> =
+            ObserveFavoritesUseCase(repository, dispatcher)(FavoriteSortType.PriceDesc, filter).first()
 
         assertEquals(FavoriteSortType.PriceDesc, repository.lastSort)
+        assertEquals(filter, repository.lastFilter)
         assertEquals(repository.books, result)
     }
 
