@@ -1,7 +1,6 @@
-package com.psk.mybooks.feature.search.domain
+package com.psk.mybooks.core.domain
 
 import androidx.paging.PagingData
-import com.psk.mybooks.core.domain.BookRepository
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
 import java.util.concurrent.ExecutorService

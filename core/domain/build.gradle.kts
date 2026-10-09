@@ -1,15 +1,20 @@
-// Android 에 의존하지 않는 순수 Kotlin 모듈. Repository 인터페이스, 여러 feature 가 쓰는 UseCase 를 둔다.
+// UseCase 를 둔다. 여러 feature 가 쓰는 화면 밖의 규칙(빈 검색어 처리, 실행 스레드 등)을 Repository 위에서 처리한다.
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.mybooks.android.library)
+    alias(libs.plugins.mybooks.android.hilt)
 }
 
-kotlin {
-    jvmToolchain(17)
+android {
+    namespace = "com.psk.mybooks.core.domain"
 }
 
 dependencies {
     api(project(":core:model"))
-    // Repository 가 Flow<PagingData> 를 돌려주므로 쓰는 쪽에도 보여야 한다
+    // UseCase 가 Flow<PagingData> 를 돌려주므로 쓰는 쪽에도 보여야 한다
     api(libs.androidx.paging.common)
     api(libs.kotlinx.coroutines.core)
+    // 실행 Dispatcher 를 구분하는 @IoDispatcher
+    implementation(project(":core:common"))
+
+    testImplementation(libs.kotlinx.coroutines.test)
 }
