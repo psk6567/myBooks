@@ -1,15 +1,6 @@
 package com.psk.mybooks.dev
 
-import android.app.Dialog
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.Gravity
-import android.view.ViewGroup
-import android.view.Window
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,11 +19,8 @@ import androidx.compose.runtime.reflect.ComposableMethod
 import androidx.compose.runtime.reflect.getDeclaredComposableMethod
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.psk.mybooks.core.designsystem.component.TitleBar
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 
@@ -42,20 +30,14 @@ internal const val EXTRA_PREVIEW: String = "composable"
 /** 위쪽 뒤로가기 줄의 높이. 아래 Preview 는 이만큼 내려서 그린다. */
 private val TOP_BAR_HEIGHT: Dp = 64.dp
 
-/** 다이얼로그 Preview 의 창이 먼저 뜨도록 기다리는 시간 */
-private const val TOP_BAR_OVERLAY_DELAY_MILLIS: Long = 500
-
 /**
  * @Preview 함수 하나를 실제 기기에서 전체 화면으로 보여 준다. Compose 도구의 `PreviewActivity` 는 상태 표시줄과
  * 내비게이션 바 아래까지 그려서 위·아래가 가려지므로, 시스템 바 여백을 적용한 이 화면에 대신 띄운다.
  * Preview 함수는 `private` 이어도 이름으로 찾아 호출한다.
  *
- * 위쪽에 뒤로가기 줄이 있다. 다이얼로그 Preview 는 자기 창이 화면 전체와 터치·뒤로가기를 가져가서 이 화면의 줄을 누를 수 없으므로,
- * 다이얼로그가 뜬 뒤 같은 줄을 그 위의 별도 창으로 한 번 더 띄운다. (눈에는 하나의 줄로 보인다)
+ * 위쪽에 Preview 이름과 뒤로가기가 있는 줄이 있다. (다이얼로그 Preview 는 창을 만들지 않고 내용만 그리도록 만들어 두어 이 줄이 가려지지 않는다)
  */
 class DevPreviewActivity : ComponentActivity() {
-
-    private var topBarOverlay: Dialog? = null
 
     @OptIn(ExperimentalComposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,45 +62,10 @@ class DevPreviewActivity : ComponentActivity() {
                 }
             }
         }
-        Handler(Looper.getMainLooper()).postDelayed({ showTopBarOverlay(methodName) }, TOP_BAR_OVERLAY_DELAY_MILLIS)
-    }
-
-    override fun onDestroy() {
-        topBarOverlay?.dismiss()
-        topBarOverlay = null
-        super.onDestroy()
-    }
-
-    /**
-     * 뒤로가기 줄만 있는 별도 창을 다이얼로그 위에 띄운다. 포커스를 받지 않아 아래 Preview 의 뒤로가기를 막지 않고,
-     * 줄 바깥의 터치는 그대로 아래로 전달된다. 창의 기준 위치가 이미 상태 표시줄 아래라 따로 내릴 필요가 없다.
-     */
-    private fun showTopBarOverlay(title: String) {
-        if (isFinishing || isDestroyed) return
-        val view: ComposeView = ComposeView(this).apply {
-            setContent { MyBooksTheme { PreviewTopBar(title = title, onBack = ::finish) } }
-        }
-        topBarOverlay = Dialog(this).apply {
-            requestWindowFeature(Window.FEATURE_NO_TITLE)
-            setContentView(view)
-            window?.apply {
-                // 별도 창에서 Compose 를 그리려면 이 화면의 생명주기와 상태 저장소를 연결해 주어야 한다
-                decorView.setViewTreeLifecycleOwner(this@DevPreviewActivity)
-                decorView.setViewTreeSavedStateRegistryOwner(this@DevPreviewActivity)
-                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
-                addFlags(
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                )
-                setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                setGravity(Gravity.TOP)
-            }
-            show()
-        }
     }
 }
 
-/** Preview 이름과 뒤로가기 버튼이 있는 줄. 이 화면과 다이얼로그 위 창이 같은 모양을 쓴다. */
+/** Preview 이름과 뒤로가기 버튼이 있는 줄 */
 @Composable
 private fun PreviewTopBar(title: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
     TitleBar(
