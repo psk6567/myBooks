@@ -5,4 +5,5 @@
     <string name="core_designsystem_favorite_remove">Remove from favorites</string>
     <string name="core_designsystem_list_item_publisher">Publisher : %1$s</string>
     <string name="core_designsystem_list_item_authors">Author : %1$s</string>
+    <string name="core_designsystem_list_item_published_at">Published : %1$s</string>
 </resources>

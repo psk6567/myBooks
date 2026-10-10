@@ -121,6 +121,7 @@ private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 title = book.title,
                 publisher = book.publisher,
                 authors = book.authors,
+                publishedAt = book.publishedAt,
                 price = book.priceText(),
                 // 정가와 판매가가 다를 때만 판매가를 따로 보여 준다
                 salePrice = book.salePriceText(),

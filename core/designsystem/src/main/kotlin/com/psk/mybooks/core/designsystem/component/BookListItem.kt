@@ -38,6 +38,7 @@ import com.psk.mybooks.core.designsystem.util.VSpacer
  * @param status 제목 위의 판매 상태 (예: 정상판매, 품절)
  * @param publisher 출판사. "출판사 : " 라벨은 이 컴포넌트가 붙인다.
  * @param authors 저자. "저자 : " 라벨은 이 컴포넌트가 붙인다.
+ * @param publishedAt 출간일(예: 2019-01-12). "출간일 : " 라벨은 이 컴포넌트가 붙인다. 비어 있으면(날짜를 모르면) 줄을 그리지 않는다.
  * @param price 오른쪽 아래 가격 (포맷된 문자열). [salePrice] 가 있으면 정가로 보고 취소선을 긋는다.
  * @param salePrice 정가와 다른 판매가 (포맷된 문자열). 있을 때만 정가 옆에 빨간 글씨로 보인다. 없으면 [price] 만 보인다.
  * @param thumbnailUrl 표지 이미지 URL. 불러오는 중·실패·빈 값 표시는 [NetworkImage] 가 맡는다.
@@ -48,6 +49,7 @@ fun BookListItem(
     title: String,
     publisher: String,
     authors: String,
+    publishedAt: String,
     price: String,
     thumbnailUrl: String,
     isFavorite: Boolean,
@@ -111,6 +113,15 @@ fun BookListItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    if (publishedAt.isNotBlank()) {
+                        VSpacer(4.dp)
+                        Text(
+                            text = stringResource(R.string.core_designsystem_list_item_published_at, publishedAt),
+                            style = typography.normal12,
+                            color = colors.textSecondary,
+                            maxLines = 1
+                        )
+                    }
                 }
                 Row(
                     modifier = Modifier
@@ -150,6 +161,7 @@ private fun ListItemFavoritePreview() {
             title = "도서 제목",
             publisher = "출판사",
             authors = "저자",
+            publishedAt = "2019-01-12",
             price = "18,000원",
             thumbnailUrl = "",
             isFavorite = true,
@@ -168,6 +180,7 @@ private fun ListItemOnSalePreview() {
             title = "도서 제목",
             publisher = "출판사",
             authors = "저자",
+            publishedAt = "2019-01-12",
             price = "20,000원",
             salePrice = "18,000원",
             thumbnailUrl = "",
@@ -187,6 +200,7 @@ private fun ListItemOnSaleDarkPreview() {
             title = "도서 제목",
             publisher = "출판사",
             authors = "저자",
+            publishedAt = "2019-01-12",
             price = "20,000원",
             salePrice = "18,000원",
             thumbnailUrl = "",
@@ -206,6 +220,7 @@ private fun ListItemLongTextDarkPreview() {
             title = "아주 긴 도서 제목이 들어가면 두 줄까지 보이고 나머지는 말줄임 처리가 됩니다",
             publisher = "아주 긴 출판사 이름이 들어가는 경우",
             authors = "저자 A, 저자 B, 저자 C",
+            publishedAt = "2019-01-12",
             price = "1,234,000원",
             thumbnailUrl = "",
             isFavorite = false,

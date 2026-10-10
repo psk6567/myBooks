@@ -5,4 +5,5 @@
     <string name="core_designsystem_favorite_remove">즐겨찾기 해제</string>
     <string name="core_designsystem_list_item_publisher">출판사 : %1$s</string>
     <string name="core_designsystem_list_item_authors">저자 : %1$s</string>
+    <string name="core_designsystem_list_item_published_at">출간일 : %1$s</string>
 </resources>
