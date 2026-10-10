@@ -1,7 +1,7 @@
 <resources>
     <string name="core_ui_error_title">Notice</string>
     <string name="core_ui_error_confirm">OK</string>
-    <string name="core_ui_error_network">Check your network connection.</string>
+    <string name="core_ui_error_network">Check your network connection and try again.</string>
     <string name="core_ui_error_timeout">The server is taking too long to respond. Please try again.</string>
     <string name="core_ui_error_unauthorized">Authentication failed. Check the app settings.</string>
     <string name="core_ui_error_forbidden">You do not have permission to use this feature.</string>
@@ -10,4 +10,6 @@
     <string name="core_ui_error_server">A server error occurred. Please try again later.</string>
     <string name="core_ui_error_unknown">An unknown error occurred.</string>
     <string name="core_ui_price">KRW %1$s</string>
+    <string name="core_ui_retry">Try again</string>
+    <string name="core_ui_load_more_failed">Couldn\'t load more. Please try again.</string>
 </resources>
