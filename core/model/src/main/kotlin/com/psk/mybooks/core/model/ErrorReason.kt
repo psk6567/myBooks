@@ -13,8 +13,11 @@ enum class ErrorSeverity { Low, High }
 enum class ErrorReason(
     val severity: ErrorSeverity
 ) {
-    /** 연결 실패, 시간 초과 등 응답을 받지 못함 */
+    /** 연결 실패, 끊김 등으로 응답을 받지 못함 */
     Network(ErrorSeverity.Low),
+
+    /** 연결은 됐지만 응답이 너무 늦음(시간 초과). 끊긴 것이 아니라 느린 것이라 네트워크 오류와 문구를 달리한다. */
+    Timeout(ErrorSeverity.Low),
 
     /** 인증 실패(앱 키 문제). 다시 해도 같다. */
     Unauthorized(ErrorSeverity.High),

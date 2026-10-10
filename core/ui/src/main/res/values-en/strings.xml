@@ -2,6 +2,7 @@
     <string name="core_ui_error_title">Notice</string>
     <string name="core_ui_error_confirm">OK</string>
     <string name="core_ui_error_network">Check your network connection.</string>
+    <string name="core_ui_error_timeout">The server is taking too long to respond. Please try again.</string>
     <string name="core_ui_error_unauthorized">Authentication failed. Check the app settings.</string>
     <string name="core_ui_error_forbidden">You do not have permission to use this feature.</string>
     <string name="core_ui_error_invalid_request">The request could not be processed.</string>

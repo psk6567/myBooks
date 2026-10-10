@@ -72,6 +72,7 @@ fun ErrorEffect(errors: Flow<Throwable>) {
 @StringRes
 internal fun ErrorReason.messageRes(): Int = when (this) {
     ErrorReason.Network -> R.string.core_ui_error_network
+    ErrorReason.Timeout -> R.string.core_ui_error_timeout
     ErrorReason.Unauthorized -> R.string.core_ui_error_unauthorized
     ErrorReason.Forbidden -> R.string.core_ui_error_forbidden
     ErrorReason.InvalidRequest -> R.string.core_ui_error_invalid_request

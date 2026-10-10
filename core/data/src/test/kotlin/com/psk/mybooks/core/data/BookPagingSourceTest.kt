@@ -11,6 +11,9 @@ import com.psk.mybooks.core.model.ErrorReason
 import com.psk.mybooks.core.model.ErrorSeverity
 import com.psk.mybooks.core.model.toErrorReason
 import java.io.IOException
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -194,6 +197,20 @@ class BookPagingSourceTest {
         val thrown: Throwable = (result as PagingSource.LoadResult.Error).throwable
         assertEquals(ErrorReason.Network, thrown.toErrorReason())
         assertSame(error, thrown.cause)
+    }
+
+    @Test
+    fun `시간 초과는 Timeout 이고 연결 실패나 끊김은 Network 로 분류한다`() = runTest {
+        suspend fun reasonOf(error: Exception): ErrorReason =
+            (source(FakeBookApi { throw error }).load(refresh()) as PagingSource.LoadResult.Error)
+                .throwable
+                .toErrorReason()
+
+        assertEquals(ErrorReason.Timeout, reasonOf(SocketTimeoutException("read timed out")))
+        assertEquals(ErrorReason.Timeout, reasonOf(SocketTimeoutException("connect timed out")))
+        assertEquals(ErrorReason.Network, reasonOf(ConnectException("연결 거부")))
+        assertEquals(ErrorReason.Network, reasonOf(UnknownHostException("dapi.kakao.com")))
+        assertEquals(ErrorReason.Network, reasonOf(IOException("끊김")))
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.psk.mybooks.core.data.remote
 import com.psk.mybooks.core.model.AppException
 import com.psk.mybooks.core.model.ErrorReason
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 /**
  * 카카오 도서 검색 API 가 오류로 응답했을 때의 예외. [BookApiErrorHandler] 가 응답을 이 종류들로 나눈다.
@@ -66,7 +67,8 @@ internal sealed class BookApiException(
 
 /**
  * 도서 검색 중 생긴 예외를 화면에 알릴 [AppException] 으로 바꾼다. 원래 예외는 원인으로 남긴다.
- * API 오류는 [BookApiException] 종류대로, 응답을 받지 못한 IOException(연결 실패, 시간 초과 등)은 [ErrorReason.Network] 로 나눈다.
+ * API 오류는 [BookApiException] 종류대로, 시간 초과([SocketTimeoutException])는 [ErrorReason.Timeout], 그 밖에 응답을 받지 못한
+ * IOException(연결 실패, 끊김 등)은 [ErrorReason.Network] 로 나눈다.
  */
 internal fun Throwable.toAppException(): AppException {
     if (this is AppException) return this
@@ -84,6 +86,8 @@ internal fun Throwable.toAppException(): AppException {
         is BookApiException.Unknown -> ErrorReason.Unknown
 
         // BookApiException 도 IOException 이라 위에서 먼저 걸러야 한다
+        is SocketTimeoutException -> ErrorReason.Timeout
+
         is IOException -> ErrorReason.Network
 
         else -> ErrorReason.Unknown
