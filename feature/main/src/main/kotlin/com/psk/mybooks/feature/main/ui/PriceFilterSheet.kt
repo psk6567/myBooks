@@ -53,7 +53,7 @@ internal fun PriceFilterSheet(filter: PriceFilter, onApply: (PriceFilter) -> Uni
             .padding(bottom = 24.dp)
     ) {
         Text(
-            text = stringResource(R.string.feature_main_price_filter_title),
+            text = stringResource(R.string.feature_main_price_filter),
             style = typography.bold16,
             color = colors.textPrimary
         )

@@ -10,11 +10,10 @@
     <string name="feature_main_sort_price_desc">가격 내림차순</string>
     <string name="feature_main_view_mode_grid">격자로 보기</string>
     <string name="feature_main_view_mode_list">목록으로 보기</string>
-    <string name="feature_main_price_filter">금액</string>
+    <string name="feature_main_price_filter">금액 필터</string>
     <string name="feature_main_price_filter_min_only">%1$s원 이상</string>
     <string name="feature_main_price_filter_max_only">%1$s원 이하</string>
     <string name="feature_main_price_filter_range">%1$s~%2$s원</string>
-    <string name="feature_main_price_filter_title">금액으로 거르기</string>
     <string name="feature_main_price_filter_apply">적용</string>
     <string name="feature_main_price_filter_reset">초기화</string>
     <string name="feature_main_select_book">도서를 선택해 주세요</string>

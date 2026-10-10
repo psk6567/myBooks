@@ -14,7 +14,6 @@
     <string name="feature_main_price_filter_min_only">KRW %1$s or more</string>
     <string name="feature_main_price_filter_max_only">KRW %1$s or less</string>
     <string name="feature_main_price_filter_range">KRW %1$s–%2$s</string>
-    <string name="feature_main_price_filter_title">Filter by price</string>
     <string name="feature_main_price_filter_apply">Apply</string>
     <string name="feature_main_price_filter_reset">Reset</string>
     <string name="feature_main_select_book">Select a book</string>
