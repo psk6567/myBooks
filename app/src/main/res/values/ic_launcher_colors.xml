@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 앱 아이콘 색. 브랜드 색은 디자인 시스템의 Red55(ColorTokens)와 같은 값이다. -->
+    <color name="ic_launcher_brand">#FFF83949</color>
+    <color name="ic_launcher_background">#FFFFFFFF</color>
+</resources>
