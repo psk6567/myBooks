@@ -797,6 +797,49 @@
 ## 74. 선택 항목 강조와 슬라이더 시스템 제스처 제외 (미구현 목록 중 2개 해소)
 - **활용한 작업**: 넓은 화면에서 옆 패널에 상세가 열린 도서를 목록·격자에서 브랜드 색 테두리로 강조(`selectedOutline`, `BookListItem`/`BookGridItem` 의 `selected`, 검색·즐겨찾기 화면의 `selectedBookId`, main 이 넓은 화면일 때만 전달). `MbRangeSlider` 에 `systemGestureExclusion()` 을 붙여 가장자리 손잡이를 끌 때 뒤로 가기 제스처가 가로채지 않게 함(MB-102)
 - **검증 방법**: `spotlessApply`, 전체 단위 테스트, 앱 빌드 통과
-  - 확인하지 않은 것: **두 변경 모두 에뮬레이터 화면에서 확인하지 못함**(에뮬레이터 DNS 가 멈춰 검색 결과·즐겨찾기를 띄우지 못함). 강조 테두리의 모양, 슬라이더 왼쪽 끝 손잡이의 제스처 충돌 해소 여부는 직접 확인 필요
+  - 처음에는 에뮬레이터 DNS 가 멈춰(IP ping 은 되고 도메인은 못 찾음) 화면 확인을 못 했음. 에뮬레이터를 `-dns-server 8.8.8.8,168.126.63.1` 로 다시 띄워 복구한 뒤 펼친 화면(2208x1840)에서 확인: 목록 카드에 "출간일 : 2012-11-26" 줄이 보이고(MB-98 확인), 항목을 누르면 옆 패널에 상세가 열리면서 그 카드에 브랜드 색 테두리가 그려짐
+  - 확인하지 않은 것: 격자 모드의 표지 테두리, 즐겨찾기 탭의 강조, **슬라이더 왼쪽 끝 손잡이의 제스처 충돌 해소 여부**(가장자리 제스처를 재현하기 어려워 컴파일·빌드만 확인)
 - **AI 실수와 정정**: 처음 `selectedOutline` 을 Composable 이 아닌 확장 함수로 만들어 컴파일 실패(`MyBooksTheme.colors` 를 읽음) → `@Composable` 로 수정. `systemGestureExclusion` 의 패키지를 잘못 가져옴(`foundation.layout` → `foundation`)
 - **AI 판단과 주의**: 격자는 항목 전체가 아니라 표지에만 테두리를 그림. 좁은 화면에서는 선택 상태가 남아도 강조하지 않음. `systemGestureExclusion` 은 API 29 미만에서는 효과가 없음(해당 제스처도 없음)
+
+## 75. 릴리스 빌드 난독화·축소 (R8)
+- **활용한 작업**: `release` 에 `isMinifyEnabled`/`isShrinkResources` 를 켜고, 과제용이라 별도 릴리스 키 없이 debug 키로 서명해 바로 설치할 수 있게 함. 오류 로그에서 줄 번호를 되살릴 수 있게 `SourceFile,LineNumberTable` 을 유지하는 규칙을 `proguard-rules.pro` 에 추가(MB-103). 릴리스 APK 는 약 3.1MB(디버그 약 16MB)
+- **검증 방법**: `:app:assembleRelease` 경고·오류 없이 통과. 릴리스 APK 를 에뮬레이터에 설치해 확인: 검색 결과 표시(Retrofit·kotlinx.serialization 응답 파싱), 도서 선택 시 옆 패널 상세(넓은 화면), 즐겨찾기 담기와 즐겨찾기 탭 표시(Room), 접은 화면에서 즐겨찾기 항목을 눌러 상세 화면 이동(Navigation 의 JSON 인자), crash 로그 0건, 직렬화·클래스 누락 오류 로그 없음
+  - 확인하지 않은 것: 오류 화면(타임아웃·재시도 UI)과 오프라인 진입 흐름의 릴리스 빌드 동작, 난독화된 스택 트레이스를 mapping 으로 복원하는 절차
+- **AI 판단과 주의**: 직렬화·Retrofit·Room·Hilt 는 라이브러리가 제공하는 consumer 규칙으로 충분했고 직접 keep 규칙은 추가하지 않음(실제 실행으로 확인). 규칙이 필요해지는 신호는 릴리스에서만 나는 `ClassNotFound`/직렬화 오류라서 위처럼 주요 흐름을 릴리스 빌드로 돌려 봄
+- **참고**: 사람이 MB-103(작업 기록 화면 확인 결과 갱신) 커밋을 되돌려서, 그 내용(로그 #74 수정)은 아직 커밋되지 않은 채 작업 트리에 있음. 이번 커밋 번호는 비어 있던 MB-103 을 사용
+
+## 76. 프로세스 종료 후 상태 복원(SavedStateHandle)과 딥링크 준비, 개발자 모드 사전 점검
+- **활용한 작업(MB-104)**: `MainViewModel` 의 화면 조건(탭, 검색어, 검색·즐겨찾기 정렬, 금액 필터, 보기 방식, 선택한 도서)을 `SavedStateHandle` 에 JSON 문자열 하나로 계속 저장하고 새 ViewModel 이 시작할 때 되살림(`MainSavedState`). 복원한 경우에는 오프라인 안내·즐겨찾기 이동을 하지 않음. 읽을 수 없는 옛 값은 무시하고 기본 상태로 시작. 테스트 3개 추가
+- **활용한 작업(MB-105)**: `MainRoute` 가 앱이 떠 있을 때 온 새 Intent 를 `navController.handleDeepLink` 로 넘기는 것까지만 준비하고, 나머지는 `DetailNavigation` 의 TODO 로 남김
+- **검증 방법**: `:feature:main` 테스트, 전체 테스트·빌드 통과. 에뮬레이터에서 검색어를 입력하고 홈으로 나간 뒤 `adb shell am kill` 로 프로세스를 종료하고 다시 열어 검색 결과가 그대로 복원되는 것을 확인
+  - 확인하지 않은 것: 탭·정렬·금액 필터·보기 방식·선택한 도서의 실기기 복원(단위 테스트로만 확인), 검색 목록의 스크롤 위치(저장하지 않음)
+- **직접 판단한 부분**: 사람이 `SavedStateHandle` 사용을 선택. 딥링크는 처음에는 `mybooks://book/{isbn}` 로 ISBN 조회까지 구현을 요청받아 만들었으나(ISBN 으로 `target=isbn` 검색, 링크용 상세 화면, 매니페스트 intent-filter), 도중에 "구현은 필요 없고 `handleDeepLink` 까지만, 나머지는 TODO" 로 바뀌어 되돌림. 사람이 "Preview 를 private 로 안 하면 된다" 고 한 부분은 `private` 인 Preview 도 `PreviewActivity` 로 열리는 것을 먼저 확인해 변경하지 않음
+- **AI 판단과 주의**: 구현했다가 되돌린 딥링크에서 확인한 사실을 TODO 에 반영하지 못함 — 카카오 `target=isbn` 검색이 존재하지 않는 ISBN(`0000000000000`)에도 유사한 도서를 돌려줘 "못 찾음" 처리가 의도대로 되지 않았고, 앱이 떠 있을 때 링크는 NavHost 가 자동으로 처리하지 않아 `onNewIntent` 를 직접 받아야 했음. 나중에 구현할 때 참고
+- **참고**: 개발자 모드는 #77 에서 만듦. 범위는 네트워크 테스트, 디자인 시스템 확인(PreviewActivity), 앱링크(TODO 라 제외), Warm start, LMK
+
+## 77. 개발자 모드 DevActivity (debug 빌드 전용)
+- **활용한 작업(MB-106)**: 메인 화면 제목을 3초 안에 7번 누르면 `DevActivity` 가 열림. 구성
+  - 네트워크 테스트: debug 소스셋의 OkHttp 인터셉터(`DevFaultInterceptor`)가 도서 검색 API 에만 느린 응답(8초), 시간 초과, 서버 오류 500, 인증 실패 401, 연결 실패, "처음 2번만 실패 후 성공"을 일으킴. 오류 변환(`BookApiErrorHandler`)보다 안쪽에 두어 가짜 오류도 실제처럼 변환·재시도를 거침
+  - Warm start: 프로세스는 두고 메인 Activity 만 `recreate()`. LMK: 앱을 백그라운드로 보낸 뒤 1.5초 뒤 프로세스 종료
+  - 디자인 시스템 Preview: 앱 코드의 `...Kt` 클래스에서 이름에 `Preview` 가 들어간 Composable 함수를 실행 중에 찾아(`DexFile`) 목록으로 보여 주고, 누르면 `PreviewActivity` 로 전체 화면으로 엶. 목록을 손으로 적지 않아 Preview 가 늘거나 바뀌어도 어긋나지 않음
+  - release 에는 들어가지 않도록 debug/release 소스셋으로 나눔(`DevInterceptors`, `DevEntry` 는 release 에 빈 구현). `MainRoute` 의 `onTitleClick` 은 null 이면 제목이 눌리는 영역도 되지 않음
+- **검증 방법**: `spotlessCheck`, 전체 단위 테스트(`DevFaultInterceptorTest` 4개 추가), debug·release 빌드 통과. release APK 의 매니페스트와 dex 에 `DevActivity`/`DevFault`/`DevNetwork`/`DevEntry` 가 없고 debug APK 에는 있는 것을 확인. 에뮬레이터(펼친 화면)에서 확인: 제목 7번 탭으로 열림, Preview 목록이 자동으로 나오고 누르면 해당 Preview 가 열림(`SkeletonKt.BookListItemSkeletonPreview`), 401 선택 후 검색하면 닫히지 않는 알림 다이얼로그, Warm start 는 같은 pid 에서 화면만 다시 만들어지고 검색 조건 유지, LMK 는 프로세스가 사라지고 다시 열면 개발자 모드 화면과 검색 결과가 복원됨(앞서 만든 SavedStateHandle 동작 확인)
+  - 확인하지 않은 것: 시간 초과·서버 오류·연결 실패·간헐 실패 모드의 화면(인터셉터 단위 테스트와 401 만 확인), 느린 응답 8초 모드의 스켈레톤, 접은(좁은) 화면에서의 제목 7번 탭
+- **직접 판단한 부분**: 사람이 개발자 모드의 범위(네트워크 테스트, 디자인 시스템 확인, 앱링크, Warm start, LMK)를 정했고, 앱링크는 TODO 로 제외, Preview 는 `private` 을 풀지 않고 `PreviewActivity` 로 열기로 함
+- **AI 실수와 정정**: 확인 스크립트가 스크롤 위치를 놓쳐 버튼을 누르지 못한 채 "성공처럼" 보이는 출력이 나옴(Warm start/LMK 첫 시도) → 위치를 확인하는 단계를 넣어 다시 확인. ktlint 의 파일명 규칙(클래스 하나면 클래스 이름으로) 때문에 `PreviewScanner.kt` 를 `PreviewEntry.kt` 로 바꿈. 압축 해제용 `rm` 이 안전장치에 막혀 압축을 풀지 않는 확인 방법으로 바꿈
+- **AI 판단과 주의**: Preview 찾기는 `@Preview` 를 실행 중에 읽을 수 없어 "이름에 Preview 포함 + Composable 시그니처" 규칙에 의존하고, 사용하는 `DexFile` 은 deprecated 이지만 debug 전용 도구라 허용함. 세 번째 이상의 시도에서 성공시키는 "간헐 실패" 는 재시도 횟수(총 3번)에 맞춰 2번 실패로 고정
+
+## 78. 개발자 모드 Preview 를 디자인 시스템 한정으로, 시스템 바를 피하는 자체 화면으로
+- **활용한 작업(MB-107)**: 사람이 "모든 Preview 가 있을 필요는 없고 디자인 시스템 것만" 이라고 해 목록을 `core.designsystem` 의 Preview 로 좁힘. Compose 도구의 `PreviewActivity` 가 상태 표시줄·내비게이션 바 아래까지 그려 가려지는 문제를, 시스템 바 여백을 적용하는 자체 `DevPreviewActivity` 로 대체해 해결(`getDeclaredComposableMethod` 로 이름으로 찾아 호출). #77 의 "PreviewActivity 로 연다"는 이 변경으로 `DevPreviewActivity` 가 됨
+- **검증 방법**: `spotlessCheck`, 빌드 통과. 에뮬레이터에서 Preview(`TabBarDarkPreview`)를 열어 상태 표시줄 아래에 그려지고 하단 제스처 바를 침범하지 않는 것을 화면으로 확인, 목록이 디자인 시스템 Preview 만 나오는 것을 확인. crash 없음
+  - 확인하지 않은 것: 모든 Preview 가 `DevPreviewActivity` 에서 문제없이 열리는지(하나만 확인. 파라미터를 받는 Preview 가 있으면 열리지 않을 수 있음), 접은 좁은 화면
+- **추가 수정(사람의 지적과 제안)**: 다이얼로그 Preview(`MbDialog*Preview`)가 뒤로가기로 닫히지 않음. 원인은 Preview 의 `onDismissRequest = {}` 와, 다이얼로그가 자기 창으로 화면 전체와 키·터치를 가져가 Activity 안의 요소를 누를 수 없는 것. AI 는 처음에 "닫기" 창(MB-107), 이어서 TopBar 를 별도 창으로 한 번 더 겹쳐 올리는 방식(MB-108)으로 증상을 가리는 쪽으로 해결했으나, 사람이 "다이얼로그 내용을 분리하고 Preview 에는 분리된 컴포저블을 넣자"고 제안해 근본 원인(Preview 가 창을 만드는 것)을 없애는 방식으로 바꿈(MB-109): `MbDialog` 의 상자(제목·메시지·버튼)를 `DialogContent` 로 분리하고 Preview 는 창 없이 이것만 그림. 겹침용 별도 창 코드는 모두 삭제해 `DevPreviewActivity` 가 단순해짐. Android Studio 의 Preview 에서도 Dialog 창은 잘 그려지지 않는 문제가 있어 같이 이점이 됨
+  - 확인: 다이얼로그 Preview 가 TopBar 아래에 상자로 그려지고 뒤로가기 키·화살표로 개발자 모드로 돌아옴. 실제 앱의 다이얼로그는 그대로 동작(401 시뮬레이션: 알림 다이얼로그가 뜨고 `cancelable=false` 라 뒤로가기로 닫히지 않음), crash 없음
+- **AI 실수와 정정**: 처음에는 `private` Preview 호출이 `IllegalAccessException` 으로 앱이 종료됨 → 호출 전에 `asMethod().isAccessible = true`. 앞서 #76 에서 "private 이어도 PreviewActivity 로 열린다" 고 확인했었는데 같은 가정을 직접 호출에는 하지 못한 것(Compose 도구는 접근을 열어 주고, 직접 호출하면 열어야 함)
+
+## 79. README 갱신 (개발자 모드, 상태 복원, 난독화, 미구현 목록)
+- **활용한 작업**: README 에 "개발자 모드(debug 빌드 전용)" 절(진입법, 기능 4가지, release 미포함, 동작 방식)을 추가하고 상단 링크에 연결. 화면 이동 절의 앱 스킴 설명을 "handleDeepLink 까지만 준비"로 고치고, 탭 이동 절에 `SavedStateHandle` 상태 복원을, Dialog 절에 `DialogContent` 분리를, 구현 포인트에 출간일·선택 강조·난독화를, 네트워크 절에 개발자 모드 재현 안내를 추가. "구현하지 않은 것" 표의 딥링크 행을 갱신하고 검색 스크롤 위치 복원 행을 추가, 낡기 쉬운 테스트 개수("약 136개")를 삭제. AI 활용 검증에 개발자 모드로 확인한 내용을 추가
+- **검증 방법**: 문서에 쓴 값을 코드·실제 동작과 대조(진입 7번·3초, 8초 느린 응답, 재시도 총 3번, release APK 에 개발 코드 없음 확인, 앱 스킴이 등록되지 않았다는 점). 사람이 이미 고친 부분(미구현 표에서 뺀 항목 등)은 그대로 둠
+  - 확인하지 않은 것: 마크다운 표의 렌더링 모양, 문서 안 링크(앵커)가 실제로 이동하는지
+- **직접 판단한 부분**: 사람이 README 를 확인한 뒤 직접 커밋하기로 함(AI 는 커밋하지 않음)
