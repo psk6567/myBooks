@@ -13,9 +13,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
@@ -36,6 +39,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -270,6 +274,9 @@ internal fun MainScreen(
     // 넓은 화면(태블릿, 펼친 폴더블)에서는 아래 탭바 대신 왼쪽 탭 레일을 쓴다
     val isWide: Boolean = isWideScreen()
     val tabItems: List<TabItem> = rememberTabItems()
+    // 키보드가 올라와 있는지. 올라와 있으면 아래 탭바는 키보드 뒤로 가려지므로 그리지 않는다.
+    val isKeyboardVisible: Boolean = WindowInsets.ime
+        .getBottom(LocalDensity.current) > 0
 
     SnackbarProvider(snackbarHostState) {
         MainEffectHandler(effect)
@@ -308,7 +315,7 @@ internal fun MainScreen(
                 }
             },
             bottomBar = {
-                if (!isWide) {
+                if (!isWide && !isKeyboardVisible) {
                     TabBar(
                         tabs = tabItems,
                         selectedIndex = state.selectedTab.ordinal,
@@ -320,6 +327,10 @@ internal fun MainScreen(
             Row(
                 modifier = Modifier
                     .padding(innerPadding)
+                    // Scaffold 가 이미 준 여백(내비게이션 바 등)은 쓴 것으로 표시해서, 키보드 여백이 그만큼을 겹쳐 더하지 않게 한다.
+                    // 키보드가 올라오면 목록 영역이 그 높이만큼 줄어서 마지막 항목까지 키보드 위에서 볼 수 있다.
+                    .consumeWindowInsets(innerPadding)
+                    .imePadding()
                     .fillMaxSize()
             ) {
                 if (isWide) {
