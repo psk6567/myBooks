@@ -3,6 +3,8 @@ package com.psk.mybooks.feature.main.ui
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -76,6 +78,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.serialization.Serializable
 
+/** 화면 전환(옆으로 밀기)에 걸리는 시간 */
+private const val NAV_ANIMATION_MILLIS: Int = 300
+
+/** 가려지는 화면이 밀려나는 거리. 화면 폭의 1/NAV_PARALLAX 만큼만 움직여서 새 화면이 위로 덮는 느낌을 준다. */
+private const val NAV_PARALLAX: Int = 4
+
 /** 넓은 화면에서 목록 영역에 대한 상세 패널의 폭 비율 (목록 1 : 상세 1.3) */
 private const val DETAIL_PANE_WEIGHT: Float = 1.3f
 
@@ -101,7 +109,21 @@ fun MainRoute(modifier: Modifier = Modifier, onTitleClick: (() -> Unit)? = null)
         onDispose { activity?.removeOnNewIntentListener(listener) }
     }
 
-    NavHost(navController = navController, startDestination = HomeDestination, modifier = modifier) {
+    NavHost(
+        navController = navController,
+        startDestination = HomeDestination,
+        modifier = modifier,
+        // 화면 전환은 옆으로 미는 방식이다. 상세로 갈 때는 새 화면이 오른쪽에서 들어오고 이전 화면은 왼쪽으로 조금 밀려나며,
+        // 뒤로 갈 때는 반대로 움직인다. (기본 전환은 페이드라 이동 방향이 느껴지지 않는다)
+        enterTransition = { slideIntoContainer(SlideDirection.Start, tween(NAV_ANIMATION_MILLIS)) },
+        exitTransition = {
+            slideOutOfContainer(SlideDirection.Start, tween(NAV_ANIMATION_MILLIS), targetOffset = { it / NAV_PARALLAX })
+        },
+        popEnterTransition = {
+            slideIntoContainer(SlideDirection.End, tween(NAV_ANIMATION_MILLIS), initialOffset = { it / NAV_PARALLAX })
+        },
+        popExitTransition = { slideOutOfContainer(SlideDirection.End, tween(NAV_ANIMATION_MILLIS)) }
+    ) {
         composable<HomeDestination> {
             MainHome(onNavigateToDetail = navController::navigateToDetail, onTitleClick = onTitleClick)
         }
