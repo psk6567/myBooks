@@ -6,7 +6,9 @@ import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByType
 
 internal val Project.libs: VersionCatalog
-    get() = extensions.getByType<VersionCatalogsExtension>().named("libs")
+    get() = extensions
+        .getByType<VersionCatalogsExtension>()
+        .named("libs")
 
 internal fun VersionCatalog.library(alias: String): Provider<MinimalExternalModuleDependency> = findLibrary(alias).get()
 

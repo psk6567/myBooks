@@ -42,7 +42,10 @@ internal fun ViewModeToggle(selected: ViewMode, onSelect: (ViewMode) -> Unit, mo
 
     Row(
         // 아이콘 양옆 12dp 도 눌리도록 padding 을 항목 안에 두었으므로, 오른쪽 끝의 padding 만큼 밀어 아이콘을 가장자리에 맞춘다
-        modifier = modifier.height(32.dp).offset(x = 12.dp).selectableGroup(),
+        modifier = modifier
+            .height(32.dp)
+            .offset(x = 12.dp)
+            .selectableGroup(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         ViewMode.entries.forEachIndexed { index, mode ->
@@ -60,8 +63,7 @@ internal fun ViewModeToggle(selected: ViewMode, onSelect: (ViewMode) -> Unit, mo
                         indication = null,
                         role = Role.RadioButton,
                         onClick = { onSelect(mode) }
-                    )
-                    .padding(horizontal = 12.dp),
+                    ).padding(horizontal = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(icon = mode.icon(), contentDescription = stringResource(mode.labelRes()), tint = tint)

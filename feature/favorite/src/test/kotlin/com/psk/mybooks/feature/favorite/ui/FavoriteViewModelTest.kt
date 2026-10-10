@@ -59,7 +59,8 @@ class FavoriteViewModelTest {
 
         override suspend fun remove(bookId: String) {
             failure?.let { throw it }
-            books.value = books.value.filterNot { it.id == bookId }
+            books.value = books.value
+                .filterNot { it.id == bookId }
         }
     }
 
@@ -88,7 +89,11 @@ class FavoriteViewModelTest {
     fun `시작하면 저장된 즐겨찾기 목록이 제목순으로 채워진다`() {
         val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("2", "나"), book("1", "가"))))
 
-        assertEquals(listOf("1", "2"), viewModel.state.value.books.map { it.id })
+        assertEquals(
+            listOf("1", "2"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
     }
 
     @Test
@@ -100,7 +105,11 @@ class FavoriteViewModelTest {
         viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.PriceAsc, PriceFilter()))
 
         assertEquals(FavoriteSortType.PriceAsc, viewModel.state.value.sort)
-        assertEquals(listOf("2", "1"), viewModel.state.value.books.map { it.id })
+        assertEquals(
+            listOf("2", "1"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
     }
 
     @Test
@@ -115,10 +124,18 @@ class FavoriteViewModelTest {
             FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter(min = 10000, max = 20000))
         )
         assertEquals(PriceFilter(min = 10000, max = 20000), viewModel.state.value.priceFilter)
-        assertEquals(listOf("2"), viewModel.state.value.books.map { it.id })
+        assertEquals(
+            listOf("2"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
 
         viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter()))
-        assertEquals(listOf("1", "2", "3"), viewModel.state.value.books.map { it.id })
+        assertEquals(
+            listOf("1", "2", "3"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
     }
 
     @Test
@@ -132,7 +149,12 @@ class FavoriteViewModelTest {
     }
 
     private fun FavoriteViewModel.requestRemove(id: String) {
-        onIntent(FavoriteIntent.RequestRemove(state.value.books.first { it.id == id }))
+        onIntent(
+            FavoriteIntent.RequestRemove(
+                state.value.books
+                    .first { it.id == id }
+            )
+        )
     }
 
     @Test
@@ -141,8 +163,16 @@ class FavoriteViewModelTest {
 
         viewModel.requestRemove("1")
 
-        assertEquals("1", viewModel.state.value.pendingRemoval?.id)
-        assertEquals(listOf("1", "2"), viewModel.state.value.books.map { it.id })
+        assertEquals(
+            "1",
+            viewModel.state.value.pendingRemoval
+                ?.id
+        )
+        assertEquals(
+            listOf("1", "2"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
     }
 
     @Test
@@ -152,7 +182,11 @@ class FavoriteViewModelTest {
         viewModel.requestRemove("1")
         viewModel.onIntent(FavoriteIntent.ConfirmRemove)
 
-        assertEquals(listOf("2"), viewModel.state.value.books.map { it.id })
+        assertEquals(
+            listOf("2"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
         assertNull(viewModel.state.value.pendingRemoval)
     }
 
@@ -163,7 +197,11 @@ class FavoriteViewModelTest {
         viewModel.requestRemove("1")
         viewModel.onIntent(FavoriteIntent.DismissRemove)
 
-        assertEquals(listOf("1"), viewModel.state.value.books.map { it.id })
+        assertEquals(
+            listOf("1"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
         assertNull(viewModel.state.value.pendingRemoval)
     }
 
@@ -173,7 +211,11 @@ class FavoriteViewModelTest {
 
         viewModel.onIntent(FavoriteIntent.ConfirmRemove)
 
-        assertEquals(listOf("1"), viewModel.state.value.books.map { it.id })
+        assertEquals(
+            listOf("1"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
     }
 
     @Test
@@ -185,7 +227,10 @@ class FavoriteViewModelTest {
             viewModel.onIntent(FavoriteIntent.ConfirmRemove)
         }
 
-        assertTrue(viewModel.state.value.books.isEmpty())
+        assertTrue(
+            viewModel.state.value.books
+                .isEmpty()
+        )
     }
 
     @Test
@@ -195,21 +240,32 @@ class FavoriteViewModelTest {
         }
         val viewModel: FavoriteViewModel = viewModel(repository)
         val received: MutableList<Throwable> = mutableListOf()
-        backgroundScope.launch { viewModel.error.collect { received += it } }
+        backgroundScope.launch {
+            viewModel.error
+                .collect { received += it }
+        }
 
         viewModel.requestRemove("1")
         viewModel.onIntent(FavoriteIntent.ConfirmRemove)
 
         assertEquals(listOf("디스크 오류"), received.map { it.message })
-        assertEquals(listOf("1"), viewModel.state.value.books.map { it.id })
+        assertEquals(
+            listOf("1"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
     }
 
     @Test
     fun `도서를 누르면 상세 화면으로 이동하라는 요청을 한 번 내보낸다`() = runTest(dispatcher) {
         val viewModel: FavoriteViewModel = viewModel(FakeFavoriteRepository(listOf(book("1", "가"))))
         val received: MutableList<FavoriteEffect> = mutableListOf()
-        backgroundScope.launch { viewModel.effect.collect { received += it } }
-        val ui: BookUiModel = viewModel.state.value.books.first()
+        backgroundScope.launch {
+            viewModel.effect
+                .collect { received += it }
+        }
+        val ui: BookUiModel = viewModel.state.value.books
+            .first()
 
         viewModel.onIntent(FavoriteIntent.OpenDetail(ui))
 

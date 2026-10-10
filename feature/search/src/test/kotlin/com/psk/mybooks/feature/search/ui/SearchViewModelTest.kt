@@ -65,16 +65,22 @@ class SearchViewModelTest {
 
         override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> = books
 
-        override fun observeFavoriteIds(): Flow<Set<String>> = books.map { list -> list.map { it.id }.toSet() }
+        override fun observeFavoriteIds(): Flow<Set<String>> = books.map { list ->
+            list
+                .map { it.id }
+                .toSet()
+        }
 
         override suspend fun add(book: Book) {
             failure?.let { throw it }
-            books.value = books.value.filterNot { it.id == book.id } + book
+            books.value = books.value
+                .filterNot { it.id == book.id } + book
         }
 
         override suspend fun remove(bookId: String) {
             failure?.let { throw it }
-            books.value = books.value.filterNot { it.id == bookId }
+            books.value = books.value
+                .filterNot { it.id == bookId }
         }
     }
 
@@ -106,11 +112,16 @@ class SearchViewModelTest {
      */
     private fun TestScope.load(viewModel: SearchViewModel, query: String): List<BookUiModel> {
         val presenter: UiPresenter = UiPresenter(dispatcher)
-        backgroundScope.launch { viewModel.books.collectLatest { presenter.collectFrom(it) } }
+        backgroundScope.launch {
+            viewModel.books
+                .collectLatest { presenter.collectFrom(it) }
+        }
         viewModel.onIntent(SearchIntent.ChangeCondition(query, SearchSortType.Accuracy))
         advanceTimeBy(301)
         runCurrent()
-        return presenter.snapshot().items
+        return presenter
+            .snapshot()
+            .items
     }
 
     private fun viewModel(
@@ -127,49 +138,75 @@ class SearchViewModelTest {
     fun `검색어는 입력이 멈춘 뒤 300ms 후에 검색한다`() = runTest(dispatcher) {
         val repository: FakeBookRepository = FakeBookRepository()
         val viewModel: SearchViewModel = viewModel(repository)
-        backgroundScope.launch { viewModel.books.collect {} }
+        backgroundScope.launch {
+            viewModel.books
+                .collect {}
+        }
 
         viewModel.onIntent(SearchIntent.ChangeCondition("한강", SearchSortType.Accuracy))
         advanceTimeBy(299)
-        assertFalse(repository.calls.any { it.first == "한강" })
+        assertFalse(
+            repository.calls
+                .any { it.first == "한강" }
+        )
 
         advanceTimeBy(2)
-        assertTrue(repository.calls.contains("한강" to SearchSortType.Accuracy))
+        assertTrue(
+            repository.calls
+                .contains("한강" to SearchSortType.Accuracy)
+        )
     }
 
     @Test
     fun `입력 중에는 마지막 검색어만 검색한다`() = runTest(dispatcher) {
         val repository: FakeBookRepository = FakeBookRepository()
         val viewModel: SearchViewModel = viewModel(repository)
-        backgroundScope.launch { viewModel.books.collect {} }
+        backgroundScope.launch {
+            viewModel.books
+                .collect {}
+        }
 
         viewModel.onIntent(SearchIntent.ChangeCondition("한", SearchSortType.Accuracy))
         advanceTimeBy(100)
         viewModel.onIntent(SearchIntent.ChangeCondition("한강", SearchSortType.Accuracy))
         advanceTimeBy(400)
 
-        assertEquals(listOf("한강"), repository.calls.map { it.first })
+        assertEquals(
+            listOf("한강"),
+            repository.calls
+                .map { it.first }
+        )
     }
 
     @Test
     fun `정렬을 바꾸면 기다리지 않고 바로 다시 검색한다`() = runTest(dispatcher) {
         val repository: FakeBookRepository = FakeBookRepository()
         val viewModel: SearchViewModel = viewModel(repository)
-        backgroundScope.launch { viewModel.books.collect {} }
+        backgroundScope.launch {
+            viewModel.books
+                .collect {}
+        }
         viewModel.onIntent(SearchIntent.ChangeCondition("한강", SearchSortType.Accuracy))
         advanceTimeBy(301)
 
         viewModel.onIntent(SearchIntent.ChangeCondition("한강", SearchSortType.Latest))
         runCurrent()
 
-        assertEquals("한강" to SearchSortType.Latest, repository.calls.last())
+        assertEquals(
+            "한강" to SearchSortType.Latest,
+            repository.calls
+                .last()
+        )
     }
 
     @Test
     fun `앞뒤 공백만 다른 검색어는 다시 검색하지 않는다`() = runTest(dispatcher) {
         val repository: FakeBookRepository = FakeBookRepository()
         val viewModel: SearchViewModel = viewModel(repository)
-        backgroundScope.launch { viewModel.books.collect {} }
+        backgroundScope.launch {
+            viewModel.books
+                .collect {}
+        }
         viewModel.onIntent(SearchIntent.ChangeCondition("한강", SearchSortType.Accuracy))
         advanceTimeBy(301)
         val before: Int = repository.calls.size
@@ -225,7 +262,10 @@ class SearchViewModelTest {
         val viewModel: SearchViewModel = viewModel(FakeBookRepository(listOf(book("1"))), favorites)
         load(viewModel, "한강")
         val received: MutableList<Throwable> = mutableListOf()
-        backgroundScope.launch { viewModel.error.collect { received += it } }
+        backgroundScope.launch {
+            viewModel.error
+                .collect { received += it }
+        }
 
         viewModel.onIntent(SearchIntent.ToggleFavorite("1"))
 
@@ -237,7 +277,10 @@ class SearchViewModelTest {
     fun `불러오기 오류를 알리면 그대로 전달하고 같은 오류는 한 번만 전달한다`() = runTest(dispatcher) {
         val viewModel: SearchViewModel = viewModel(FakeBookRepository())
         val received: MutableList<Throwable> = mutableListOf()
-        backgroundScope.launch { viewModel.error.collect { received += it } }
+        backgroundScope.launch {
+            viewModel.error
+                .collect { received += it }
+        }
         val first: Exception = Exception("첫 번째")
         val second: Exception = Exception("두 번째")
 
@@ -253,7 +296,10 @@ class SearchViewModelTest {
     fun `도서를 누르면 상세 화면으로 이동하라는 요청을 한 번 내보낸다`() = runTest(dispatcher) {
         val viewModel: SearchViewModel = viewModel(FakeBookRepository())
         val received: MutableList<SearchEffect> = mutableListOf()
-        backgroundScope.launch { viewModel.effect.collect { received += it } }
+        backgroundScope.launch {
+            viewModel.effect
+                .collect { received += it }
+        }
         val ui: BookUiModel = book("1").toUiModel()
 
         viewModel.onIntent(SearchIntent.OpenDetail(ui))

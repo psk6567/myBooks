@@ -53,7 +53,11 @@ class ObserveFavoriteIdsUseCaseTest {
         ObserveFavoriteIdsUseCase(repository, dispatcher)().first()
         executor.shutdown()
 
-        assertEquals("io-test", repository.collectedOn?.name)
+        assertEquals(
+            "io-test",
+            repository.collectedOn
+                ?.name
+        )
         assertNotEquals(Thread.currentThread(), repository.collectedOn)
     }
 }

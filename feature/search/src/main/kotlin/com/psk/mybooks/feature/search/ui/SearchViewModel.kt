@@ -51,25 +51,28 @@ internal class SearchViewModel @Inject constructor(
      */
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     val books: Flow<PagingData<BookUiModel>> = combine(
-        state.map { it.query.trim() }
-            .distinctUntilChanged()
+        state
+            .map {
+                it.query
+                    .trim()
+            }.distinctUntilChanged()
             // 비우는 건 바로 반영해서 지운 즉시 결과가 사라지게 한다
             .debounce { query -> if (query.isEmpty()) 0L else QUERY_DEBOUNCE_MILLIS },
-        state.map { it.sort }.distinctUntilChanged()
+        state
+            .map { it.sort }
+            .distinctUntilChanged()
     ) { query: String, sort: SearchSortType -> query to sort }
         .distinctUntilChanged()
         .flatMapLatest { (query, sort) ->
             // 새 검색이면 이전 결과의 원본은 필요 없다
             loadedBooks.clear()
             fetchSearchBooks(query, sort)
-        }
-        .map { paging ->
+        }.map { paging ->
             paging.map { book ->
                 loadedBooks[book.id] = book
                 book.toUiModel()
             }
-        }
-        .cachedIn(viewModelScope)
+        }.cachedIn(viewModelScope)
 
     init {
         observeFavorites()

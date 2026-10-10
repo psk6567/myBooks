@@ -10,7 +10,11 @@ plugins {
 // API 키는 저장소에 올리지 않고 local.properties 에 둔다. (KAKAO_API_KEY=...)
 val localProperties: Properties = Properties().apply {
     val file: File = rootProject.file("local.properties")
-    if (file.exists()) file.inputStream().use { load(it) }
+    if (file.exists()) {
+        file
+            .inputStream()
+            .use { load(it) }
+    }
 }
 val kakaoApiKey: String = localProperties.getProperty("KAKAO_API_KEY", "")
 

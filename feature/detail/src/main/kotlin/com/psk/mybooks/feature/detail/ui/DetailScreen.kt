@@ -68,7 +68,8 @@ internal fun DetailRoute(book: BookUiModel, onBack: (() -> Unit)?, modifier: Mod
         key = book.id,
         creationCallback = { factory -> factory.create(book) }
     )
-    val state: DetailUiState by viewModel.state.collectAsStateWithLifecycle()
+    val state: DetailUiState by viewModel.state
+        .collectAsStateWithLifecycle()
     val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
     val currentOnBack: (() -> Unit)? by rememberUpdatedState(onBack)
 
@@ -149,7 +150,11 @@ internal fun DetailScreen(
                     .aspectRatio(2f / 3f)
                     .clip(RoundedCornerShape(12.dp))
             )
-            Column(modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp)
+            ) {
                 rows.forEachIndexed { index, (label, value) ->
                     if (index > 0) HorizontalDivider(color = MyBooksTheme.colors.divider)
                     InfoRow(label = label, value = value)
@@ -183,7 +188,11 @@ private fun InfoRow(label: String, value: String) {
     val colors: MbColors = MyBooksTheme.colors
     val typography: MbTypography = MyBooksTheme.typography
 
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp)
+    ) {
         Text(
             text = label,
             style = typography.normal14,

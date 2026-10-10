@@ -45,11 +45,16 @@ fun TabRail(
     selectedIndex: Int,
     onTabSelected: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
-    windowInsets: WindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Start)
+    windowInsets: WindowInsets = WindowInsets.systemBars
+        .only(WindowInsetsSides.Start)
 ) {
     val colors: MbColors = MyBooksTheme.colors
 
-    Row(modifier = modifier.fillMaxHeight().background(colors.background)) {
+    Row(
+        modifier = modifier
+            .fillMaxHeight()
+            .background(colors.background)
+    ) {
         Column(
             modifier = Modifier
                 .windowInsetsPadding(windowInsets)

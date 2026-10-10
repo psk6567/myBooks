@@ -123,7 +123,8 @@ fun BookListItem(
                     } else {
                         Text(
                             text = price,
-                            style = typography.normal12.copy(textDecoration = TextDecoration.LineThrough),
+                            style = typography.normal12
+                                .copy(textDecoration = TextDecoration.LineThrough),
                             color = colors.textTertiary
                         )
                         HSpacer(8.dp)

@@ -275,6 +275,17 @@ skill [.claude/skills/mybooks-new-module/SKILL.md](.claude/skills/mybooks-new-mo
 
 Spotless는 위 명령을 실행할 때만 동작합니다. 커밋 전에 `spotlessApply`를 실행합니다.
 
+주요 규칙은 `.editorconfig`에 있습니다.
+
+- 클래스 생성자의 파라미터는 1개여도 한 줄에 하나씩 줄바꿈합니다.
+- 호출이 2개 이상 이어지면(체이닝) 한 줄에 하나씩 줄바꿈합니다. 수신자는 첫 줄에 두고 각 호출을 다음 줄에 `.`으로 시작합니다.
+
+  ```kotlin
+  Modifier
+      .fillMaxWidth()
+      .padding(16.dp)
+  ```
+
 ### Android Studio 저장 시 자동 정렬
 
 `Settings → Tools → Actions on Save`에서 아래 두 항목을 켭니다.

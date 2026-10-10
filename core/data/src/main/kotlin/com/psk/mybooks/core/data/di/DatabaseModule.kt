@@ -19,8 +19,9 @@ internal object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): MyBooksDatabase =
-        Room.databaseBuilder(context, MyBooksDatabase::class.java, DATABASE_NAME).build()
+    fun provideDatabase(@ApplicationContext context: Context): MyBooksDatabase = Room
+        .databaseBuilder(context, MyBooksDatabase::class.java, DATABASE_NAME)
+        .build()
 
     @Provides
     fun provideFavoriteDao(database: MyBooksDatabase): FavoriteDao = database.favoriteDao()

@@ -34,7 +34,12 @@ class PriceFilterSliderTest {
             PriceFilter(min = 1_000, max = 99_000),
             PriceFilter(min = 38_000, max = 62_000)
         ).forEach { filter ->
-            assertEquals(filter, filter.toSliderRange().toPriceFilter())
+            assertEquals(
+                filter,
+                filter
+                    .toSliderRange()
+                    .toPriceFilter()
+            )
         }
     }
 

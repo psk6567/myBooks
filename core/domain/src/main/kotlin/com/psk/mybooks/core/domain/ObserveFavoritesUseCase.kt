@@ -19,6 +19,7 @@ class ObserveFavoritesUseCase @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
 
-    operator fun invoke(sort: FavoriteSortType, priceFilter: PriceFilter = PriceFilter()): Flow<List<Book>> =
-        repository.observeFavorites(sort, priceFilter).flowOn(ioDispatcher)
+    operator fun invoke(sort: FavoriteSortType, priceFilter: PriceFilter = PriceFilter()): Flow<List<Book>> = repository
+        .observeFavorites(sort, priceFilter)
+        .flowOn(ioDispatcher)
 }

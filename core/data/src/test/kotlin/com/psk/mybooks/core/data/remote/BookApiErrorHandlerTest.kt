@@ -18,19 +18,26 @@ class BookApiErrorHandlerTest {
 
     /** 핸들러 뒤에서 정해 둔 상태와 본문으로 응답하는 클라이언트. 네트워크를 쓰지 않는다. */
     private fun call(status: Int, body: String): Response {
-        val client: OkHttpClient = OkHttpClient.Builder()
+        val client: OkHttpClient = OkHttpClient
+            .Builder()
             .addInterceptor(BookApiErrorHandler())
             .addInterceptor { chain ->
-                Response.Builder()
+                Response
+                    .Builder()
                     .request(chain.request())
                     .protocol(Protocol.HTTP_1_1)
                     .code(status)
                     .message("test")
                     .body(body.toResponseBody("application/json".toMediaType()))
                     .build()
-            }
-            .build()
-        return client.newCall(Request.Builder().url("https://dapi.kakao.com/v3/search/book?query=a").build()).execute()
+            }.build()
+        return client
+            .newCall(
+                Request
+                    .Builder()
+                    .url("https://dapi.kakao.com/v3/search/book?query=a")
+                    .build()
+            ).execute()
     }
 
     /** 오류 응답이면 던져진 예외를 돌려준다. */
@@ -49,7 +56,11 @@ class BookApiErrorHandlerTest {
         val response: Response = call(200, """{"documents":[],"meta":{}}""")
 
         assertEquals(200, response.code)
-        assertEquals("""{"documents":[],"meta":{}}""", response.body.string())
+        assertEquals(
+            """{"documents":[],"meta":{}}""",
+            response.body
+                .string()
+        )
     }
 
     @Test
@@ -68,7 +79,11 @@ class BookApiErrorHandlerTest {
         val e: BookApiException =
             failure(401, """{"errorType":"AccessDeniedError","message":"wrong appKey(SECRET-KEY) format"}""")
 
-        assertFalse(e.message.orEmpty().contains("SECRET-KEY"))
+        assertFalse(
+            e.message
+                .orEmpty()
+                .contains("SECRET-KEY")
+        )
     }
 
     @Test

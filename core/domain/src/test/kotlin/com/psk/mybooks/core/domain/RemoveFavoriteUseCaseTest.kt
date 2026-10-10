@@ -53,7 +53,11 @@ class RemoveFavoriteUseCaseTest {
         RemoveFavoriteUseCase(repository, dispatcher)("1")
         executor.shutdown()
 
-        assertEquals("io-test", repository.removedOn?.name)
+        assertEquals(
+            "io-test",
+            repository.removedOn
+                ?.name
+        )
         assertNotEquals(Thread.currentThread(), repository.removedOn)
     }
 }

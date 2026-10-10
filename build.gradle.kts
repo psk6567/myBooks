@@ -17,11 +17,17 @@ spotless {
     kotlin {
         target("**/*.kt")
         targetExclude("**/build/**")
-        ktlint(libs.versions.ktlint.get())
+        ktlint(
+            libs.versions.ktlint
+                .get()
+        )
     }
     kotlinGradle {
         target("**/*.gradle.kts")
         targetExclude("**/build/**")
-        ktlint(libs.versions.ktlint.get())
+        ktlint(
+            libs.versions.ktlint
+                .get()
+        )
     }
 }

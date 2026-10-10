@@ -41,7 +41,11 @@ class MviViewModelTest {
 
         viewModel.fail(error)
 
-        assertSame(error, viewModel.error.first())
+        assertSame(
+            error,
+            viewModel.error
+                .first()
+        )
     }
 
     @Test
@@ -50,7 +54,10 @@ class MviViewModelTest {
         val first: Exception = Exception("첫 번째")
         val second: Exception = Exception("두 번째")
         val received: MutableList<Throwable> = mutableListOf()
-        backgroundScope.launch { viewModel.error.collect { received += it } }
+        backgroundScope.launch {
+            viewModel.error
+                .collect { received += it }
+        }
 
         viewModel.fail(first)
         viewModel.fail(first)
@@ -71,7 +78,15 @@ class MviViewModelTest {
         viewModel.fail(first)
         viewModel.fail(second)
 
-        assertSame(first, viewModel.error.first())
-        assertSame(second, viewModel.error.first())
+        assertSame(
+            first,
+            viewModel.error
+                .first()
+        )
+        assertSame(
+            second,
+            viewModel.error
+                .first()
+        )
     }
 }

@@ -48,7 +48,8 @@ fun SearchBar(
     onSearch: (String) -> Unit = {}
 ) {
     val colors: MbColors = MyBooksTheme.colors
-    val textStyle: TextStyle = MyBooksTheme.typography.normal14.copy(color = colors.textPrimary)
+    val textStyle: TextStyle = MyBooksTheme.typography.normal14
+        .copy(color = colors.textPrimary)
     val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
 
     BasicTextField(

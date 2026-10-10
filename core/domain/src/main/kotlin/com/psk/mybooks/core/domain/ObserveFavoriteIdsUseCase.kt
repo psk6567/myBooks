@@ -16,5 +16,7 @@ class ObserveFavoriteIdsUseCase @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
 
-    operator fun invoke(): Flow<Set<String>> = repository.observeFavoriteIds().flowOn(ioDispatcher)
+    operator fun invoke(): Flow<Set<String>> = repository
+        .observeFavoriteIds()
+        .flowOn(ioDispatcher)
 }

@@ -61,7 +61,14 @@ internal class DetailViewModel @AssistedInject constructor(
         val current: DetailUiState = state.value
         viewModelScope.launch {
             try {
-                if (current.isFavorite) removeFavorite(current.book.id) else addFavorite(current.book.toBook())
+                if (current.isFavorite) {
+                    removeFavorite(current.book.id)
+                } else {
+                    addFavorite(
+                        current.book
+                            .toBook()
+                    )
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

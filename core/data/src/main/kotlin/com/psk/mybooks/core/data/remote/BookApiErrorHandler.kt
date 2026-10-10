@@ -50,7 +50,9 @@ internal class BookApiErrorHandler : Interceptor {
 
         val status: Int = response.code
         val body: String = try {
-            response.peekBody(MAX_ERROR_BODY_BYTES).string()
+            response
+                .peekBody(MAX_ERROR_BODY_BYTES)
+                .string()
         } catch (e: IOException) {
             ""
         }

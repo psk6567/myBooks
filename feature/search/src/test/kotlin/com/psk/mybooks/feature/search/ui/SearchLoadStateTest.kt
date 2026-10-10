@@ -51,7 +51,9 @@ class SearchLoadStateTest {
     }
 
     private suspend fun pagedOf(items: List<String>): PagingData<String> =
-        Pager(PagingConfig(pageSize = 10, enablePlaceholders = false)) { FixedSource(items) }.flow.first()
+        Pager(PagingConfig(pageSize = 10, enablePlaceholders = false)) { FixedSource(items) }
+            .flow
+            .first()
 
     @Test
     fun `불러온 결과가 0건이면 결과 없음이다`() = runTest {

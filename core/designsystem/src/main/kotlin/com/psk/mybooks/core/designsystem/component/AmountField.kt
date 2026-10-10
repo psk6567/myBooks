@@ -47,7 +47,13 @@ fun AmountField(
 
     BasicTextField(
         value = value,
-        onValueChange = { input -> onValueChange(input.filter(Char::isDigit).take(maxLength)) },
+        onValueChange = { input ->
+            onValueChange(
+                input
+                    .filter(Char::isDigit)
+                    .take(maxLength)
+            )
+        },
         modifier = modifier.fillMaxWidth(),
         singleLine = true,
         textStyle = textStyle,

@@ -90,7 +90,11 @@ fun BookGridItem(
                     .clipToBounds()
             ) {
                 // matchParentSize 안에 넣어 복사본의 크기가 띠의 높이에 영향을 주지 않게 한다(높이는 글자만으로 정해진다)
-                Box(modifier = Modifier.matchParentSize().clipToBounds()) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clipToBounds()
+                ) {
                     NetworkImage(
                         url = thumbnailUrl,
                         contentDescription = null,
@@ -100,8 +104,16 @@ fun BookGridItem(
                             .blur(radius = INFO_BLUR_RADIUS, edgeTreatment = BlurredEdgeTreatment.Rectangle)
                     )
                 }
-                Box(modifier = Modifier.matchParentSize().background(colors.imageOverlay))
-                Column(modifier = Modifier.fillMaxWidth().padding(INFO_PADDING)) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(colors.imageOverlay)
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(INFO_PADDING)
+                ) {
                     Text(
                         text = title,
                         style = typography.bold12,
@@ -112,7 +124,8 @@ fun BookGridItem(
                     Text(
                         text = publisher,
                         style = typography.normal10,
-                        color = colors.onImageOverlay.copy(alpha = 0.8f),
+                        color = colors.onImageOverlay
+                            .copy(alpha = 0.8f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -121,12 +134,17 @@ fun BookGridItem(
             FavoriteButton(
                 isFavorite = isFavorite,
                 onClick = onFavoriteClick,
-                modifier = Modifier.align(Alignment.TopEnd).padding(4.dp),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp),
                 size = 28.dp
             )
         }
         Column(
-            modifier = Modifier.fillMaxWidth().height(PRICE_AREA_HEIGHT).padding(horizontal = 2.dp, vertical = 6.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(PRICE_AREA_HEIGHT)
+                .padding(horizontal = 2.dp, vertical = 6.dp)
         ) {
             if (salePrice == null) {
                 Text(text = price, style = typography.bold14, color = colors.textPrimary, maxLines = 1)
@@ -134,7 +152,8 @@ fun BookGridItem(
                 Text(text = salePrice, style = typography.bold14, color = colors.salePrice, maxLines = 1)
                 Text(
                     text = price,
-                    style = typography.normal10.copy(textDecoration = TextDecoration.LineThrough),
+                    style = typography.normal10
+                        .copy(textDecoration = TextDecoration.LineThrough),
                     color = colors.textTertiary,
                     maxLines = 1
                 )

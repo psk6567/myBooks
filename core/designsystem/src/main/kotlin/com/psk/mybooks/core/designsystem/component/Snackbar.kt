@@ -180,7 +180,9 @@ private fun MbSnackbarPreview() {
 private fun MbSnackbarDarkPreview() {
     MyBooksTheme(darkTheme = true) {
         androidx.compose.foundation.layout.Column(
-            modifier = Modifier.background(MyBooksTheme.colors.background).padding(16.dp)
+            modifier = Modifier
+                .background(MyBooksTheme.colors.background)
+                .padding(16.dp)
         ) {
             MbSnackbar(message = "검색 결과를 불러왔습니다", type = SnackbarType.None)
             MbSnackbar(message = "즐겨찾기에 담았습니다", type = SnackbarType.Success, modifier = Modifier.padding(top = 8.dp))

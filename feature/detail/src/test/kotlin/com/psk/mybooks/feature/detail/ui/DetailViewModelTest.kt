@@ -44,16 +44,22 @@ class DetailViewModelTest {
 
         override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> = emptyFlow()
 
-        override fun observeFavoriteIds(): Flow<Set<String>> = books.map { list -> list.map { it.id }.toSet() }
+        override fun observeFavoriteIds(): Flow<Set<String>> = books.map { list ->
+            list
+                .map { it.id }
+                .toSet()
+        }
 
         override suspend fun add(book: Book) {
             failure?.let { throw it }
-            books.value = books.value.filterNot { it.id == book.id } + book
+            books.value = books.value
+                .filterNot { it.id == book.id } + book
         }
 
         override suspend fun remove(bookId: String) {
             failure?.let { throw it }
-            books.value = books.value.filterNot { it.id == bookId }
+            books.value = books.value
+                .filterNot { it.id == bookId }
         }
     }
 
@@ -116,7 +122,12 @@ class DetailViewModelTest {
 
         viewModel.onIntent(DetailIntent.ToggleFavorite)
 
-        assertEquals(book, repository.books.value.single().toUiModel())
+        assertEquals(
+            book,
+            repository.books.value
+                .single()
+                .toUiModel()
+        )
     }
 
     @Test
@@ -138,7 +149,10 @@ class DetailViewModelTest {
         }
         val viewModel: DetailViewModel = viewModel(repository)
         val received: MutableList<Throwable> = mutableListOf()
-        backgroundScope.launch { viewModel.error.collect { received += it } }
+        backgroundScope.launch {
+            viewModel.error
+                .collect { received += it }
+        }
 
         viewModel.onIntent(DetailIntent.ToggleFavorite)
 
@@ -150,7 +164,10 @@ class DetailViewModelTest {
     fun `뒤로가기를 누르면 화면을 닫으라는 요청을 한 번 내보낸다`() = runTest(dispatcher) {
         val viewModel: DetailViewModel = viewModel(FakeFavoriteRepository())
         val received: MutableList<DetailEffect> = mutableListOf()
-        backgroundScope.launch { viewModel.effect.collect { received += it } }
+        backgroundScope.launch {
+            viewModel.effect
+                .collect { received += it }
+        }
 
         viewModel.onIntent(DetailIntent.Back)
 

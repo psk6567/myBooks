@@ -93,7 +93,8 @@ fun MainRoute(modifier: Modifier = Modifier) {
 @Composable
 private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit) {
     val viewModel: MainViewModel = viewModel()
-    val state: MainUiState by viewModel.state.collectAsStateWithLifecycle()
+    val state: MainUiState by viewModel.state
+        .collectAsStateWithLifecycle()
     val isWide: Boolean = isWideScreen()
     val onBookClick: (BookUiModel) -> Unit = { book ->
         if (isWide) viewModel.onIntent(MainIntent.SelectBook(book)) else onNavigateToDetail(book)
@@ -205,7 +206,10 @@ internal fun MainScreen(
             topBar = {
                 // Scaffold 는 topBar 에 좌우 여백을 주지 않으므로 가로 모드의 내비게이션 바를 피한다
                 Column(
-                    modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
+                    modifier = Modifier.windowInsetsPadding(
+                        WindowInsets.systemBars
+                            .only(WindowInsetsSides.Horizontal)
+                    )
                 ) {
                     TitleBar(label = stringResource(state.selectedTab.labelRes))
                     SearchBar(
@@ -227,7 +231,11 @@ internal fun MainScreen(
                 }
             }
         ) { innerPadding ->
-            Row(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+            Row(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
                 if (isWide) {
                     TabRail(
                         tabs = tabItems,
@@ -237,10 +245,17 @@ internal fun MainScreen(
                 }
                 // 목록 영역. 넓은 화면에서는 오른쪽에 상세 패널이 붙으므로 남는 폭을 나눠 쓴다.
                 // 페이지 안 목록의 스크롤이 nestedScroll 로 올라와 정렬·보기 방식 줄을 숨기고 보인다
-                Column(modifier = Modifier.weight(1f).fillMaxHeight().nestedScroll(hideOnScrollState.connection)) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .nestedScroll(hideOnScrollState.connection)
+                ) {
                     Column(modifier = Modifier.hideOnScroll(hideOnScrollState)) {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -248,8 +263,13 @@ internal fun MainScreen(
                                 OutlinedChip(
                                     text = stringResource(
                                         when (state.selectedTab) {
-                                            MainTab.Search -> state.searchSort.labelRes()
-                                            MainTab.Favorite -> state.favoriteSort.labelRes()
+                                            MainTab.Search ->
+                                                state.searchSort
+                                                    .labelRes()
+
+                                            MainTab.Favorite ->
+                                                state.favoriteSort
+                                                    .labelRes()
                                         }
                                     ),
                                     onClick = sortSheet::show
@@ -273,7 +293,9 @@ internal fun MainScreen(
                     }
                     HorizontalPager(
                         state = pagerState,
-                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                         // 탭이 둘뿐이라 둘 다 유지해서 탭을 오가도 스크롤·입력 상태가 남게 한다
                         beyondViewportPageCount = MainTab.entries.size - 1
                     ) { page ->
@@ -282,7 +304,11 @@ internal fun MainScreen(
                 }
                 if (isWide) {
                     VerticalDivider(color = MyBooksTheme.colors.divider)
-                    Box(modifier = Modifier.weight(DETAIL_PANE_WEIGHT).fillMaxHeight()) {
+                    Box(
+                        modifier = Modifier
+                            .weight(DETAIL_PANE_WEIGHT)
+                            .fillMaxHeight()
+                    ) {
                         val selectedBook: BookUiModel? = state.selectedBook
                         if (selectedBook == null) {
                             EmptyMessage(message = stringResource(R.string.feature_main_select_book))

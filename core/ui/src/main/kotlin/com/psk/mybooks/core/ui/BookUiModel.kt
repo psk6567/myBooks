@@ -106,4 +106,6 @@ fun BookUiModel.priceText(): String = stringResource(R.string.core_ui_price, for
 fun BookUiModel.salePriceText(): String? = salePrice?.let { stringResource(R.string.core_ui_price, formatPrice(it)) }
 
 /** 천 단위 구분 (예: 15000 → 15,000) */
-private fun formatPrice(price: Int): String = NumberFormat.getNumberInstance().format(price)
+private fun formatPrice(price: Int): String = NumberFormat
+    .getNumberInstance()
+    .format(price)

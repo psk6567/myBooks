@@ -60,7 +60,11 @@ class FetchSearchBooksUseCaseTest {
         FetchSearchBooksUseCase(repository, dispatcher)("한강", SearchSortType.Accuracy).first()
         executor.shutdown()
 
-        assertEquals("io-test", repository.collectedOn?.name)
+        assertEquals(
+            "io-test",
+            repository.collectedOn
+                ?.name
+        )
         assertNotEquals(Thread.currentThread(), repository.collectedOn)
     }
 

@@ -25,6 +25,10 @@ internal fun PriceFilter.toSliderRange(): ClosedFloatingPointRange<Float> {
 
 /** 슬라이더의 선택 범위를 필터로 바꾼다. 끝에 닿은 쪽은 제한하지 않는다. (둘 다 끝이면 필터가 없다) */
 internal fun ClosedFloatingPointRange<Float>.toPriceFilter(): PriceFilter = PriceFilter(
-    min = start.takeIf { it > 0f }?.roundToInt(),
-    max = endInclusive.takeIf { it < PRICE_SLIDER_MAX }?.roundToInt()
+    min = start
+        .takeIf { it > 0f }
+        ?.roundToInt(),
+    max = endInclusive
+        .takeIf { it < PRICE_SLIDER_MAX }
+        ?.roundToInt()
 )

@@ -36,13 +36,53 @@ class BookSearchResponseTest {
 
         assertEquals(43, response.meta.totalCount)
         assertTrue(!response.meta.isEnd)
-        assertEquals("클린 코드", response.documents.single().title)
-        assertEquals(listOf("로버트 C. 마틴"), response.documents.single().authors)
-        assertEquals(33000, response.documents.single().price)
-        assertEquals(29700, response.documents.single().salePrice)
-        assertEquals(listOf("박재호"), response.documents.single().translators)
-        assertEquals("2013-12-24T00:00:00.000+09:00", response.documents.single().datetime)
-        assertEquals("소개", response.documents.single().contents)
-        assertEquals("정상판매", response.documents.single().status)
+        assertEquals(
+            "클린 코드",
+            response.documents
+                .single()
+                .title
+        )
+        assertEquals(
+            listOf("로버트 C. 마틴"),
+            response.documents
+                .single()
+                .authors
+        )
+        assertEquals(
+            33000,
+            response.documents
+                .single()
+                .price
+        )
+        assertEquals(
+            29700,
+            response.documents
+                .single()
+                .salePrice
+        )
+        assertEquals(
+            listOf("박재호"),
+            response.documents
+                .single()
+                .translators
+        )
+        assertEquals(
+            "2013-12-24T00:00:00.000+09:00",
+            response.documents
+                .single()
+                .datetime
+        )
+        assertEquals(
+            "소개",
+            response.documents
+                .single()
+                .contents
+        )
+        assertEquals(
+            "정상판매",
+            response.documents
+                .single()
+                .status
+        )
     }
 }

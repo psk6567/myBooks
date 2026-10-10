@@ -70,11 +70,11 @@ class BookPagingSourceTest {
     private fun source(api: BookApi, query: String = "한강", sort: SearchSort = SearchSort.Accuracy): BookPagingSource =
         BookPagingSource(api = api, query = query, sort = sort, pageSize = 10)
 
-    private fun refresh(key: Int? = null): PagingSource.LoadParams<Int> =
-        PagingSource.LoadParams.Refresh(key = key, loadSize = 10, placeholdersEnabled = false)
+    private fun refresh(key: Int? = null): PagingSource.LoadParams<Int> = PagingSource.LoadParams
+        .Refresh(key = key, loadSize = 10, placeholdersEnabled = false)
 
-    private fun append(key: Int): PagingSource.LoadParams<Int> =
-        PagingSource.LoadParams.Append(key = key, loadSize = 10, placeholdersEnabled = false)
+    private fun append(key: Int): PagingSource.LoadParams<Int> = PagingSource.LoadParams
+        .Append(key = key, loadSize = 10, placeholdersEnabled = false)
 
     private fun PagingSource.LoadResult<Int, Book>.page(): PagingSource.LoadResult.Page<Int, Book> =
         this as PagingSource.LoadResult.Page
@@ -83,9 +83,15 @@ class BookPagingSourceTest {
     fun `처음에는 1페이지를 정해진 크기와 정렬로 불러오고 다음 키는 2다`() = runTest {
         val api: FakeBookApi = FakeBookApi { response(1, 2) }
 
-        val result = source(api, query = " 한강 ", sort = SearchSort.Latest).load(refresh()).page()
+        val result = source(api, query = " 한강 ", sort = SearchSort.Latest)
+            .load(refresh())
+            .page()
 
-        assertEquals(listOf("1", "2"), result.data.map { it.id })
+        assertEquals(
+            listOf("1", "2"),
+            result.data
+                .map { it.id }
+        )
         assertEquals(2, result.nextKey)
         assertNull(result.prevKey)
         assertEquals(1, api.lastPage)
@@ -96,23 +102,33 @@ class BookPagingSourceTest {
 
     @Test
     fun `is_end 가 true 이면 다음 키가 없다`() = runTest {
-        val result = source(FakeBookApi { response(1, isEnd = true) }).load(refresh()).page()
+        val result = source(FakeBookApi { response(1, isEnd = true) })
+            .load(refresh())
+            .page()
 
         assertNull(result.nextKey)
     }
 
     @Test
     fun `50페이지에서는 is_end 가 false 여도 다음 키가 없다`() = runTest {
-        val result = source(FakeBookApi { response(1, isEnd = false) }).load(append(50)).page()
+        val result = source(FakeBookApi { response(1, isEnd = false) })
+            .load(append(50))
+            .page()
 
         assertNull(result.nextKey)
     }
 
     @Test
     fun `한 페이지 안의 같은 항목은 하나만 남긴다`() = runTest {
-        val result = source(FakeBookApi { response(1, 2, 1) }).load(refresh()).page()
+        val result = source(FakeBookApi { response(1, 2, 1) })
+            .load(refresh())
+            .page()
 
-        assertEquals(listOf("1", "2"), result.data.map { it.id })
+        assertEquals(
+            listOf("1", "2"),
+            result.data
+                .map { it.id }
+        )
     }
 
     @Test
@@ -121,30 +137,51 @@ class BookPagingSourceTest {
         val api: FakeBookApi = FakeBookApi { page -> if (page == 1) response(1, 2, 3) else response(3, 4, 5) }
         val source: BookPagingSource = source(api)
 
-        source.load(refresh()).page()
-        val second = source.load(append(2)).page()
+        source
+            .load(refresh())
+            .page()
+        val second = source
+            .load(append(2))
+            .page()
 
-        assertEquals(listOf("4", "5"), second.data.map { it.id })
+        assertEquals(
+            listOf("4", "5"),
+            second.data
+                .map { it.id }
+        )
     }
 
     @Test
     fun `같은 페이지를 다시 불러오면(재시도) 항목을 걸러 내지 않는다`() = runTest {
         val source: BookPagingSource = source(FakeBookApi { response(1, 2) })
 
-        source.load(refresh()).page()
-        val again = source.load(refresh()).page()
+        source
+            .load(refresh())
+            .page()
+        val again = source
+            .load(refresh())
+            .page()
 
-        assertEquals(listOf("1", "2"), again.data.map { it.id })
+        assertEquals(
+            listOf("1", "2"),
+            again.data
+                .map { it.id }
+        )
     }
 
     @Test
     fun `검색어가 비어 있으면 서버를 부르지 않고 빈 페이지를 준다`() = runTest {
         val api: FakeBookApi = FakeBookApi { error("호출되면 안 된다") }
 
-        val result = source(api, query = "  ").load(refresh()).page()
+        val result = source(api, query = "  ")
+            .load(refresh())
+            .page()
 
         assertEquals(0, api.callCount)
-        assertTrue(result.data.isEmpty())
+        assertTrue(
+            result.data
+                .isEmpty()
+        )
         assertNull(result.nextKey)
     }
 
@@ -163,7 +200,8 @@ class BookPagingSourceTest {
     fun `API 오류는 종류에 맞는 이유로 분류한다`() = runTest {
         suspend fun reasonOf(error: Exception): ErrorReason =
             (source(FakeBookApi { throw error }).load(refresh()) as PagingSource.LoadResult.Error)
-                .throwable.toErrorReason()
+                .throwable
+                .toErrorReason()
 
         assertEquals(ErrorReason.Unauthorized, reasonOf(BookApiException.Unauthorized(401, null, "AccessDeniedError")))
         assertEquals(ErrorReason.Forbidden, reasonOf(BookApiException.Forbidden(403, -3, null)))
@@ -176,7 +214,8 @@ class BookPagingSourceTest {
 
     @Test
     fun `중요도는 인증과 권한 오류만 High 이고 나머지는 Low 다`() {
-        val high: List<ErrorReason> = ErrorReason.entries.filter { it.severity == ErrorSeverity.High }
+        val high: List<ErrorReason> = ErrorReason.entries
+            .filter { it.severity == ErrorSeverity.High }
 
         assertEquals(listOf(ErrorReason.Unauthorized, ErrorReason.Forbidden), high)
     }
@@ -186,7 +225,8 @@ class BookPagingSourceTest {
         val api: FakeBookApi = FakeBookApi { throw CancellationException("cancelled") }
 
         assertThrows(CancellationException::class.java) {
-            kotlinx.coroutines.runBlocking { source(api).load(refresh()) }
+            kotlinx.coroutines
+                .runBlocking { source(api).load(refresh()) }
         }
     }
 }

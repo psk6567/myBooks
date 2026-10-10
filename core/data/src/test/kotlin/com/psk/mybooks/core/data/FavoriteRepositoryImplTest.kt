@@ -27,11 +27,13 @@ class FavoriteRepositoryImplTest {
         override fun observeIds(): Flow<List<String>> = rows.map { list -> list.map { it.id } }
 
         override suspend fun insert(entity: FavoriteEntity) {
-            rows.value = rows.value.filterNot { it.id == entity.id } + entity
+            rows.value = rows.value
+                .filterNot { it.id == entity.id } + entity
         }
 
         override suspend fun delete(id: String) {
-            rows.value = rows.value.filterNot { it.id == id }
+            rows.value = rows.value
+                .filterNot { it.id == id }
         }
     }
 
@@ -63,7 +65,12 @@ class FavoriteRepositoryImplTest {
 
         repository.add(saved)
 
-        assertEquals(listOf(saved), repository.observeFavorites(FavoriteSortType.TitleAsc).first())
+        assertEquals(
+            listOf(saved),
+            repository
+                .observeFavorites(FavoriteSortType.TitleAsc)
+                .first()
+        )
     }
 
     @Test
@@ -71,22 +78,36 @@ class FavoriteRepositoryImplTest {
         repository.add(book("1", price = 10000))
         repository.add(book("1", price = 12000))
 
-        val favorites: List<Book> = repository.observeFavorites(FavoriteSortType.TitleAsc).first()
+        val favorites: List<Book> = repository
+            .observeFavorites(FavoriteSortType.TitleAsc)
+            .first()
 
         assertEquals(1, favorites.size)
-        assertEquals(12000, favorites.single().price)
+        assertEquals(
+            12000,
+            favorites
+                .single()
+                .price
+        )
     }
 
     @Test
     fun `담을 때 시각이 기록되고 다시 담으면 시각이 새로 기록된다`() = runTest {
         repository.add(book("1"))
         repository.add(book("2"))
-        val first: Long = dao.rows.value.first { it.id == "1" }.savedAt
+        val first: Long = dao.rows.value
+            .first { it.id == "1" }
+            .savedAt
 
         repository.add(book("1"))
 
         assertEquals(1_000L, first)
-        assertEquals(1_002L, dao.rows.value.first { it.id == "1" }.savedAt)
+        assertEquals(
+            1_002L,
+            dao.rows.value
+                .first { it.id == "1" }
+                .savedAt
+        )
     }
 
     @Test
@@ -97,14 +118,35 @@ class FavoriteRepositoryImplTest {
         repository.remove("1")
         repository.remove("없는 id")
 
-        assertEquals(setOf("2"), repository.observeFavoriteIds().first())
-        assertEquals(listOf("2"), repository.observeFavorites(FavoriteSortType.TitleAsc).first().map { it.id })
+        assertEquals(
+            setOf("2"),
+            repository
+                .observeFavoriteIds()
+                .first()
+        )
+        assertEquals(
+            listOf("2"),
+            repository
+                .observeFavorites(FavoriteSortType.TitleAsc)
+                .first()
+                .map { it.id }
+        )
     }
 
     @Test
     fun `아무것도 담지 않았으면 빈 목록이고 빈 id 모음이다`() = runTest {
-        assertTrue(repository.observeFavorites(FavoriteSortType.TitleAsc).first().isEmpty())
-        assertTrue(repository.observeFavoriteIds().first().isEmpty())
+        assertTrue(
+            repository
+                .observeFavorites(FavoriteSortType.TitleAsc)
+                .first()
+                .isEmpty()
+        )
+        assertTrue(
+            repository
+                .observeFavoriteIds()
+                .first()
+                .isEmpty()
+        )
     }
 
     @Test
@@ -113,7 +155,10 @@ class FavoriteRepositoryImplTest {
         repository.add(book("1", title = "다", price = 10000))
         repository.add(book("2", title = "가", price = 20000))
 
-        suspend fun ids(sort: FavoriteSortType): List<String> = repository.observeFavorites(sort).first().map { it.id }
+        suspend fun ids(sort: FavoriteSortType): List<String> = repository
+            .observeFavorites(sort)
+            .first()
+            .map { it.id }
 
         assertEquals(listOf("2", "3", "1"), ids(FavoriteSortType.TitleAsc))
         assertEquals(listOf("1", "3", "2"), ids(FavoriteSortType.TitleDesc))
@@ -127,7 +172,10 @@ class FavoriteRepositoryImplTest {
         repository.add(book("2", price = 20000, salePrice = -1))
         repository.add(book("3", price = 12000, salePrice = 30000))
 
-        suspend fun ids(sort: FavoriteSortType): List<String> = repository.observeFavorites(sort).first().map { it.id }
+        suspend fun ids(sort: FavoriteSortType): List<String> = repository
+            .observeFavorites(sort)
+            .first()
+            .map { it.id }
 
         assertEquals(listOf("1", "2", "3"), ids(FavoriteSortType.PriceAsc))
         assertEquals(listOf("3", "2", "1"), ids(FavoriteSortType.PriceDesc))
@@ -163,8 +211,10 @@ class FavoriteRepositoryImplTest {
         repository.add(book("3", price = 20000))
         repository.add(book("4", price = 30000))
 
-        suspend fun ids(filter: PriceFilter): List<String> =
-            repository.observeFavorites(FavoriteSortType.PriceAsc, filter).first().map { it.id }
+        suspend fun ids(filter: PriceFilter): List<String> = repository
+            .observeFavorites(FavoriteSortType.PriceAsc, filter)
+            .first()
+            .map { it.id }
 
         assertEquals(listOf("1", "2", "3", "4"), ids(PriceFilter()))
         assertEquals(listOf("2", "3", "4"), ids(PriceFilter(min = 10000)))
@@ -179,8 +229,10 @@ class FavoriteRepositoryImplTest {
         repository.add(book("2", price = 8000, salePrice = -1))
         repository.add(book("3", price = 8000, salePrice = 30000))
 
-        val ids: List<String> = repository.observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(max = 10000))
-            .first().map { it.id }
+        val ids: List<String> = repository
+            .observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(max = 10000))
+            .first()
+            .map { it.id }
 
         assertEquals(listOf("1", "2"), ids)
     }
@@ -190,10 +242,15 @@ class FavoriteRepositoryImplTest {
         repository.add(book("1", price = 10000))
 
         assertTrue(
-            repository.observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(min = 20000)).first().isEmpty()
+            repository
+                .observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(min = 20000))
+                .first()
+                .isEmpty()
         )
         assertTrue(
-            repository.observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(min = 20000, max = 5000)).first()
+            repository
+                .observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(min = 20000, max = 5000))
+                .first()
                 .isEmpty()
         )
     }
@@ -204,8 +261,10 @@ class FavoriteRepositoryImplTest {
         repository.add(book("2", title = "가", price = 20000))
         repository.add(book("3", title = "나", price = 30000))
 
-        val ids: List<String> = repository.observeFavorites(FavoriteSortType.TitleDesc, PriceFilter(max = 20000))
-            .first().map { it.id }
+        val ids: List<String> = repository
+            .observeFavorites(FavoriteSortType.TitleDesc, PriceFilter(max = 20000))
+            .first()
+            .map { it.id }
 
         assertEquals(listOf("1", "2"), ids)
     }

@@ -48,7 +48,12 @@ class BookMapperTest {
     fun `id 는 상세 URL 의 bookId 이다`() {
         val url: String = "https://search.daum.net/search?w=bookpage&bookId=927035&q=Clean+Code"
 
-        assertEquals("927035", document(url = url).toBook().id)
+        assertEquals(
+            "927035",
+            document(url = url)
+                .toBook()
+                .id
+        )
     }
 
     @Test
@@ -61,12 +66,27 @@ class BookMapperTest {
 
     @Test
     fun `bookId 가 없으면 URL 을, URL 도 없으면 ISBN 을 id 로 쓴다`() {
-        assertEquals("https://x/y", document(url = "https://x/y").toBook().id)
-        assertEquals("8966260950 9788966260959", document(url = "").toBook().id)
+        assertEquals(
+            "https://x/y",
+            document(url = "https://x/y")
+                .toBook()
+                .id
+        )
+        assertEquals(
+            "8966260950 9788966260959",
+            document(url = "")
+                .toBook()
+                .id
+        )
     }
 
     @Test
     fun `출판일시는 API 가 준 문자열 그대로 둔다`() {
-        assertEquals("", document(datetime = "").toBook().publishedAt)
+        assertEquals(
+            "",
+            document(datetime = "")
+                .toBook()
+                .publishedAt
+        )
     }
 }

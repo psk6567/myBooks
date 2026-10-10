@@ -17,7 +17,9 @@ class ExampleInstrumentedTest {
     @Test
     fun useAppContext() {
         // Context of the app under test.
-        val appContext: Context = InstrumentationRegistry.getInstrumentation().targetContext
+        val appContext: Context = InstrumentationRegistry
+            .getInstrumentation()
+            .targetContext
         assertEquals("com.psk.mybooks", appContext.packageName)
     }
 }

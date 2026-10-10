@@ -53,10 +53,22 @@ class BookRepositoryImplTest {
     fun `첫 로드는 1페이지를 한 페이지 크기로 불러온다`() = runTest {
         val api: FakeBookApi = FakeBookApi()
 
-        val books: List<Book> = BookRepositoryImpl(api).searchBooks("코틀린").asSnapshot()
+        val books: List<Book> = BookRepositoryImpl(api)
+            .searchBooks("코틀린")
+            .asSnapshot()
 
-        assertEquals(1, api.calls.first().first)
-        assertEquals(SEARCH_PAGE_SIZE, api.calls.first().second)
+        assertEquals(
+            1,
+            api.calls
+                .first()
+                .first
+        )
+        assertEquals(
+            SEARCH_PAGE_SIZE,
+            api.calls
+                .first()
+                .second
+        )
         // 목록 끝에 가까우면 다음 페이지를 미리 불러오므로 한 페이지 이상 받는다
         assertTrue(books.size >= SEARCH_PAGE_SIZE)
     }
@@ -69,18 +81,43 @@ class BookRepositoryImplTest {
             scrollTo(index = SEARCH_PAGE_SIZE)
         }
 
-        assertEquals(listOf(1, 2), api.calls.map { it.first }.distinct().take(2))
-        assertEquals(books.map { it.id }.distinct(), books.map { it.id })
+        assertEquals(
+            listOf(1, 2),
+            api.calls
+                .map { it.first }
+                .distinct()
+                .take(2)
+        )
+        assertEquals(
+            books
+                .map { it.id }
+                .distinct(),
+            books.map { it.id }
+        )
     }
 
     @Test
     fun `도메인 정렬을 API 정렬로 바꿔서 보낸다`() = runTest {
         val api: FakeBookApi = FakeBookApi()
 
-        BookRepositoryImpl(api).searchBooks("코틀린", SearchSortType.Latest).asSnapshot()
-        assertEquals(SearchSort.Latest, api.calls.last().third)
+        BookRepositoryImpl(api)
+            .searchBooks("코틀린", SearchSortType.Latest)
+            .asSnapshot()
+        assertEquals(
+            SearchSort.Latest,
+            api.calls
+                .last()
+                .third
+        )
 
-        BookRepositoryImpl(api).searchBooks("코틀린", SearchSortType.Accuracy).asSnapshot()
-        assertEquals(SearchSort.Accuracy, api.calls.last().third)
+        BookRepositoryImpl(api)
+            .searchBooks("코틀린", SearchSortType.Accuracy)
+            .asSnapshot()
+        assertEquals(
+            SearchSort.Accuracy,
+            api.calls
+                .last()
+                .third
+        )
     }
 }

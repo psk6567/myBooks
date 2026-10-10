@@ -39,7 +39,8 @@ internal class FavoriteViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeBooks() {
         viewModelScope.launch {
-            state.map { it.sort to it.priceFilter }
+            state
+                .map { it.sort to it.priceFilter }
                 .distinctUntilChanged()
                 .flatMapLatest { (sort, priceFilter) -> observeFavorites(sort, priceFilter) }
                 .catch { sendError(it) }
@@ -49,7 +50,8 @@ internal class FavoriteViewModel @Inject constructor(
 
     /** 확인을 기다리던 도서를 즐겨찾기에서 뺀다. 다이얼로그는 바로 닫는다. */
     private fun confirmRemove() {
-        val bookId: String = state.value.pendingRemoval?.id ?: return
+        val bookId: String = state.value.pendingRemoval
+            ?.id ?: return
         reduce { copy(pendingRemoval = null) }
         viewModelScope.launch {
             try {

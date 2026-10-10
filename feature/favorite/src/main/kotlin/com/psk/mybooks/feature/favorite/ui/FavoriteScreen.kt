@@ -49,7 +49,8 @@ fun FavoriteRoute(
     modifier: Modifier = Modifier
 ) {
     val viewModel: FavoriteViewModel = hiltViewModel()
-    val state: FavoriteUiState by viewModel.state.collectAsStateWithLifecycle()
+    val state: FavoriteUiState by viewModel.state
+        .collectAsStateWithLifecycle()
 
     // 오류를 중요도에 따라 스낵바나 다이얼로그로 알린다
     ErrorEffect(viewModel.error)
@@ -91,7 +92,9 @@ internal fun FavoriteScreen(
             onDismissRequest = { onIntent(FavoriteIntent.DismissRemove) }
         )
     }
-    if (state.books.isEmpty()) {
+    if (state.books
+            .isEmpty()
+    ) {
         // 필터 때문에 비었으면 즐겨찾기가 없는 것이 아니라 조건에 맞는 도서가 없는 것이다
         val message: Int =
             if (state.priceFilter.isActive) R.string.feature_favorite_no_match else R.string.feature_favorite_empty
@@ -200,7 +203,10 @@ private fun FavoriteScreenGridPreview() {
 private fun FavoriteScreenRemoveDialogPreview() {
     MyBooksTheme {
         FavoriteScreen(
-            state = previewState.copy(pendingRemoval = previewState.books.first()),
+            state = previewState.copy(
+                pendingRemoval = previewState.books
+                    .first()
+            ),
             isGrid = false,
             onIntent = {}
         )

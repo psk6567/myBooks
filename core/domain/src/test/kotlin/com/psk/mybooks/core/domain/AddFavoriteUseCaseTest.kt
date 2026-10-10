@@ -70,7 +70,11 @@ class AddFavoriteUseCaseTest {
         AddFavoriteUseCase(repository, dispatcher)(book())
         executor.shutdown()
 
-        assertEquals("io-test", repository.addedOn?.name)
+        assertEquals(
+            "io-test",
+            repository.addedOn
+                ?.name
+        )
         assertNotEquals(Thread.currentThread(), repository.addedOn)
     }
 }

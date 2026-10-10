@@ -51,8 +51,10 @@ fun SearchRoute(
     modifier: Modifier = Modifier
 ) {
     val viewModel: SearchViewModel = hiltViewModel()
-    val state: SearchUiState by viewModel.state.collectAsStateWithLifecycle()
-    val books: LazyPagingItems<BookUiModel> = viewModel.books.collectAsLazyPagingItems()
+    val state: SearchUiState by viewModel.state
+        .collectAsStateWithLifecycle()
+    val books: LazyPagingItems<BookUiModel> = viewModel.books
+        .collectAsLazyPagingItems()
 
     // 오류를 중요도에 따라 스낵바나 다이얼로그로 알린다
     ErrorEffect(viewModel.error)
@@ -87,12 +89,16 @@ internal fun SearchScreen(
     modifier: Modifier = Modifier
 ) {
     // 검색어가 없으면 불러올 목록이 없으므로 안내 문구를 보여 준다
-    if (state.query.isBlank()) {
+    if (state.query
+            .isBlank()
+    ) {
         EmptyMessage(message = stringResource(R.string.feature_search_empty_query), modifier = modifier)
         return
     }
     // 검색을 마쳤는데 결과가 없으면 안내 문구를 보여 준다
-    if (books.loadState.isNoResult(books.itemCount)) {
+    if (books.loadState
+            .isNoResult(books.itemCount)
+    ) {
         EmptyMessage(message = stringResource(R.string.feature_search_no_result), modifier = modifier)
         return
     }

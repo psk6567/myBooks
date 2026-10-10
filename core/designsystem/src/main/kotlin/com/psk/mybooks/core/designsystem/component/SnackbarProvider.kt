@@ -47,7 +47,8 @@ class SnackbarHandle internal constructor(
     ) {
         val host: SnackbarHostState = hostState ?: return
         scope.launch {
-            host.currentSnackbarData?.dismiss()
+            host.currentSnackbarData
+                ?.dismiss()
             val result: SnackbarResult = host.showMessage(message, type, actionLabel, duration)
             if (result == SnackbarResult.ActionPerformed) onAction()
         }

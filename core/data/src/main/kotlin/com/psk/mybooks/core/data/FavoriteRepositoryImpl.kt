@@ -22,12 +22,15 @@ internal class FavoriteRepositoryImpl(
 
     override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> =
         dao.observeAll().map { entities ->
-            entities.map { it.toBook() }
+            entities
+                .map { it.toBook() }
                 .filter { priceFilter.matches(it.sellingPrice) }
                 .sortedWith(sort.comparator())
         }
 
-    override fun observeFavoriteIds(): Flow<Set<String>> = dao.observeIds().map { ids -> ids.toSet() }
+    override fun observeFavoriteIds(): Flow<Set<String>> = dao
+        .observeIds()
+        .map { ids -> ids.toSet() }
 
     override suspend fun add(book: Book): Unit = dao.insert(book.toEntity(savedAt = now()))
 

@@ -39,7 +39,8 @@ internal class BookPagingSource(
 
         val page: Int = params.key ?: 1
         return try {
-            val fetched: BookPage = api.searchBooks(query = query.trim(), sort = sort, page = page, size = pageSize)
+            val fetched: BookPage = api
+                .searchBooks(query = query.trim(), sort = sort, page = page, size = pageSize)
                 .toBookPage()
             val books: List<Book> = fetched.books.filter { book ->
                 sentPages.putIfAbsent(book.id, page) in

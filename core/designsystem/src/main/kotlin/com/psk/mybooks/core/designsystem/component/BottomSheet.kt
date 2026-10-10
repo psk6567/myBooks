@@ -178,7 +178,13 @@ fun Modifier.lockBottomSheetWhilePressed(): Modifier {
                 while (true) {
                     // Initial 단계에서 지켜보기만 한다(소비하지 않음). 누른 손가락이 하나라도 있으면 잠근다.
                     val event: PointerEvent = awaitPointerEvent(PointerEventPass.Initial)
-                    if (event.changes.any { it.pressed }) gestures.lock() else gestures.unlock()
+                    if (event.changes
+                            .any { it.pressed }
+                    ) {
+                        gestures.lock()
+                    } else {
+                        gestures.unlock()
+                    }
                 }
             }
         } finally {

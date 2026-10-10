@@ -49,7 +49,9 @@ fun MbRangeSlider(
         value = value,
         onValueChange = onValueChange,
         // 시트 안에서 쓰면 끄는 동안 시트가 같이 흔들리지 않도록 시트의 끌기를 잠근다
-        modifier = modifier.fillMaxWidth().lockBottomSheetWhilePressed(),
+        modifier = modifier
+            .fillMaxWidth()
+            .lockBottomSheetWhilePressed(),
         valueRange = valueRange,
         steps = steps,
         colors = sliderColors

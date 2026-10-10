@@ -32,7 +32,8 @@ internal object NetworkModule {
      */
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient
+        .Builder()
         .apply {
             if (BuildConfig.DEBUG) {
                 // 본문(책 소개가 길다)은 남기지 않고 요청·응답 줄과 헤더만 남기며, 인증 헤더는 가린다
@@ -43,16 +44,18 @@ internal object NetworkModule {
                     }
                 )
             }
-        }
-        .build()
+        }.build()
 
     @Provides
     @Singleton
     fun provideBookApi(client: OkHttpClient, json: Json): BookApi {
         // newBuilder 는 연결 풀과 스레드를 공유하므로 클라이언트를 새로 만드는 비용이 없다
-        val kakaoClient: OkHttpClient = client.newBuilder()
+        val kakaoClient: OkHttpClient = client
+            .newBuilder()
             .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
+                val request = chain
+                    .request()
+                    .newBuilder()
                     .header(AUTHORIZATION_HEADER, "KakaoAK ${BuildConfig.KAKAO_API_KEY}")
                     .build()
                 chain.proceed(request)
@@ -61,7 +64,8 @@ internal object NetworkModule {
             .addInterceptor(BookApiErrorHandler())
             .build()
 
-        return Retrofit.Builder()
+        return Retrofit
+            .Builder()
             .baseUrl(KAKAO_BASE_URL)
             .client(kakaoClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))

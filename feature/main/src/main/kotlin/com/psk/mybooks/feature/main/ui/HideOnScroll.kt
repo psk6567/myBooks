@@ -56,9 +56,16 @@ internal fun Modifier.hideOnScroll(state: HideOnScrollState): Modifier = this
     .clipToBounds()
     .layout { measurable, constraints ->
         val placeable = measurable.measure(constraints)
-        state.heightPx = placeable.height.toFloat()
-        val visibleHeight: Int = (placeable.height + state.offsetPx).roundToInt().coerceAtLeast(0)
+        state.heightPx = placeable.height
+            .toFloat()
+        val visibleHeight: Int = (placeable.height + state.offsetPx)
+            .roundToInt()
+            .coerceAtLeast(0)
         layout(placeable.width, visibleHeight) {
-            placeable.place(0, state.offsetPx.roundToInt())
+            placeable.place(
+                0,
+                state.offsetPx
+                    .roundToInt()
+            )
         }
     }

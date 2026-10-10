@@ -22,19 +22,23 @@ class MyBooksApplication :
      * - 디스크 캐시: 원본 응답. 도서 표지 URL 은 내용이 바뀌지 않으므로 서버 Cache-Control 과 상관없이 저장해 둔다. (Coil 3 기본 동작)
      *   cacheDir 아래라 저장 공간이 부족하면 OS 가 지울 수 있다.
      */
-    override fun newImageLoader(context: PlatformContext): ImageLoader = ImageLoader.Builder(context)
+    override fun newImageLoader(context: PlatformContext): ImageLoader = ImageLoader
+        .Builder(context)
         .memoryCache {
-            MemoryCache.Builder()
+            MemoryCache
+                .Builder()
                 .maxSizePercent(context, IMAGE_MEMORY_CACHE_PERCENT)
                 .build()
-        }
-        .diskCache {
-            DiskCache.Builder()
-                .directory(context.cacheDir.resolve("image_cache").toOkioPath())
-                .maxSizeBytes(IMAGE_DISK_CACHE_BYTES)
+        }.diskCache {
+            DiskCache
+                .Builder()
+                .directory(
+                    context.cacheDir
+                        .resolve("image_cache")
+                        .toOkioPath()
+                ).maxSizeBytes(IMAGE_DISK_CACHE_BYTES)
                 .build()
-        }
-        .crossfade(true)
+        }.crossfade(true)
         .build()
 }
 

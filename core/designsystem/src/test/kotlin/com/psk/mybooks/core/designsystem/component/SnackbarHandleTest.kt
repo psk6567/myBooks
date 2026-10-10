@@ -25,7 +25,8 @@ class SnackbarHandleTest {
         handle(hostState).show("저장했습니다", SnackbarType.Success)
         runCurrent()
 
-        val visuals: SnackbarVisuals? = hostState.currentSnackbarData?.visuals
+        val visuals: SnackbarVisuals? = hostState.currentSnackbarData
+            ?.visuals
         assertEquals("저장했습니다", visuals?.message)
         assertEquals(SnackbarType.Success, hostState.shownType())
     }
@@ -40,7 +41,12 @@ class SnackbarHandleTest {
         handle.show("두 번째", SnackbarType.Failed)
         runCurrent()
 
-        assertEquals("두 번째", hostState.currentSnackbarData?.visuals?.message)
+        assertEquals(
+            "두 번째",
+            hostState.currentSnackbarData
+                ?.visuals
+                ?.message
+        )
         assertEquals(SnackbarType.Failed, hostState.shownType())
     }
 
@@ -51,8 +57,14 @@ class SnackbarHandleTest {
 
         handle(hostState).show("실패했습니다", SnackbarType.Failed, actionLabel = "다시 시도", onAction = { actionCount++ })
         runCurrent()
-        assertEquals("다시 시도", hostState.currentSnackbarData?.visuals?.actionLabel)
-        hostState.currentSnackbarData?.performAction()
+        assertEquals(
+            "다시 시도",
+            hostState.currentSnackbarData
+                ?.visuals
+                ?.actionLabel
+        )
+        hostState.currentSnackbarData
+            ?.performAction()
         runCurrent()
 
         assertEquals(1, actionCount)
@@ -68,7 +80,8 @@ class SnackbarHandleTest {
         runCurrent()
         handle.show("두 번째")
         runCurrent()
-        hostState.currentSnackbarData?.dismiss()
+        hostState.currentSnackbarData
+            ?.dismiss()
         runCurrent()
 
         assertEquals(0, actionCount)

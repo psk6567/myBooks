@@ -49,8 +49,9 @@ fun NavController.navigateToDetail(book: BookUiModel) {
  */
 private val BookUiModelNavType: NavType<BookUiModel> = object : NavType<BookUiModel>(isNullableAllowed = false) {
 
-    override fun get(bundle: Bundle, key: String): BookUiModel? =
-        bundle.getString(key)?.let { Json.decodeFromString<BookUiModel>(it) }
+    override fun get(bundle: Bundle, key: String): BookUiModel? = bundle
+        .getString(key)
+        ?.let { Json.decodeFromString<BookUiModel>(it) }
 
     override fun parseValue(value: String): BookUiModel = Json.decodeFromString<BookUiModel>(value)
 
