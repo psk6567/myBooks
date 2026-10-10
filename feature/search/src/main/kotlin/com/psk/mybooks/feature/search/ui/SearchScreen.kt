@@ -49,6 +49,7 @@ private const val SKELETON_COUNT: Int = 12
  * @param sort 정렬 기준. main 의 칩 값이다.
  * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
  * @param onBookClick 도서를 눌러 상세 화면을 열 때. 화면 이동은 main 이 연결한다.
+ * @param selectedBookId 넓은 화면에서 옆 패널에 상세가 열려 있는 도서의 id. 목록에서 강조한다. 없으면 강조하지 않는다.
  */
 @Composable
 fun SearchRoute(
@@ -56,7 +57,8 @@ fun SearchRoute(
     sort: SearchSortType,
     isGrid: Boolean,
     onBookClick: (BookUiModel) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedBookId: String? = null
 ) {
     val viewModel: SearchViewModel = hiltViewModel()
     val state: SearchUiState by viewModel.state
@@ -84,7 +86,14 @@ fun SearchRoute(
     // main 이 가진 검색어와 정렬을 이 화면의 상태로 맞춘다
     LaunchedEffect(query, sort) { viewModel.onIntent(SearchIntent.ChangeCondition(query, sort)) }
 
-    SearchScreen(state = state, books = books, isGrid = isGrid, onIntent = viewModel::onIntent, modifier = modifier)
+    SearchScreen(
+        state = state,
+        books = books,
+        isGrid = isGrid,
+        onIntent = viewModel::onIntent,
+        modifier = modifier,
+        selectedBookId = selectedBookId
+    )
 }
 
 /** 상태와 콜백을 파라미터로만 받는 UI. Preview·UI 테스트 대상. */
@@ -94,7 +103,8 @@ internal fun SearchScreen(
     books: LazyPagingItems<BookUiModel>,
     isGrid: Boolean,
     onIntent: (SearchIntent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedBookId: String? = null
 ) {
     // 검색어가 없으면 불러올 목록이 없으므로 안내 문구를 보여 준다
     if (state.query
@@ -128,9 +138,21 @@ internal fun SearchScreen(
         return
     }
     if (isGrid) {
-        BookGrid(state = state, books = books, onIntent = onIntent, modifier = modifier)
+        BookGrid(
+            state = state,
+            books = books,
+            onIntent = onIntent,
+            selectedBookId = selectedBookId,
+            modifier = modifier
+        )
     } else {
-        BookList(state = state, books = books, onIntent = onIntent, modifier = modifier)
+        BookList(
+            state = state,
+            books = books,
+            onIntent = onIntent,
+            selectedBookId = selectedBookId,
+            modifier = modifier
+        )
     }
 }
 
@@ -139,6 +161,7 @@ private fun BookList(
     state: SearchUiState,
     books: LazyPagingItems<BookUiModel>,
     onIntent: (SearchIntent) -> Unit,
+    selectedBookId: String?,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -159,6 +182,7 @@ private fun BookList(
                 salePrice = book.salePriceText(),
                 thumbnailUrl = book.thumbnailUrl,
                 isFavorite = book.id in state.favoriteIds,
+                selected = book.id == selectedBookId,
                 onClick = { onIntent(SearchIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
             )
@@ -175,6 +199,7 @@ private fun BookGrid(
     state: SearchUiState,
     books: LazyPagingItems<BookUiModel>,
     onIntent: (SearchIntent) -> Unit,
+    selectedBookId: String?,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -193,6 +218,7 @@ private fun BookGrid(
                 price = book.priceText(),
                 salePrice = book.salePriceText(),
                 isFavorite = book.id in state.favoriteIds,
+                selected = book.id == selectedBookId,
                 onClick = { onIntent(SearchIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
             )

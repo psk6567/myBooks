@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.psk.mybooks.core.designsystem.theme.MbColors
 import com.psk.mybooks.core.designsystem.theme.MbTypography
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
+import com.psk.mybooks.core.designsystem.util.selectedOutline
 
 /** 하단 띠(제목, 출판사)의 안쪽 여백 */
 private val INFO_PADDING: Dp = 6.dp
@@ -50,6 +51,7 @@ private val PRICE_AREA_HEIGHT: Dp = 40.dp
  * @param thumbnailUrl 표지 이미지 URL. 불러오는 중·실패·빈 값 표시는 [NetworkImage] 가 맡는다.
  * @param price 정가 (포맷된 문자열). [salePrice] 가 있으면 취소선으로 작게 보인다.
  * @param salePrice 정가와 다른 판매가 (포맷된 문자열). 있으면 빨간 글씨로 크게 보이고, 없으면 [price] 만 보인다.
+ * @param selected 지금 고른 항목이면 표지에 테두리를 그려 강조한다. (넓은 화면에서 옆 패널에 상세가 열린 항목)
  */
 @Composable
 fun BookGridItem(
@@ -61,7 +63,8 @@ fun BookGridItem(
     isFavorite: Boolean,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selected: Boolean = false
 ) {
     val colors: MbColors = MyBooksTheme.colors
     val typography: MbTypography = MyBooksTheme.typography
@@ -76,6 +79,7 @@ fun BookGridItem(
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
                 .clip(RoundedCornerShape(8.dp))
+                .selectedOutline(selected, RoundedCornerShape(8.dp))
         ) {
             // 표지 전체의 크기. 아래 띠 안의 복사본이 이 크기여야 표지의 아래쪽과 이어진다
             val coverWidth: Dp = maxWidth

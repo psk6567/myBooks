@@ -30,6 +30,7 @@ import com.psk.mybooks.core.designsystem.theme.MbTypography
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.designsystem.util.HSpacer
 import com.psk.mybooks.core.designsystem.util.VSpacer
+import com.psk.mybooks.core.designsystem.util.selectedOutline
 
 /**
  * 도서 리스트 아이템 (썸네일 + 정보 + 즐겨찾기).
@@ -42,6 +43,7 @@ import com.psk.mybooks.core.designsystem.util.VSpacer
  * @param price 오른쪽 아래 가격 (포맷된 문자열). [salePrice] 가 있으면 정가로 보고 취소선을 긋는다.
  * @param salePrice 정가와 다른 판매가 (포맷된 문자열). 있을 때만 정가 옆에 빨간 글씨로 보인다. 없으면 [price] 만 보인다.
  * @param thumbnailUrl 표지 이미지 URL. 불러오는 중·실패·빈 값 표시는 [NetworkImage] 가 맡는다.
+ * @param selected 지금 고른 항목이면 테두리로 강조한다. (넓은 화면에서 옆 패널에 상세가 열린 항목)
  */
 @Composable
 fun BookListItem(
@@ -56,7 +58,8 @@ fun BookListItem(
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
-    salePrice: String? = null
+    salePrice: String? = null,
+    selected: Boolean = false
 ) {
     val colors: MbColors = MyBooksTheme.colors
     val typography: MbTypography = MyBooksTheme.typography
@@ -66,6 +69,7 @@ fun BookListItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(colors.card)
+            .selectedOutline(selected, RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
             .padding(8.dp)
     ) {

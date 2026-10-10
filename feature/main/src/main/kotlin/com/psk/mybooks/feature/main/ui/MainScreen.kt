@@ -100,6 +100,13 @@ private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit) {
     val state: MainUiState by viewModel.state
         .collectAsStateWithLifecycle()
     val isWide: Boolean = isWideScreen()
+    // 넓은 화면에서만 옆 패널에 열린 도서를 목록에서 강조한다. (좁은 화면은 상세가 별도 화면이라 강조할 것이 없다)
+    val selectedBookId: String? = if (isWide) {
+        state.selectedBook
+            ?.id
+    } else {
+        null
+    }
     val onBookClick: (BookUiModel) -> Unit = { book ->
         if (isWide) viewModel.onIntent(MainIntent.SelectBook(book)) else onNavigateToDetail(book)
     }
@@ -115,14 +122,16 @@ private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit) {
                     query = state.searchText,
                     sort = state.searchSort,
                     isGrid = state.viewMode == ViewMode.Grid,
-                    onBookClick = onBookClick
+                    onBookClick = onBookClick,
+                    selectedBookId = selectedBookId
                 )
 
                 MainTab.Favorite -> FavoriteRoute(
                     sort = state.favoriteSort,
                     priceFilter = state.favoritePriceFilter,
                     isGrid = state.viewMode == ViewMode.Grid,
-                    onBookClick = onBookClick
+                    onBookClick = onBookClick,
+                    selectedBookId = selectedBookId
                 )
             }
         }

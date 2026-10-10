@@ -2,6 +2,7 @@ package com.psk.mybooks.core.designsystem.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.SliderColors
@@ -22,6 +23,7 @@ import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
  * 두 손잡이로 범위를 고르는 슬라이더. 두 손잡이는 서로 넘어갈 수 없어서 시작이 끝보다 커지는 일이 없다.
  * 선택한 범위 안은 브랜드 색으로 채워진다. 현재 값은 이 컴포넌트가 보여 주지 않으므로 호출하는 쪽이 글자로 함께 보여 준다.
  * [BottomSheet] 안에서 쓰면 누르고 있는 동안 시트의 끌기를 잠가 시트가 같이 흔들리지 않는다.
+ * 슬라이더가 차지하는 영역은 시스템 제스처(가장자리에서 밀어 뒤로 가기)에서 제외해, 가장자리의 손잡이를 끌 때 앱이 닫히지 않는다.
  *
  * @param value 선택한 범위
  * @param valueRange 고를 수 있는 전체 범위
@@ -49,8 +51,10 @@ fun MbRangeSlider(
         value = value,
         onValueChange = onValueChange,
         // 시트 안에서 쓰면 끄는 동안 시트가 같이 흔들리지 않도록 시트의 끌기를 잠근다
+        // 화면 가장자리의 뒤로 가기 제스처가 손잡이를 끄는 동작을 가로채지 않도록 슬라이더 영역은 시스템 제스처에서 뺀다
         modifier = modifier
             .fillMaxWidth()
+            .systemGestureExclusion()
             .lockBottomSheetWhilePressed(),
         valueRange = valueRange,
         steps = steps,

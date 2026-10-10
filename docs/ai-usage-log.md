@@ -793,3 +793,10 @@
 - **직접 판단한 부분**: 사람이 "1~3번 전부 진행"으로 범위를 정함. 출간일은 AI 추천대로 목록 카드에만 넣고 좁은 격자에는 넣지 않음
 - **AI 실수와 정정**: 검증 중 `sed -i` 의 macOS 문법 오류로 `&&` 뒤 명령이 건너뛰어 스크린샷 경로가 비었음 → 재실행. 에뮬레이터 네트워크 문제를 와이파이 재연결, 비행기 모드 토글로 고치려 했으나 실패(호스트 DNS 전달이 멈춘 것으로 보임) → 더 쓰지 않고 한계로 기록
 - **AI 판단과 주의**: APK 는 16MB 라 git 에는 넣지 않고 압축 때만 포함하도록 `release/` 를 추적하지 않음. 디버그 APK 에는 API 키가 BuildConfig 로 들어 있음(과제 조건상 키를 함께 제출)
+
+## 74. 선택 항목 강조와 슬라이더 시스템 제스처 제외 (미구현 목록 중 2개 해소)
+- **활용한 작업**: 넓은 화면에서 옆 패널에 상세가 열린 도서를 목록·격자에서 브랜드 색 테두리로 강조(`selectedOutline`, `BookListItem`/`BookGridItem` 의 `selected`, 검색·즐겨찾기 화면의 `selectedBookId`, main 이 넓은 화면일 때만 전달). `MbRangeSlider` 에 `systemGestureExclusion()` 을 붙여 가장자리 손잡이를 끌 때 뒤로 가기 제스처가 가로채지 않게 함(MB-102)
+- **검증 방법**: `spotlessApply`, 전체 단위 테스트, 앱 빌드 통과
+  - 확인하지 않은 것: **두 변경 모두 에뮬레이터 화면에서 확인하지 못함**(에뮬레이터 DNS 가 멈춰 검색 결과·즐겨찾기를 띄우지 못함). 강조 테두리의 모양, 슬라이더 왼쪽 끝 손잡이의 제스처 충돌 해소 여부는 직접 확인 필요
+- **AI 실수와 정정**: 처음 `selectedOutline` 을 Composable 이 아닌 확장 함수로 만들어 컴파일 실패(`MyBooksTheme.colors` 를 읽음) → `@Composable` 로 수정. `systemGestureExclusion` 의 패키지를 잘못 가져옴(`foundation.layout` → `foundation`)
+- **AI 판단과 주의**: 격자는 항목 전체가 아니라 표지에만 테두리를 그림. 좁은 화면에서는 선택 상태가 남아도 강조하지 않음. `systemGestureExclusion` 은 API 29 미만에서는 효과가 없음(해당 제스처도 없음)

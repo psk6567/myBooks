@@ -39,6 +39,7 @@ import com.psk.mybooks.feature.favorite.R
  * @param priceFilter 금액 필터. main 의 칩 값이다.
  * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
  * @param onBookClick 도서를 눌러 상세 화면을 열 때. 화면 이동은 main 이 연결한다.
+ * @param selectedBookId 넓은 화면에서 옆 패널에 상세가 열려 있는 도서의 id. 목록에서 강조한다. 없으면 강조하지 않는다.
  */
 @Composable
 fun FavoriteRoute(
@@ -46,7 +47,8 @@ fun FavoriteRoute(
     priceFilter: PriceFilter,
     isGrid: Boolean,
     onBookClick: (BookUiModel) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedBookId: String? = null
 ) {
     val viewModel: FavoriteViewModel = hiltViewModel()
     val state: FavoriteUiState by viewModel.state
@@ -67,7 +69,13 @@ fun FavoriteRoute(
     // main 이 가진 정렬과 금액 필터를 이 화면의 상태로 맞춘다
     LaunchedEffect(sort, priceFilter) { viewModel.onIntent(FavoriteIntent.ChangeCondition(sort, priceFilter)) }
 
-    FavoriteScreen(state = state, isGrid = isGrid, onIntent = viewModel::onIntent, modifier = modifier)
+    FavoriteScreen(
+        state = state,
+        isGrid = isGrid,
+        onIntent = viewModel::onIntent,
+        modifier = modifier,
+        selectedBookId = selectedBookId
+    )
 }
 
 /** 상태와 콜백을 파라미터로만 받는 UI. Preview·UI 테스트 대상. */
@@ -76,7 +84,8 @@ internal fun FavoriteScreen(
     state: FavoriteUiState,
     isGrid: Boolean,
     onIntent: (FavoriteIntent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedBookId: String? = null
 ) {
     // 이 탭에서만 즐겨찾기를 빼기 전에 한 번 더 묻는다
     state.pendingRemoval?.let { book ->
@@ -102,14 +111,19 @@ internal fun FavoriteScreen(
         return
     }
     if (isGrid) {
-        BookGrid(state = state, onIntent = onIntent, modifier = modifier)
+        BookGrid(state = state, onIntent = onIntent, selectedBookId = selectedBookId, modifier = modifier)
     } else {
-        BookList(state = state, onIntent = onIntent, modifier = modifier)
+        BookList(state = state, onIntent = onIntent, selectedBookId = selectedBookId, modifier = modifier)
     }
 }
 
 @Composable
-private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit, modifier: Modifier = Modifier) {
+private fun BookList(
+    state: FavoriteUiState,
+    onIntent: (FavoriteIntent) -> Unit,
+    selectedBookId: String?,
+    modifier: Modifier = Modifier
+) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -128,6 +142,7 @@ private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 thumbnailUrl = book.thumbnailUrl,
                 // 즐겨찾기 목록의 책은 모두 즐겨찾기 상태다
                 isFavorite = true,
+                selected = book.id == selectedBookId,
                 onClick = { onIntent(FavoriteIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(FavoriteIntent.RequestRemove(book)) }
             )
@@ -136,7 +151,12 @@ private fun BookList(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
 }
 
 @Composable
-private fun BookGrid(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit, modifier: Modifier = Modifier) {
+private fun BookGrid(
+    state: FavoriteUiState,
+    onIntent: (FavoriteIntent) -> Unit,
+    selectedBookId: String?,
+    modifier: Modifier = Modifier
+) {
     LazyVerticalGrid(
         columns = BookGridColumns,
         modifier = modifier.fillMaxSize(),
@@ -152,6 +172,7 @@ private fun BookGrid(state: FavoriteUiState, onIntent: (FavoriteIntent) -> Unit,
                 price = book.priceText(),
                 salePrice = book.salePriceText(),
                 isFavorite = true,
+                selected = book.id == selectedBookId,
                 onClick = { onIntent(FavoriteIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(FavoriteIntent.RequestRemove(book)) }
             )
