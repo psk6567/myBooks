@@ -15,7 +15,8 @@
     <string name="dev_lmk">LMK: 프로세스 종료</string>
     <string name="dev_lmk_hint">앱을 백그라운드로 보내고 1.5초 뒤 프로세스를 종료합니다. 최근 앱 목록에서 다시 열어 탭, 검색어, 정렬이 복원되는지 확인하세요.</string>
     <string name="dev_section_preview">디자인 시스템 Preview</string>
-    <string name="dev_preview_hint">앱 안의 @Preview 함수를 찾아 그 화면을 직접 엽니다. 누르면 해당 Preview 가 전체 화면으로 열립니다.</string>
+    <string name="dev_preview_hint">디자인 시스템의 @Preview 함수를 찾아 목록으로 보여 줍니다. 누르면 해당 Preview 가 시스템 바를 피해 전체 화면으로 열립니다.</string>
     <string name="dev_preview_loading">찾는 중…</string>
     <string name="dev_preview_empty">찾은 Preview 가 없습니다</string>
+    <string name="dev_close">닫기</string>
 </resources>

@@ -8,6 +8,11 @@
             android:exported="false"
             android:label="@string/dev_title"
             android:theme="@style/Theme.MyBooks" />
+        <!-- @Preview 하나를 시스템 바를 피해 전체 화면으로 보여 준다 -->
+        <activity
+            android:name="com.psk.mybooks.dev.DevPreviewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyBooks" />
     </application>
 
 </manifest>

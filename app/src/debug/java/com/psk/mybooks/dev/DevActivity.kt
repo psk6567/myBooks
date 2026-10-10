@@ -1,6 +1,5 @@
 package com.psk.mybooks.dev
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -47,15 +46,12 @@ import kotlinx.coroutines.withContext
 /** 프로세스를 종료하기 전에 앱이 백그라운드로 가는 것을 기다리는 시간 */
 private const val LMK_DELAY_MILLIS: Long = 1_500
 
-/** Compose 도구가 제공하는, @Preview 하나를 전체 화면으로 여는 Activity */
-private const val PREVIEW_ACTIVITY: String = "androidx.compose.ui.tooling.PreviewActivity"
-
 /**
  * 개발자 모드. debug 빌드에서만 있고, 메인 화면의 제목을 여러 번 누르면 열린다. ([DevEntry])
  * 평가·개발 중에 재현하기 어려운 상황을 만들어 보는 도구 모음이다.
  * - 네트워크 테스트: 도서 검색 API 가 느리거나 실패하는 상황 (스켈레톤, 재시도, 오류 안내 확인)
  * - Warm start / LMK: 화면만 다시 만들 때와 프로세스가 종료됐다 돌아올 때의 상태 복원 확인
- * - 디자인 시스템 Preview: 앱 안의 @Preview 를 실제 기기에서 열기
+ * - 디자인 시스템 Preview: 디자인 시스템의 @Preview 를 실제 기기에서 열기
  */
 class DevActivity : ComponentActivity() {
 
@@ -214,8 +210,7 @@ private fun PreviewSection() {
 
 private fun openPreview(context: Context, entry: PreviewEntry) {
     context.startActivity(
-        Intent()
-            .setComponent(ComponentName(context.packageName, PREVIEW_ACTIVITY))
-            .putExtra("composable", entry.composableName)
+        Intent(context, DevPreviewActivity::class.java)
+            .putExtra(EXTRA_PREVIEW, entry.composableName)
     )
 }
