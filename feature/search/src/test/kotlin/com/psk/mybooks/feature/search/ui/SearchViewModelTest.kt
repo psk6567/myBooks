@@ -65,7 +65,11 @@ class SearchViewModelTest {
         /** 설정하면 담기·빼기가 이 예외로 실패한다 */
         var failure: Exception? = null
 
-        override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> = books
+        override fun observeFavorites(
+            sort: FavoriteSortType,
+            priceFilter: PriceFilter,
+            query: String
+        ): Flow<List<Book>> = books
 
         override fun observeFavoriteIds(): Flow<Set<String>> = books.map { list ->
             list

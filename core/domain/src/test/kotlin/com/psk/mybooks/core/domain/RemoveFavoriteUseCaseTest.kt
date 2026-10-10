@@ -22,7 +22,11 @@ class RemoveFavoriteUseCaseTest {
         val removed: MutableList<String> = mutableListOf()
         var removedOn: Thread? = null
 
-        override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> = emptyFlow()
+        override fun observeFavorites(
+            sort: FavoriteSortType,
+            priceFilter: PriceFilter,
+            query: String
+        ): Flow<List<Book>> = emptyFlow()
 
         override fun observeFavoriteIds(): Flow<Set<String>> = emptyFlow()
 

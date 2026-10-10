@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 
 /**
- * 즐겨찾기 목록을 [PriceFilter] 로 거르고 [FavoriteSortType] 순서로 계속 받아 본다. 담거나 빼면 새 목록이 흘러온다.
+ * 즐겨찾기 목록을 검색어와 [PriceFilter] 로 거르고 [FavoriteSortType] 순서로 계속 받아 본다. 담거나 빼면 새 목록이 흘러온다.
  * 읽고 거르고 정렬하는 작업은 [ioDispatcher] 에서 실행한다.
  */
 class ObserveFavoritesUseCase @Inject constructor(
@@ -19,7 +19,11 @@ class ObserveFavoritesUseCase @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
 
-    operator fun invoke(sort: FavoriteSortType, priceFilter: PriceFilter = PriceFilter()): Flow<List<Book>> = repository
-        .observeFavorites(sort, priceFilter)
+    operator fun invoke(
+        sort: FavoriteSortType,
+        priceFilter: PriceFilter = PriceFilter(),
+        query: String = ""
+    ): Flow<List<Book>> = repository
+        .observeFavorites(sort, priceFilter, query)
         .flowOn(ioDispatcher)
 }

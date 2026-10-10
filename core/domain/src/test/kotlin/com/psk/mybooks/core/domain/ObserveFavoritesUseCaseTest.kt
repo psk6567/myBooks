@@ -26,7 +26,11 @@ class ObserveFavoritesUseCaseTest {
         var collectedOn: Thread? = null
         val books: List<Book> = emptyList()
 
-        override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> {
+        override fun observeFavorites(
+            sort: FavoriteSortType,
+            priceFilter: PriceFilter,
+            query: String
+        ): Flow<List<Book>> {
             lastSort = sort
             lastFilter = priceFilter
             return flow {

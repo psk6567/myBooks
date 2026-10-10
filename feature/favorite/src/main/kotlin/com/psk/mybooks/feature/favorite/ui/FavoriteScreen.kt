@@ -42,6 +42,7 @@ import com.psk.mybooks.feature.favorite.R
  *
  * @param sort 정렬 기준. main 의 칩 값이다.
  * @param priceFilter 금액 필터. main 의 칩 값이다.
+ * @param query 검색어. main 의 검색창 값이다. 즐겨찾기한 도서 안에서 제목·저자·출판사로 찾는다.
  * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
  * @param onBookClick 도서를 눌러 상세 화면을 열 때. 화면 이동은 main 이 연결한다.
  * @param selectedBookId 넓은 화면에서 옆 패널에 상세가 열려 있는 도서의 id. 목록에서 강조한다. 없으면 강조하지 않는다.
@@ -50,6 +51,7 @@ import com.psk.mybooks.feature.favorite.R
 fun FavoriteRoute(
     sort: FavoriteSortType,
     priceFilter: PriceFilter,
+    query: String,
     isGrid: Boolean,
     onBookClick: (BookUiModel) -> Unit,
     modifier: Modifier = Modifier,
@@ -71,8 +73,10 @@ fun FavoriteRoute(
         }
     }
 
-    // main 이 가진 정렬과 금액 필터를 이 화면의 상태로 맞춘다
-    LaunchedEffect(sort, priceFilter) { viewModel.onIntent(FavoriteIntent.ChangeCondition(sort, priceFilter)) }
+    // main 이 가진 정렬, 금액 필터, 검색어를 이 화면의 상태로 맞춘다
+    LaunchedEffect(sort, priceFilter, query) {
+        viewModel.onIntent(FavoriteIntent.ChangeCondition(sort, priceFilter, query))
+    }
 
     FavoriteScreen(
         state = state,
@@ -109,9 +113,14 @@ internal fun FavoriteScreen(
     if (state.books
             .isEmpty()
     ) {
-        // 필터 때문에 비었으면 즐겨찾기가 없는 것이 아니라 조건에 맞는 도서가 없는 것이다
-        val message: Int =
-            if (state.priceFilter.isActive) R.string.feature_favorite_no_match else R.string.feature_favorite_empty
+        // 검색어나 필터 때문에 비었으면 즐겨찾기가 없는 것이 아니라 조건에 맞는 도서가 없는 것이다
+        val message: Int = if (state.priceFilter.isActive || state.query
+                .isNotBlank()
+        ) {
+            R.string.feature_favorite_no_match
+        } else {
+            R.string.feature_favorite_empty
+        }
         EmptyMessage(message = stringResource(message), modifier = modifier)
         return
     }
@@ -131,7 +140,7 @@ private fun BookList(
 ) {
     val listState: LazyListState = rememberLazyListState()
     // 정렬이나 금액 필터를 바꾸면 목록이 달라지므로 맨 위로 올려 처음부터 보이게 한다
-    ScrollToTopOnChange(key = state.sort to state.priceFilter) { listState.scrollToItem(0) }
+    ScrollToTopOnChange(key = Triple(state.sort, state.priceFilter, state.query)) { listState.scrollToItem(0) }
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxSize(),
@@ -167,7 +176,7 @@ private fun BookGrid(
     modifier: Modifier = Modifier
 ) {
     val gridState: LazyGridState = rememberLazyGridState()
-    ScrollToTopOnChange(key = state.sort to state.priceFilter) { gridState.scrollToItem(0) }
+    ScrollToTopOnChange(key = Triple(state.sort, state.priceFilter, state.query)) { gridState.scrollToItem(0) }
     LazyVerticalGrid(
         state = gridState,
         columns = BookGridColumns,

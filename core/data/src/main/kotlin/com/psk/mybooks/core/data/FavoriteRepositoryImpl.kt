@@ -20,10 +20,11 @@ internal class FavoriteRepositoryImpl(
     @Inject
     constructor(dao: FavoriteDao) : this(dao, System::currentTimeMillis)
 
-    override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> =
+    override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter, query: String): Flow<List<Book>> =
         dao.observeAll().map { entities ->
             entities
                 .map { it.toBook() }
+                .filter { it.matchesQuery(query) }
                 .filter { priceFilter.matches(it.sellingPrice) }
                 .sortedWith(sort.comparator())
         }
@@ -46,4 +47,13 @@ private fun FavoriteSortType.comparator(): Comparator<Book> = when (this) {
     FavoriteSortType.TitleDesc -> compareByDescending<Book> { it.title }
     FavoriteSortType.PriceAsc -> compareBy<Book> { it.sellingPrice }
     FavoriteSortType.PriceDesc -> compareByDescending<Book> { it.sellingPrice }
+}
+
+/** 제목, 저자, 출판사 중 하나에 [query] 가 들어 있는지. 대소문자와 앞뒤 공백은 무시하고, 검색어가 비어 있으면 항상 맞다. */
+private fun Book.matchesQuery(query: String): Boolean {
+    val word: String = query.trim()
+    if (word.isEmpty()) return true
+    return title.contains(word, ignoreCase = true) ||
+        publisher.contains(word, ignoreCase = true) ||
+        authors.any { it.contains(word, ignoreCase = true) }
 }

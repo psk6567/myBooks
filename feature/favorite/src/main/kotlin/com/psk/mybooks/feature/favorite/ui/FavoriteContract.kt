@@ -7,6 +7,7 @@ import com.psk.mybooks.core.ui.BookUiModel
 /**
  * @param sort 정렬 기준. main 의 칩 값을 그대로 받아 둔다.
  * @param priceFilter 금액 필터. main 의 칩 값을 그대로 받아 둔다.
+ * @param query 검색어. main 의 검색창 값을 그대로 받아 두고, 즐겨찾기 안에서 찾는 데 쓴다.
  * @param pendingRemoval 삭제 확인을 기다리는 도서. 있으면 "삭제할까요?" 다이얼로그가 보인다.
  * 어떤 도서인지가 필요해서 UI 가 아니라 여기에 두며, 그래서 화면을 회전해도 유지된다.
  */
@@ -14,6 +15,7 @@ internal data class FavoriteUiState(
     val books: List<BookUiModel> = emptyList(),
     val sort: FavoriteSortType = FavoriteSortType.TitleAsc,
     val priceFilter: PriceFilter = PriceFilter(),
+    val query: String = "",
     val pendingRemoval: BookUiModel? = null
 )
 
@@ -31,10 +33,11 @@ internal sealed interface FavoriteIntent {
         val book: BookUiModel
     ) : FavoriteIntent
 
-    /** main 에서 정렬이나 금액 필터가 바뀜 */
+    /** main 에서 정렬, 금액 필터, 검색어가 바뀜 */
     data class ChangeCondition(
         val sort: FavoriteSortType,
-        val priceFilter: PriceFilter
+        val priceFilter: PriceFilter,
+        val query: String
     ) : FavoriteIntent
 
     /** 하트를 눌러 즐겨찾기에서 빼려고 함. 바로 빼지 않고 삭제 확인 다이얼로그를 띄운다. */

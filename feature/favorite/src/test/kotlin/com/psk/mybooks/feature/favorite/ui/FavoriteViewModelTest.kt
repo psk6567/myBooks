@@ -40,10 +40,17 @@ class FavoriteViewModelTest {
         /** 설정하면 빼기가 이 예외로 실패한다 */
         var failure: Exception? = null
 
-        override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> {
+        override fun observeFavorites(
+            sort: FavoriteSortType,
+            priceFilter: PriceFilter,
+            query: String
+        ): Flow<List<Book>> {
             requestedSorts += sort
             return books.map { all ->
-                val list: List<Book> = all.filter { priceFilter.matches(it.price) }
+                val list: List<Book> = all.filter {
+                    priceFilter.matches(it.price) && it.title
+                        .contains(query.trim())
+                }
                 when (sort) {
                     FavoriteSortType.TitleAsc -> list.sortedBy { it.title }
                     FavoriteSortType.TitleDesc -> list.sortedByDescending { it.title }
@@ -102,11 +109,33 @@ class FavoriteViewModelTest {
             FakeFavoriteRepository(listOf(book("1", "가", price = 30000), book("2", "나", price = 10000)))
         )
 
-        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.PriceAsc, PriceFilter()))
+        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.PriceAsc, PriceFilter(), ""))
 
         assertEquals(FavoriteSortType.PriceAsc, viewModel.state.value.sort)
         assertEquals(
             listOf("2", "1"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
+    }
+
+    @Test
+    fun `검색어를 넣으면 맞는 도서만 남고 지우면 다시 모두 나온다`() {
+        val viewModel: FavoriteViewModel = viewModel(
+            FakeFavoriteRepository(listOf(book("1", "소설 모음"), book("2", "에세이"), book("3", "한국 소설")))
+        )
+
+        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter(), "소설"))
+        assertEquals("소설", viewModel.state.value.query)
+        assertEquals(
+            listOf("1", "3"),
+            viewModel.state.value.books
+                .map { it.id }
+        )
+
+        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter(), ""))
+        assertEquals(
+            listOf("1", "2", "3"),
             viewModel.state.value.books
                 .map { it.id }
         )
@@ -121,7 +150,7 @@ class FavoriteViewModelTest {
         )
 
         viewModel.onIntent(
-            FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter(min = 10000, max = 20000))
+            FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter(min = 10000, max = 20000), "")
         )
         assertEquals(PriceFilter(min = 10000, max = 20000), viewModel.state.value.priceFilter)
         assertEquals(
@@ -130,7 +159,7 @@ class FavoriteViewModelTest {
                 .map { it.id }
         )
 
-        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter()))
+        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter(), ""))
         assertEquals(
             listOf("1", "2", "3"),
             viewModel.state.value.books
@@ -143,7 +172,7 @@ class FavoriteViewModelTest {
         val repository: FakeFavoriteRepository = FakeFavoriteRepository(emptyList())
         val viewModel: FavoriteViewModel = viewModel(repository)
 
-        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter()))
+        viewModel.onIntent(FavoriteIntent.ChangeCondition(FavoriteSortType.TitleAsc, PriceFilter(), ""))
 
         assertEquals(listOf(FavoriteSortType.TitleAsc), repository.requestedSorts)
     }

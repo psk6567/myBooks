@@ -27,22 +27,28 @@ internal class FavoriteViewModel @Inject constructor(
 
     override fun onIntent(intent: FavoriteIntent) {
         when (intent) {
-            is FavoriteIntent.ChangeCondition -> reduce { copy(sort = intent.sort, priceFilter = intent.priceFilter) }
+            is FavoriteIntent.ChangeCondition -> reduce {
+                copy(sort = intent.sort, priceFilter = intent.priceFilter, query = intent.query)
+            }
+
             is FavoriteIntent.OpenDetail -> sendEffect(FavoriteEffect.OpenDetail(intent.book))
+
             is FavoriteIntent.RequestRemove -> reduce { copy(pendingRemoval = intent.book) }
+
             FavoriteIntent.ConfirmRemove -> confirmRemove()
+
             FavoriteIntent.DismissRemove -> reduce { copy(pendingRemoval = null) }
         }
     }
 
-    /** 정렬이나 필터가 바뀌면 그 조건으로 다시 받고, 어디서든 담거나 빼면 목록이 바로 바뀐다. */
+    /** 정렬, 필터, 검색어가 바뀌면 그 조건으로 다시 받고, 어디서든 담거나 빼면 목록이 바로 바뀐다. */
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeBooks() {
         viewModelScope.launch {
             state
-                .map { it.sort to it.priceFilter }
+                .map { Triple(it.sort, it.priceFilter, it.query) }
                 .distinctUntilChanged()
-                .flatMapLatest { (sort, priceFilter) -> observeFavorites(sort, priceFilter) }
+                .flatMapLatest { (sort, priceFilter, query) -> observeFavorites(sort, priceFilter, query) }
                 .catch { sendError(it) }
                 .collect { books -> reduce { copy(books = books.map { it.toUiModel() }) } }
         }

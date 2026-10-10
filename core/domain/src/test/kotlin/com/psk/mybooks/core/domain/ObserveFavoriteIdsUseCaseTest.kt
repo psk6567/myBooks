@@ -23,7 +23,11 @@ class ObserveFavoriteIdsUseCaseTest {
     private class FakeFavoriteRepository : FavoriteRepository {
         var collectedOn: Thread? = null
 
-        override fun observeFavorites(sort: FavoriteSortType, priceFilter: PriceFilter): Flow<List<Book>> = emptyFlow()
+        override fun observeFavorites(
+            sort: FavoriteSortType,
+            priceFilter: PriceFilter,
+            query: String
+        ): Flow<List<Book>> = emptyFlow()
 
         override fun observeFavoriteIds(): Flow<Set<String>> = flow {
             collectedOn = Thread.currentThread()

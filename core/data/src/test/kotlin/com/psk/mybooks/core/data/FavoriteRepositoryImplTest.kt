@@ -205,6 +205,41 @@ class FavoriteRepositoryImplTest {
     }
 
     @Test
+    fun `검색어는 제목, 저자, 출판사 중 하나에 들어 있으면 맞고 대소문자와 앞뒤 공백은 무시한다`() = runTest {
+        repository.add(book("1", title = "Kotlin 코루틴"))
+        repository.add(book("2", title = "소설").copy(authors = listOf("김동인")))
+        repository.add(book("3", title = "에세이").copy(publisher = "북로망스"))
+
+        suspend fun ids(query: String): List<String> = repository
+            .observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(), query)
+            .first()
+            .map { it.id }
+            .sorted()
+
+        assertEquals(listOf("1"), ids("kotlin"))
+        assertEquals(listOf("1"), ids("  코루틴  "))
+        assertEquals(listOf("2"), ids("김동인"))
+        assertEquals(listOf("3"), ids("북로"))
+        assertEquals(listOf("1", "2", "3"), ids(""))
+        assertEquals(listOf("1", "2", "3"), ids("   "))
+        assertEquals(emptyList<String>(), ids("없는 말"))
+    }
+
+    @Test
+    fun `검색어와 금액 필터는 함께 적용된다`() = runTest {
+        repository.add(book("1", title = "소설 가", price = 5000))
+        repository.add(book("2", title = "소설 나", price = 20000))
+        repository.add(book("3", title = "에세이", price = 20000))
+
+        val ids: List<String> = repository
+            .observeFavorites(FavoriteSortType.TitleAsc, PriceFilter(min = 10000), "소설")
+            .first()
+            .map { it.id }
+
+        assertEquals(listOf("2"), ids)
+    }
+
+    @Test
     fun `금액 필터는 최소와 최대 금액을 포함해서 그 사이의 도서만 남긴다`() = runTest {
         repository.add(book("1", price = 5000))
         repository.add(book("2", price = 10000))

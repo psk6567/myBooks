@@ -175,6 +175,7 @@ private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit, onTitleClick: ((
                 MainTab.Favorite -> FavoriteRoute(
                     sort = state.favoriteSort,
                     priceFilter = state.favoritePriceFilter,
+                    query = state.searchText,
                     isGrid = state.viewMode == ViewMode.Grid,
                     onBookClick = onBookClick,
                     selectedBookId = selectedBookId
