@@ -4,56 +4,51 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.psk.mybooks.core.designsystem.component.ActionButton
-import com.psk.mybooks.core.designsystem.component.AmountField
+import com.psk.mybooks.core.designsystem.component.MbRangeSlider
 import com.psk.mybooks.core.designsystem.theme.MbColors
 import com.psk.mybooks.core.designsystem.theme.MbTypography
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
-import com.psk.mybooks.core.designsystem.util.HSpacer
 import com.psk.mybooks.core.designsystem.util.VSpacer
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.feature.main.R
 import java.text.NumberFormat
 
-// TODO: 최소/최대 금액 입력 대신 범위 슬라이더(RangeSlider)로 금액을 고르는 방식을 검토한다.
-//  슬라이더는 입력 검증(최소 > 최대)이 필요 없고 조작이 쉽지만, 정확한 금액을 고르기 어렵고
-//  슬라이더 범위(즐겨찾기의 최저가~최고가)를 정해야 한다. 바꾸게 되면 AmountField 는 쓰지 않을 수 있다.
 /**
- * 최소·최대 금액을 입력해 즐겨찾기를 거르는 시트 내용. 비워 둔 쪽은 제한하지 않는다.
- * 최소가 최대보다 크면 안내를 보여 주고 적용할 수 없다. 초기화는 필터를 없애고 닫는다.
+ * 슬라이더로 금액 범위를 골라 즐겨찾기를 거르는 시트 내용. 0 ~ 100,000원을 1,000원 단위로 고르고,
+ * 양 끝은 제한이 없다는 뜻이다(왼쪽 끝은 최소 없음, 오른쪽 끝은 "100,000원 이상"). 초기화는 필터를 없애고 닫는다.
  *
- * @param filter 지금 걸려 있는 필터. 시트가 열릴 때 입력창의 처음 값이 된다.
+ * 두 손잡이가 서로 넘어갈 수 없어서 최소가 최대보다 커지는 일이 없다. 정확한 금액을 직접 고를 수는 없고 1,000원 단위로만 움직인다.
+ *
+ * @param filter 지금 걸려 있는 필터. 시트가 열릴 때 슬라이더의 처음 위치가 된다.
  * @param onApply 적용(또는 초기화)할 필터. 호출한 쪽이 시트를 닫는다.
  */
 @Composable
 internal fun PriceFilterSheet(filter: PriceFilter, onApply: (PriceFilter) -> Unit, modifier: Modifier = Modifier) {
     val colors: MbColors = MyBooksTheme.colors
     val typography: MbTypography = MyBooksTheme.typography
-    var minText: String by rememberSaveable { mutableStateOf(filter.min?.toString().orEmpty()) }
-    var maxText: String by rememberSaveable { mutableStateOf(filter.max?.toString().orEmpty()) }
-    val min: Int? = minText.toIntOrNull()
-    val max: Int? = maxText.toIntOrNull()
-    val isRangeValid: Boolean = min == null || max == null || min <= max
+    val initial: ClosedFloatingPointRange<Float> = filter.toSliderRange()
+    var start: Float by rememberSaveable { mutableFloatStateOf(initial.start) }
+    var end: Float by rememberSaveable { mutableFloatStateOf(initial.endInclusive) }
+    val selected: PriceFilter = (start..end).toPriceFilter()
+    val format: NumberFormat = NumberFormat.getNumberInstance()
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .imePadding()
             .padding(horizontal = 24.dp)
             .padding(bottom = 24.dp)
     ) {
@@ -63,35 +58,42 @@ internal fun PriceFilterSheet(filter: PriceFilter, onApply: (PriceFilter) -> Uni
             color = colors.textPrimary
         )
         VSpacer(16.dp)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            AmountField(
-                value = minText,
-                onValueChange = { minText = it },
-                placeholder = stringResource(R.string.feature_main_price_filter_min),
-                suffix = stringResource(R.string.feature_main_price_unit),
-                modifier = Modifier.weight(1f)
-            )
-            HSpacer(8.dp)
+        // 고른 범위를 글자로 보여 준다. 슬라이더만으로는 정확한 금액을 알기 어렵다.
+        Text(
+            text = if (selected.isActive) {
+                priceFilterLabel(
+                    selected
+                )
+            } else {
+                stringResource(R.string.feature_main_price_filter_all)
+            },
+            style = typography.bold14,
+            color = colors.brand,
+            modifier = Modifier.fillMaxWidth()
+        )
+        VSpacer(8.dp)
+        MbRangeSlider(
+            value = start..end,
+            onValueChange = { range ->
+                start = range.start
+                end = range.endInclusive
+            },
+            valueRange = 0f..PRICE_SLIDER_MAX,
+            steps = PRICE_SLIDER_STEPS
+        )
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
-                text = stringResource(R.string.feature_main_price_filter_separator),
-                style = typography.normal16,
-                color = colors.textSecondary
-            )
-            HSpacer(8.dp)
-            AmountField(
-                value = maxText,
-                onValueChange = { maxText = it },
-                placeholder = stringResource(R.string.feature_main_price_filter_max),
-                suffix = stringResource(R.string.feature_main_price_unit),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        if (!isRangeValid) {
-            VSpacer(8.dp)
-            Text(
-                text = stringResource(R.string.feature_main_price_filter_invalid),
+                text = stringResource(R.string.feature_main_price_slider_min_label),
                 style = typography.normal12,
-                color = colors.error
+                color = colors.textTertiary
+            )
+            Text(
+                text = stringResource(
+                    R.string.feature_main_price_filter_min_only,
+                    format.format(PRICE_SLIDER_MAX.toInt())
+                ),
+                style = typography.normal12,
+                color = colors.textTertiary
             )
         }
         VSpacer(24.dp)
@@ -104,8 +106,7 @@ internal fun PriceFilterSheet(filter: PriceFilter, onApply: (PriceFilter) -> Uni
             )
             ActionButton(
                 text = stringResource(R.string.feature_main_price_filter_apply),
-                onClick = { onApply(PriceFilter(min = min, max = max)) },
-                enabled = isRangeValid,
+                onClick = { onApply(selected) },
                 modifier = Modifier.weight(1f)
             )
         }

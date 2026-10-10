@@ -15,12 +15,9 @@
     <string name="feature_main_price_filter_max_only">%1$s원 이하</string>
     <string name="feature_main_price_filter_range">%1$s~%2$s원</string>
     <string name="feature_main_price_filter_title">금액으로 거르기</string>
-    <string name="feature_main_price_filter_min">최소 금액</string>
-    <string name="feature_main_price_filter_max">최대 금액</string>
-    <string name="feature_main_price_filter_separator">~</string>
-    <string name="feature_main_price_unit">원</string>
-    <string name="feature_main_price_filter_invalid">최소 금액이 최대 금액보다 클 수 없습니다</string>
     <string name="feature_main_price_filter_apply">적용</string>
     <string name="feature_main_price_filter_reset">초기화</string>
     <string name="feature_main_select_book">도서를 선택해 주세요</string>
+    <string name="feature_main_price_filter_all">전체 금액</string>
+    <string name="feature_main_price_slider_min_label">0원</string>
 </resources>
