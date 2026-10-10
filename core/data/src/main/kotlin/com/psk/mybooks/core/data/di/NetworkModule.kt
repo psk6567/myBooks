@@ -1,6 +1,7 @@
 package com.psk.mybooks.core.data.di
 
 import com.psk.mybooks.core.data.BuildConfig
+import com.psk.mybooks.core.data.dev.devInterceptors
 import com.psk.mybooks.core.data.remote.BookApi
 import com.psk.mybooks.core.data.remote.BookApiErrorHandler
 import com.psk.mybooks.core.data.remote.BookApiRetryInterceptor
@@ -76,6 +77,9 @@ internal object NetworkModule {
             }
             // 오류 응답을 BookApiException 으로 바꾼다. 이 클라이언트(BookApi)에만 붙인다.
             .addInterceptor(BookApiErrorHandler())
+            // debug 빌드의 개발자 모드가 요청을 일부러 실패시킬 수 있게 한다. release 에서는 비어 있다.
+            // 오류 변환보다 안쪽(마지막)이라 가짜 오류도 실제 서버 오류처럼 변환·재시도를 거친다.
+            .apply { devInterceptors().forEach { addInterceptor(it) } }
             .build()
 
         return Retrofit

@@ -3,6 +3,8 @@ package com.psk.mybooks.feature.main.ui
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -86,7 +88,7 @@ private data object HomeDestination
  * 화면끼리는 서로를 모르므로(feature 는 다른 feature 를 의존하지 않는다) 이동은 main 이 연결한다.
  */
 @Composable
-fun MainRoute(modifier: Modifier = Modifier) {
+fun MainRoute(modifier: Modifier = Modifier, onTitleClick: (() -> Unit)? = null) {
     val navController: NavHostController = rememberNavController()
 
     // 앱이 이미 떠 있는 상태에서 앱 스킴 링크가 오면 Activity 는 새로 만들어지지 않고 새 Intent 만 받는다.
@@ -100,7 +102,9 @@ fun MainRoute(modifier: Modifier = Modifier) {
     }
 
     NavHost(navController = navController, startDestination = HomeDestination, modifier = modifier) {
-        composable<HomeDestination> { MainHome(onNavigateToDetail = navController::navigateToDetail) }
+        composable<HomeDestination> {
+            MainHome(onNavigateToDetail = navController::navigateToDetail, onTitleClick = onTitleClick)
+        }
         detailScreen(onBack = { navController.popBackStack() })
     }
 }
@@ -110,7 +114,7 @@ fun MainRoute(modifier: Modifier = Modifier) {
  * 도서를 누르면 좁은 화면에서는 상세 화면으로 이동하고, 넓은 화면에서는 이동 없이 목록 옆 패널에 상세를 보여 준다.
  */
 @Composable
-private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit) {
+private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit, onTitleClick: (() -> Unit)?) {
     val viewModel: MainViewModel = hiltViewModel()
     val state: MainUiState by viewModel.state
         .collectAsStateWithLifecycle()
@@ -130,6 +134,7 @@ private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit) {
         state = state,
         onIntent = viewModel::onIntent,
         effect = viewModel.effect,
+        onTitleClick = onTitleClick,
         detailContent = { book -> DetailPane(book = book) },
         pageContent = { tab ->
             when (tab) {
@@ -181,7 +186,8 @@ internal fun MainScreen(
     pageContent: @Composable (MainTab) -> Unit,
     detailContent: @Composable (BookUiModel) -> Unit,
     modifier: Modifier = Modifier,
-    effect: Flow<MainEffect> = emptyFlow()
+    effect: Flow<MainEffect> = emptyFlow(),
+    onTitleClick: (() -> Unit)? = null
 ) {
     val pagerState: PagerState = rememberPagerState(initialPage = state.selectedTab.ordinal) { MainTab.entries.size }
     val currentOnIntent: (MainIntent) -> Unit by rememberUpdatedState(onIntent)
@@ -257,7 +263,19 @@ internal fun MainScreen(
                             .only(WindowInsetsSides.Horizontal)
                     )
                 ) {
-                    TitleBar(label = stringResource(state.selectedTab.labelRes))
+                    TitleBar(
+                        label = stringResource(state.selectedTab.labelRes),
+                        // 제목을 여러 번 누르면 여는 숨은 입구(debug 빌드의 개발자 모드). 없으면 누를 수 있는 영역이 되지 않는다.
+                        modifier = if (onTitleClick == null) {
+                            Modifier
+                        } else {
+                            Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = onTitleClick
+                            )
+                        }
+                    )
                     SearchBar(
                         query = state.searchText,
                         onQueryChange = { onIntent(MainIntent.ChangeSearchText(it)) },

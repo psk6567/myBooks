@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- 개발자 모드. debug 빌드에만 들어가고 앱 안(제목 여러 번 누르기)에서만 연다 -->
+        <activity
+            android:name="com.psk.mybooks.dev.DevActivity"
+            android:exported="false"
+            android:label="@string/dev_title"
+            android:theme="@style/Theme.MyBooks" />
+    </application>
+
+</manifest>

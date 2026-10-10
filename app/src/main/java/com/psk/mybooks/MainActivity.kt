@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
+import com.psk.mybooks.dev.DevEntry
 import com.psk.mybooks.feature.main.ui.MainRoute
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +16,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyBooksTheme {
-                MainRoute()
+                // debug 빌드에서만 제목을 여러 번 누르면 개발자 모드가 열린다. release 에서는 null 이다.
+                MainRoute(onTitleClick = DevEntry.titleClick(this@MainActivity))
             }
         }
     }
