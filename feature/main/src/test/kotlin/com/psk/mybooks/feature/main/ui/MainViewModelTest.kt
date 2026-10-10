@@ -1,5 +1,6 @@
 package com.psk.mybooks.feature.main.ui
 
+import androidx.lifecycle.SavedStateHandle
 import com.psk.mybooks.core.data.ConnectivityRepository
 import com.psk.mybooks.core.domain.IsOnlineUseCase
 import com.psk.mybooks.core.model.FavoriteSortType
@@ -25,8 +26,53 @@ class MainViewModelTest {
         override fun isOnline(): Boolean = online
     }
 
-    private fun viewModel(online: Boolean = true): MainViewModel =
-        MainViewModel(IsOnlineUseCase(FakeConnectivityRepository(online)))
+    private fun viewModel(online: Boolean = true, handle: SavedStateHandle = SavedStateHandle()): MainViewModel =
+        MainViewModel(handle, IsOnlineUseCase(FakeConnectivityRepository(online)))
+
+    @Test
+    fun `바꾼 화면 조건이 저장된 상태로 새 ViewModel 에서 되살아난다`() {
+        val handle: SavedStateHandle = SavedStateHandle()
+        val first: MainViewModel = viewModel(handle = handle)
+        first.onIntent(MainIntent.SelectTab(MainTab.Favorite))
+        first.onIntent(MainIntent.ChangeSearchText("소설"))
+        first.onIntent(MainIntent.ChangeSearchSort(SearchSortType.Latest))
+        first.onIntent(MainIntent.ChangeFavoriteSort(FavoriteSortType.PriceDesc))
+        first.onIntent(MainIntent.ChangeFavoritePriceFilter(PriceFilter(min = 1000, max = 30000)))
+        first.onIntent(MainIntent.ChangeViewMode(ViewMode.Grid))
+
+        // 프로세스가 종료됐다가 돌아온 것처럼, 저장된 handle 로 새 ViewModel 을 만든다
+        val second: MainViewModel = viewModel(handle = handle)
+
+        assertEquals(first.state.value, second.state.value)
+        assertEquals(MainTab.Favorite, second.state.value.selectedTab)
+        assertEquals("소설", second.state.value.searchText)
+    }
+
+    @Test
+    fun `저장된 상태에서 돌아올 때는 인터넷이 없어도 안내하며 즐겨찾기로 옮기지 않는다`() = runTest {
+        val handle: SavedStateHandle = SavedStateHandle()
+        viewModel(online = true, handle = handle)
+            .onIntent(MainIntent.SelectTab(MainTab.Search))
+
+        val restored: MainViewModel = viewModel(online = false, handle = handle)
+
+        assertEquals(MainTab.Search, restored.state.value.selectedTab)
+        assertNull(
+            withTimeoutOrNull(100) {
+                restored.effect
+                    .first()
+            }
+        )
+    }
+
+    @Test
+    fun `읽을 수 없는 저장 값은 무시하고 기본 상태로 시작한다`() {
+        val handle: SavedStateHandle = SavedStateHandle(mapOf(MAIN_SAVED_STATE_KEY to "{깨진 값"))
+
+        val viewModel: MainViewModel = viewModel(handle = handle)
+
+        assertEquals(MainUiState(), viewModel.state.value)
+    }
 
     @Test
     fun `인터넷이 없이 열면 즐겨찾기 탭에서 시작하고 안내 Effect 를 보낸다`() = runTest {
