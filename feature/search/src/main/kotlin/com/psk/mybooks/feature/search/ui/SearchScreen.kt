@@ -4,8 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,6 +38,7 @@ import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.core.ui.ErrorEffect
 import com.psk.mybooks.core.ui.ListErrorView
 import com.psk.mybooks.core.ui.ListFooterError
+import com.psk.mybooks.core.ui.ScrollToTopOnChange
 import com.psk.mybooks.core.ui.priceText
 import com.psk.mybooks.core.ui.salePriceText
 import com.psk.mybooks.feature.search.R
@@ -164,7 +169,11 @@ private fun BookList(
     selectedBookId: String?,
     modifier: Modifier = Modifier
 ) {
+    val listState: LazyListState = rememberLazyListState()
+    // 검색어나 정렬을 바꾸면 결과가 달라지므로 맨 위로 올려 처음부터 보이게 한다
+    ScrollToTopOnChange(key = state.query to state.sort) { listState.scrollToItem(0) }
     LazyColumn(
+        state = listState,
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -202,7 +211,10 @@ private fun BookGrid(
     selectedBookId: String?,
     modifier: Modifier = Modifier
 ) {
+    val gridState: LazyGridState = rememberLazyGridState()
+    ScrollToTopOnChange(key = state.query to state.sort) { gridState.scrollToItem(0) }
     LazyVerticalGrid(
+        state = gridState,
         columns = BookGridColumns,
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
