@@ -21,6 +21,7 @@ import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 /**
  * 두 손잡이로 범위를 고르는 슬라이더. 두 손잡이는 서로 넘어갈 수 없어서 시작이 끝보다 커지는 일이 없다.
  * 선택한 범위 안은 브랜드 색으로 채워진다. 현재 값은 이 컴포넌트가 보여 주지 않으므로 호출하는 쪽이 글자로 함께 보여 준다.
+ * [BottomSheet] 안에서 쓰면 누르고 있는 동안 시트의 끌기를 잠가 시트가 같이 흔들리지 않는다.
  *
  * @param value 선택한 범위
  * @param valueRange 고를 수 있는 전체 범위
@@ -47,7 +48,8 @@ fun MbRangeSlider(
     RangeSlider(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier.fillMaxWidth(),
+        // 시트 안에서 쓰면 끄는 동안 시트가 같이 흔들리지 않도록 시트의 끌기를 잠근다
+        modifier = modifier.fillMaxWidth().lockBottomSheetWhilePressed(),
         valueRange = valueRange,
         steps = steps,
         colors = sliderColors

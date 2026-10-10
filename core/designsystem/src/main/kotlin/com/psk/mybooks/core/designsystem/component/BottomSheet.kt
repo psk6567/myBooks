@@ -12,14 +12,22 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -34,6 +42,9 @@ import kotlinx.coroutines.launch
  *
  * 아래로 끌기, 뒷배경 터치, 뒤로가기는 [onDismissRequest] 로 전달된다.
  * 아래 화면의 텍스트 필드에 포커스가 있으면 시트가 닫힐 때 키보드를 올린다. (포커스가 없으면 아무 일도 없다)
+ *
+ * 시트 안에 슬라이더처럼 끌기를 쓰는 컨트롤을 넣으면 손가락이 조금만 위아래로 흔들려도 시트가 따라 움직인다.
+ * 그런 컨트롤은 [lockBottomSheetWhilePressed] 로 누르고 있는 동안 시트의 끌기를 잠글 수 있다. ([MbRangeSlider] 는 이미 그렇게 한다)
  *
  * @param content 시트 내용. 파라미터로 받은 `dismiss` 를 부르면 닫힘 애니메이션 후 [onDismissRequest] 가 호출된다.
  * 항목을 고르고 닫을 때 쓴다. (그냥 [onDismissRequest] 쪽 상태만 바꾸면 애니메이션 없이 사라진다)
@@ -65,6 +76,9 @@ fun BottomSheet(
             if (!sheetState.isVisible) onDismiss()
         }
     }
+    // 시트 안의 컨트롤(슬라이더 등)이 끌기를 쓰는 동안 시트가 같이 움직이지 않도록 시트의 끌기를 잠글 수 있게 한다
+    var gesturesEnabled: Boolean by remember { mutableStateOf(true) }
+    val gestures: BottomSheetGestures = remember { BottomSheetGestures { enabled -> gesturesEnabled = enabled } }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -74,9 +88,13 @@ fun BottomSheet(
         containerColor = MyBooksTheme.colors.card,
         contentColor = MyBooksTheme.colors.textPrimary,
         tonalElevation = 0.dp,
+        sheetGesturesEnabled = gesturesEnabled,
         dragHandle = { Handle() }
     ) {
-        content(dismiss)
+        val columnScope: ColumnScope = this
+        CompositionLocalProvider(LocalBottomSheetGestures provides gestures) {
+            columnScope.content(dismiss)
+        }
     }
 }
 
@@ -125,6 +143,49 @@ fun rememberBottomSheet(
         )
     }
     return handle
+}
+
+/**
+ * 시트 안의 컨트롤이 시트 자체의 끌기(위아래로 움직이기, 내려서 닫기)를 잠시 막고 푸는 손잡이.
+ * 직접 쓰기보다 [lockBottomSheetWhilePressed] 를 쓴다.
+ */
+@Stable
+class BottomSheetGestures internal constructor(
+    private val setEnabled: (Boolean) -> Unit
+) {
+    fun lock() = setEnabled(false)
+
+    fun unlock() = setEnabled(true)
+}
+
+/** 가장 가까운 [BottomSheet] 의 끌기 잠금 손잡이. 시트 안이 아니면 null 이다. */
+val LocalBottomSheetGestures: ProvidableCompositionLocal<BottomSheetGestures?> = staticCompositionLocalOf { null }
+
+/**
+ * 이 요소를 누르고 있는 동안 바깥 [BottomSheet] 의 끌기를 잠그고, 손을 떼면 푼다. 시트 안이 아니면 아무 일도 하지 않는다.
+ * 터치를 소비하지 않고 지켜보기만 해서 요소 자신의 터치 처리에는 영향이 없다.
+ *
+ * ```
+ * Slider(modifier = Modifier.lockBottomSheetWhilePressed())
+ * ```
+ */
+@Composable
+fun Modifier.lockBottomSheetWhilePressed(): Modifier {
+    val gestures: BottomSheetGestures = LocalBottomSheetGestures.current ?: return this
+    return pointerInput(gestures) {
+        try {
+            awaitPointerEventScope {
+                while (true) {
+                    // Initial 단계에서 지켜보기만 한다(소비하지 않음). 누른 손가락이 하나라도 있으면 잠근다.
+                    val event: PointerEvent = awaitPointerEvent(PointerEventPass.Initial)
+                    if (event.changes.any { it.pressed }) gestures.lock() else gestures.unlock()
+                }
+            }
+        } finally {
+            // 누른 채로 화면에서 사라져도(예: 시트가 닫힘) 잠금이 남지 않게 한다
+            gestures.unlock()
+        }
+    }
 }
 
 /** [rememberBottomSheet] 가 돌려주는 손잡이 */
