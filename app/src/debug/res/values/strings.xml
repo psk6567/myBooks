@@ -18,5 +18,4 @@
     <string name="dev_preview_hint">디자인 시스템의 @Preview 함수를 찾아 목록으로 보여 줍니다. 누르면 해당 Preview 가 시스템 바를 피해 전체 화면으로 열립니다.</string>
     <string name="dev_preview_loading">찾는 중…</string>
     <string name="dev_preview_empty">찾은 Preview 가 없습니다</string>
-    <string name="dev_close">닫기</string>
 </resources>
