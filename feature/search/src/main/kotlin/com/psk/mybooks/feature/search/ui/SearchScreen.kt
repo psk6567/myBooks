@@ -23,7 +23,9 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.psk.mybooks.core.designsystem.component.BookGridItem
+import com.psk.mybooks.core.designsystem.component.BookGridItemSkeleton
 import com.psk.mybooks.core.designsystem.component.BookListItem
+import com.psk.mybooks.core.designsystem.component.BookListItemSkeleton
 import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.model.SearchSortType
@@ -36,6 +38,9 @@ import com.psk.mybooks.core.ui.priceText
 import com.psk.mybooks.core.ui.salePriceText
 import com.psk.mybooks.feature.search.R
 import kotlinx.coroutines.flow.flowOf
+
+/** 자리표시를 몇 개 그릴지. 화면을 채우고 남는 만큼은 잘리므로 넉넉히 둔다. */
+private const val SKELETON_COUNT: Int = 12
 
 /**
  * ViewModel 을 연결하는 진입점. Navigation 도입 후에는 internal 로 바꾼다.
@@ -103,6 +108,16 @@ internal fun SearchScreen(
     val refreshError: Throwable? = (books.loadState.refresh as? LoadState.Error)?.error
     if (refreshError != null && books.itemCount == 0) {
         ListErrorView(error = refreshError, onRetry = books::retry, modifier = modifier)
+        return
+    }
+    // 처음 불러오는 중이고 보여 줄 항목이 없으면 항목 모양의 자리표시를 보여 준다.
+    // (검색어를 바꾸는 중에도 이전 목록이 남아 있으면 그대로 두어 깜빡이지 않게 한다)
+    if (books.loadState.refresh is LoadState.Loading && books.itemCount == 0) {
+        if (isGrid) {
+            GridSkeleton(modifier = modifier)
+        } else {
+            ListSkeleton(modifier = modifier)
+        }
         return
     }
     // 검색을 마쳤는데 결과가 없으면 안내 문구를 보여 준다
@@ -187,6 +202,32 @@ private fun BookGrid(
                 ListFooterError(error = append.error, onRetry = books::retry)
             }
         }
+    }
+}
+
+@Composable
+private fun ListSkeleton(modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        userScrollEnabled = false
+    ) {
+        items(count = SKELETON_COUNT) { BookListItemSkeleton() }
+    }
+}
+
+@Composable
+private fun GridSkeleton(modifier: Modifier = Modifier) {
+    LazyVerticalGrid(
+        columns = BookGridColumns,
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        userScrollEnabled = false
+    ) {
+        items(count = SKELETON_COUNT) { BookGridItemSkeleton() }
     }
 }
 
