@@ -20,4 +20,5 @@
     <string name="feature_main_select_book">Select a book</string>
     <string name="feature_main_price_filter_all">All prices</string>
     <string name="feature_main_price_slider_min_label">KRW 0</string>
+    <string name="feature_main_offline_moved_to_favorite">No internet connection. Showing your favorites.</string>
 </resources>

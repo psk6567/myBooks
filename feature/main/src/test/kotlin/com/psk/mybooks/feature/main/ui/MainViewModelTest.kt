@@ -1,25 +1,77 @@
 package com.psk.mybooks.feature.main.ui
 
+import com.psk.mybooks.core.data.ConnectivityRepository
+import com.psk.mybooks.core.domain.IsOnlineUseCase
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.core.ui.BookUiModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Rule
 import org.junit.Test
 
 class MainViewModelTest {
 
+    @get:Rule
+    val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule()
+
+    private class FakeConnectivityRepository(
+        private val online: Boolean
+    ) : ConnectivityRepository {
+        override fun isOnline(): Boolean = online
+    }
+
+    private fun viewModel(online: Boolean = true): MainViewModel =
+        MainViewModel(IsOnlineUseCase(FakeConnectivityRepository(online)))
+
+    @Test
+    fun `인터넷이 없이 열면 즐겨찾기 탭에서 시작하고 안내 Effect 를 보낸다`() = runTest {
+        val viewModel: MainViewModel = viewModel(online = false)
+
+        assertEquals(MainTab.Favorite, viewModel.state.value.selectedTab)
+        assertEquals(
+            MainEffect.MovedToFavoriteOffline,
+            viewModel.effect
+                .first()
+        )
+    }
+
+    @Test
+    fun `인터넷이 없어도 검색 탭으로 돌아갈 수 있다`() {
+        val viewModel: MainViewModel = viewModel(online = false)
+
+        viewModel.onIntent(MainIntent.SelectTab(MainTab.Search))
+
+        assertEquals(MainTab.Search, viewModel.state.value.selectedTab)
+    }
+
+    @Test
+    fun `인터넷이 있으면 안내 없이 검색 탭에서 시작한다`() = runTest {
+        val viewModel: MainViewModel = viewModel(online = true)
+
+        assertEquals(MainTab.Search, viewModel.state.value.selectedTab)
+        assertNull(
+            withTimeoutOrNull(100) {
+                viewModel.effect
+                    .first()
+            }
+        )
+    }
+
     @Test
     fun `처음에는 검색 탭이 선택되어 있다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
 
         assertEquals(MainTab.Search, viewModel.state.value.selectedTab)
     }
 
     @Test
     fun `SelectTab Intent 를 보내면 선택된 탭이 바뀐다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
 
         viewModel.onIntent(MainIntent.SelectTab(MainTab.Favorite))
 
@@ -28,7 +80,7 @@ class MainViewModelTest {
 
     @Test
     fun `같은 탭을 다시 선택해도 상태는 그대로다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
 
         viewModel.onIntent(MainIntent.SelectTab(MainTab.Search))
 
@@ -37,7 +89,7 @@ class MainViewModelTest {
 
     @Test
     fun `검색창 입력은 Intent 로만 상태에 반영된다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
 
         viewModel.onIntent(MainIntent.ChangeSearchText("해리 포터"))
 
@@ -46,7 +98,7 @@ class MainViewModelTest {
 
     @Test
     fun `탭을 바꿔도 검색어는 유지된다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
         viewModel.onIntent(MainIntent.ChangeSearchText("해리 포터"))
 
         viewModel.onIntent(MainIntent.SelectTab(MainTab.Favorite))
@@ -56,7 +108,7 @@ class MainViewModelTest {
 
     @Test
     fun `처음 정렬 기준은 검색은 정확도순, 즐겨찾기는 제목 오름차순이다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
 
         assertEquals(SearchSortType.Accuracy, viewModel.state.value.searchSort)
         assertEquals(FavoriteSortType.TitleAsc, viewModel.state.value.favoriteSort)
@@ -64,7 +116,7 @@ class MainViewModelTest {
 
     @Test
     fun `검색 정렬과 즐겨찾기 정렬은 서로 영향을 주지 않는다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
 
         viewModel.onIntent(MainIntent.ChangeSearchSort(SearchSortType.Latest))
         assertEquals(SearchSortType.Latest, viewModel.state.value.searchSort)
@@ -77,7 +129,7 @@ class MainViewModelTest {
 
     @Test
     fun `정렬을 바꿔도 검색어와 탭은 그대로다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
         viewModel.onIntent(MainIntent.ChangeSearchText("해리 포터"))
         viewModel.onIntent(MainIntent.SelectTab(MainTab.Favorite))
 
@@ -90,7 +142,7 @@ class MainViewModelTest {
 
     @Test
     fun `즐겨찾기 금액 필터는 기본으로 없고 바꾸거나 없앨 수 있다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
         assertEquals(PriceFilter(), viewModel.state.value.favoritePriceFilter)
 
         viewModel.onIntent(MainIntent.ChangeFavoritePriceFilter(PriceFilter(min = 1000, max = 20000)))
@@ -102,7 +154,7 @@ class MainViewModelTest {
 
     @Test
     fun `기본 보기 방식은 목록이고 토글에는 목록, 격자 순서로 나온다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
 
         assertEquals(ViewMode.List, viewModel.state.value.viewMode)
         assertEquals(listOf(ViewMode.List, ViewMode.Grid), ViewMode.entries)
@@ -110,7 +162,7 @@ class MainViewModelTest {
 
     @Test
     fun `ChangeViewMode Intent 를 보내면 보기 방식이 바뀐다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
 
         viewModel.onIntent(MainIntent.ChangeViewMode(ViewMode.Grid))
 
@@ -119,7 +171,7 @@ class MainViewModelTest {
 
     @Test
     fun `도서를 고르면 옆 패널에 보일 도서가 정해지고 처음에는 없다`() {
-        val viewModel: MainViewModel = MainViewModel()
+        val viewModel: MainViewModel = viewModel()
         assertNull(viewModel.state.value.selectedBook)
         val book: BookUiModel = BookUiModel(
             id = "1",

@@ -79,3 +79,8 @@ internal sealed interface MainIntent {
         val viewMode: ViewMode
     ) : MainIntent
 }
+
+internal sealed interface MainEffect {
+    /** 앱을 열 때 인터넷이 없어 즐겨찾기 탭으로 옮겼음을 알린다. */
+    data object MovedToFavoriteOffline : MainEffect
+}

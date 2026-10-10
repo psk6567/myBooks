@@ -2,6 +2,8 @@ package com.psk.mybooks.core.data.di
 
 import com.psk.mybooks.core.data.BookRepository
 import com.psk.mybooks.core.data.BookRepositoryImpl
+import com.psk.mybooks.core.data.ConnectivityRepository
+import com.psk.mybooks.core.data.ConnectivityRepositoryImpl
 import com.psk.mybooks.core.data.FavoriteRepository
 import com.psk.mybooks.core.data.FavoriteRepositoryImpl
 import dagger.Binds
@@ -19,4 +21,7 @@ internal abstract class DataModule {
 
     @Binds
     abstract fun bindFavoriteRepository(impl: FavoriteRepositoryImpl): FavoriteRepository
+
+    @Binds
+    abstract fun bindConnectivityRepository(impl: ConnectivityRepositoryImpl): ConnectivityRepository
 }

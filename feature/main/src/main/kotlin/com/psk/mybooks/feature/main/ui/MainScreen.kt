@@ -31,8 +31,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -40,10 +40,12 @@ import androidx.navigation.compose.rememberNavController
 import com.psk.mybooks.core.designsystem.component.BottomSheetHandle
 import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.component.Icon
+import com.psk.mybooks.core.designsystem.component.LocalSnackbar
 import com.psk.mybooks.core.designsystem.component.MbSnackbarHost
 import com.psk.mybooks.core.designsystem.component.OptionItem
 import com.psk.mybooks.core.designsystem.component.OutlinedChip
 import com.psk.mybooks.core.designsystem.component.SearchBar
+import com.psk.mybooks.core.designsystem.component.SnackbarHandle
 import com.psk.mybooks.core.designsystem.component.SnackbarProvider
 import com.psk.mybooks.core.designsystem.component.TabBar
 import com.psk.mybooks.core.designsystem.component.TabItem
@@ -63,6 +65,8 @@ import com.psk.mybooks.feature.detail.ui.DetailPane
 import com.psk.mybooks.feature.favorite.ui.FavoriteRoute
 import com.psk.mybooks.feature.main.R
 import com.psk.mybooks.feature.search.ui.SearchRoute
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.serialization.Serializable
 
 /** 넓은 화면에서 목록 영역에 대한 상세 패널의 폭 비율 (목록 1 : 상세 1.3) */
@@ -92,7 +96,7 @@ fun MainRoute(modifier: Modifier = Modifier) {
  */
 @Composable
 private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit) {
-    val viewModel: MainViewModel = viewModel()
+    val viewModel: MainViewModel = hiltViewModel()
     val state: MainUiState by viewModel.state
         .collectAsStateWithLifecycle()
     val isWide: Boolean = isWideScreen()
@@ -103,6 +107,7 @@ private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit) {
     MainScreen(
         state = state,
         onIntent = viewModel::onIntent,
+        effect = viewModel.effect,
         detailContent = { book -> DetailPane(book = book) },
         pageContent = { tab ->
             when (tab) {
@@ -124,11 +129,26 @@ private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit) {
     )
 }
 
+/** [MainEffect] 를 받아 스낵바로 알린다. [SnackbarProvider] 안에서 불러야 한다. */
+@Composable
+private fun MainEffectHandler(effect: Flow<MainEffect>) {
+    val snackbar: SnackbarHandle = LocalSnackbar.current
+    val offlineMessage: String = stringResource(R.string.feature_main_offline_moved_to_favorite)
+    LaunchedEffect(effect) {
+        effect.collect { event ->
+            when (event) {
+                MainEffect.MovedToFavoriteOffline -> snackbar.show(offlineMessage)
+            }
+        }
+    }
+}
+
 /**
  * 상태와 콜백을 파라미터로만 받는 UI. Preview·UI 테스트 대상.
  *
  * @param pageContent 탭별 화면. 다른 feature 의 ViewModel 을 직접 만들지 않도록 호출하는 쪽에서 넘긴다.
  * @param detailContent 넓은 화면에서 목록 옆 패널에 보일 상세. 선택한 도서를 받는다.
+ * @param effect 한 번만 처리할 일(오프라인 안내 등). 스낵바 호스트가 이 화면에 있어서 여기서 받는다.
  */
 @Composable
 internal fun MainScreen(
@@ -136,7 +156,8 @@ internal fun MainScreen(
     onIntent: (MainIntent) -> Unit,
     pageContent: @Composable (MainTab) -> Unit,
     detailContent: @Composable (BookUiModel) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    effect: Flow<MainEffect> = emptyFlow()
 ) {
     val pagerState: PagerState = rememberPagerState(initialPage = state.selectedTab.ordinal) { MainTab.entries.size }
     val currentOnIntent: (MainIntent) -> Unit by rememberUpdatedState(onIntent)
@@ -199,6 +220,7 @@ internal fun MainScreen(
     val tabItems: List<TabItem> = rememberTabItems()
 
     SnackbarProvider(snackbarHostState) {
+        MainEffectHandler(effect)
         Scaffold(
             modifier = modifier,
             containerColor = MyBooksTheme.colors.background,
