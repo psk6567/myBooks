@@ -172,7 +172,8 @@ ErrorEffect(viewModel.error)
 
 - 데이터 계층이 오류를 `ErrorReason`(네트워크, 인증, 권한, 호출 횟수 초과, 서버 등)으로 분류한 `AppException`으로 던지고, 화면은 HTTP 세부 사항을 모릅니다. 분류되지 않은 예외는 `Unknown`입니다.
 - **중요도**: 인증·권한 오류는 High(확인 버튼 하나, 닫히지 않는 다이얼로그), 나머지는 Low(스낵바)입니다. 기획이 정해지면 `ErrorReason`의 중요도만 바꾸면 됩니다.
-- 검색 결과(Paging)의 불러오기 실패는 화면의 로드 상태로만 알 수 있어서, 화면이 `ReportLoadError` Intent로 ViewModel에 알립니다. 같은 오류는 한 번만 알립니다.
+- 검색 결과(Paging)의 불러오기 실패는 목록 안에서 알립니다. 첫 로드 실패는 화면 가운데 문구와 "다시 시도" 버튼, 더 불러오기 실패는 목록 끝의 안내와 버튼입니다(`ListErrorView`, `ListFooterError`). 스낵바는 몇 초 뒤 사라지므로 재시도 버튼을 두지 않습니다.
+- 화면은 `ReportLoadError` Intent로 오류를 ViewModel에 알리지만, 다시 시도할 수 있는 오류는 목록이 이미 보여 주므로 무시하고 High(인증·권한)만 다이얼로그로 보냅니다.
 
 ### main 화면의 탭 이동
 `MainViewModel`이 선택된 탭을 상태로 가지고, 탭 클릭과 Pager 스와이프가 모두 `SelectTab` Intent로 들어옵니다.

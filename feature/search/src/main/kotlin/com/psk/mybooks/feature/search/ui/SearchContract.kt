@@ -35,7 +35,9 @@ internal sealed interface SearchIntent {
         val book: BookUiModel
     ) : SearchIntent
 
-    /** 검색 결과를 불러오다 실패함. 화면의 로드 상태에서 읽어 알려 준다. 같은 오류 객체는 한 번만 전달된다. ([com.psk.mybooks.core.common.MviViewModel.sendError] 참고) */
+    /** 검색 결과를 불러오다 실패함. 화면의 로드 상태에서 읽어 알려 준다.
+     * 목록 안에서 이미 안내하므로 스낵바로 또 알리지 않고, 사용자가 확인해야 하는 높은 중요도의 오류(인증·권한)만
+     * 공통 오류 흐름으로 보낸다. 같은 오류 객체는 한 번만 전달된다. ([com.psk.mybooks.core.common.MviViewModel.sendError] 참고) */
     data class ReportLoadError(
         val error: Throwable
     ) : SearchIntent

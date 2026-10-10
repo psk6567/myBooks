@@ -9,7 +9,9 @@ import com.psk.mybooks.core.domain.AddFavoriteUseCase
 import com.psk.mybooks.core.domain.FetchSearchBooksUseCase
 import com.psk.mybooks.core.domain.ObserveFavoriteIdsUseCase
 import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
+import com.psk.mybooks.core.model.AppException
 import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.model.ErrorReason
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
@@ -274,22 +276,38 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun `불러오기 오류를 알리면 그대로 전달하고 같은 오류는 한 번만 전달한다`() = runTest(dispatcher) {
+    fun `다시 시도할 수 있는 불러오기 오류는 목록에서 안내하므로 스낵바로 또 알리지 않는다`() = runTest(dispatcher) {
         val viewModel: SearchViewModel = viewModel(FakeBookRepository())
         val received: MutableList<Throwable> = mutableListOf()
         backgroundScope.launch {
             viewModel.error
                 .collect { received += it }
         }
-        val first: Exception = Exception("첫 번째")
-        val second: Exception = Exception("두 번째")
 
-        viewModel.onIntent(SearchIntent.ReportLoadError(first))
-        viewModel.onIntent(SearchIntent.ReportLoadError(first))
-        viewModel.onIntent(SearchIntent.ReportLoadError(second))
-        viewModel.onIntent(SearchIntent.ReportLoadError(first))
+        viewModel.onIntent(SearchIntent.ReportLoadError(AppException(ErrorReason.Network)))
+        viewModel.onIntent(SearchIntent.ReportLoadError(AppException(ErrorReason.Timeout)))
+        viewModel.onIntent(SearchIntent.ReportLoadError(AppException(ErrorReason.Server)))
+        viewModel.onIntent(SearchIntent.ReportLoadError(Exception("분류되지 않은 오류")))
 
-        assertEquals(listOf<Throwable>(first, second, first), received)
+        assertTrue(received.isEmpty())
+    }
+
+    @Test
+    fun `인증과 권한 오류는 사용자가 확인해야 하므로 알리고 같은 오류는 한 번만 전달한다`() = runTest(dispatcher) {
+        val viewModel: SearchViewModel = viewModel(FakeBookRepository())
+        val received: MutableList<Throwable> = mutableListOf()
+        backgroundScope.launch {
+            viewModel.error
+                .collect { received += it }
+        }
+        val unauthorized: AppException = AppException(ErrorReason.Unauthorized)
+        val forbidden: AppException = AppException(ErrorReason.Forbidden)
+
+        viewModel.onIntent(SearchIntent.ReportLoadError(unauthorized))
+        viewModel.onIntent(SearchIntent.ReportLoadError(unauthorized))
+        viewModel.onIntent(SearchIntent.ReportLoadError(forbidden))
+
+        assertEquals(listOf<Throwable>(unauthorized, forbidden), received)
     }
 
     @Test

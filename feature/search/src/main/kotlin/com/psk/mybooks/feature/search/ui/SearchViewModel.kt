@@ -10,7 +10,9 @@ import com.psk.mybooks.core.domain.FetchSearchBooksUseCase
 import com.psk.mybooks.core.domain.ObserveFavoriteIdsUseCase
 import com.psk.mybooks.core.domain.RemoveFavoriteUseCase
 import com.psk.mybooks.core.model.Book
+import com.psk.mybooks.core.model.ErrorSeverity
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.toErrorReason
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.core.ui.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -82,8 +84,21 @@ internal class SearchViewModel @Inject constructor(
         when (intent) {
             is SearchIntent.ChangeCondition -> reduce { copy(query = intent.query, sort = intent.sort) }
             is SearchIntent.OpenDetail -> sendEffect(SearchEffect.OpenDetail(intent.book))
-            is SearchIntent.ReportLoadError -> sendError(intent.error)
+            is SearchIntent.ReportLoadError -> reportLoadError(intent.error)
             is SearchIntent.ToggleFavorite -> toggleFavorite(intent.bookId)
+        }
+    }
+
+    /**
+     * 불러오기 오류는 목록 안(첫 로드 실패는 목록 자리, 다음 페이지 실패는 목록 끝)에서 안내하고 다시 시도 버튼도 거기 있다.
+     * 그래서 같은 말을 스낵바로 또 띄우지 않고, 사용자가 반드시 확인해야 하는 높은 중요도(인증·권한)일 때만 알린다.
+     */
+    private fun reportLoadError(error: Throwable) {
+        if (error
+                .toErrorReason()
+                .severity == ErrorSeverity.High
+        ) {
+            sendError(error)
         }
     }
 

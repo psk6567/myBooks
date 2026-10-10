@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +30,8 @@ import com.psk.mybooks.core.model.SearchSortType
 import com.psk.mybooks.core.ui.BookGridColumns
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.core.ui.ErrorEffect
+import com.psk.mybooks.core.ui.ListErrorView
+import com.psk.mybooks.core.ui.ListFooterError
 import com.psk.mybooks.core.ui.priceText
 import com.psk.mybooks.core.ui.salePriceText
 import com.psk.mybooks.feature.search.R
@@ -95,6 +98,13 @@ internal fun SearchScreen(
         EmptyMessage(message = stringResource(R.string.feature_search_empty_query), modifier = modifier)
         return
     }
+    // 처음 불러오다 실패했고 보여 줄 항목이 없으면 목록 자리에 안내와 다시 시도 버튼을 보여 준다.
+    // (다음 페이지 실패는 이미 불러온 항목을 두고 목록 끝에 보인다)
+    val refreshError: Throwable? = (books.loadState.refresh as? LoadState.Error)?.error
+    if (refreshError != null && books.itemCount == 0) {
+        ListErrorView(error = refreshError, onRetry = books::retry, modifier = modifier)
+        return
+    }
     // 검색을 마쳤는데 결과가 없으면 안내 문구를 보여 준다
     if (books.loadState
             .isNoResult(books.itemCount)
@@ -137,6 +147,10 @@ private fun BookList(
                 onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
             )
         }
+        // 다음 페이지를 불러오다 실패하면 이미 불러온 항목 아래에 안내와 다시 시도 버튼을 둔다
+        (books.loadState.append as? LoadState.Error)?.let { append ->
+            item { ListFooterError(error = append.error, onRetry = books::retry) }
+        }
     }
 }
 
@@ -166,6 +180,12 @@ private fun BookGrid(
                 onClick = { onIntent(SearchIntent.OpenDetail(book)) },
                 onFavoriteClick = { onIntent(SearchIntent.ToggleFavorite(book.id)) }
             )
+        }
+        // 격자에서는 안내가 한 칸이 아니라 한 줄 전체를 차지하게 한다
+        (books.loadState.append as? LoadState.Error)?.let { append ->
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                ListFooterError(error = append.error, onRetry = books::retry)
+            }
         }
     }
 }
