@@ -71,6 +71,7 @@ import com.psk.mybooks.core.designsystem.util.VSpacer
 import com.psk.mybooks.core.designsystem.util.isWideScreen
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.feature.detail.navigation.detailScreen
 import com.psk.mybooks.feature.detail.navigation.navigateToDetail
@@ -167,6 +168,7 @@ private fun MainHome(onNavigateToDetail: (BookUiModel) -> Unit, onTitleClick: ((
                 MainTab.Search -> SearchRoute(
                     query = state.searchText,
                     sort = state.searchSort,
+                    target = state.searchTarget,
                     isGrid = state.viewMode == ViewMode.Grid,
                     onBookClick = onBookClick,
                     selectedBookId = selectedBookId
@@ -245,6 +247,20 @@ internal fun MainScreen(
         }
     }
 
+    // 검색 대상(제목, ISBN, 출판사, 저자 등)을 고르는 시트. 서버 검색인 검색 탭에만 있다.
+    val targetSheet: BottomSheetHandle = rememberBottomSheet { dismiss ->
+        SearchTargetType.entries.forEach { target ->
+            OptionItem(
+                text = stringResource(target.labelRes()),
+                selected = target == state.searchTarget,
+                onClick = {
+                    onIntent(MainIntent.ChangeSearchTarget(target))
+                    dismiss()
+                }
+            )
+        }
+    }
+
     val priceFilterSheet: BottomSheetHandle = rememberBottomSheet { dismiss ->
         PriceFilterSheet(
             filter = state.favoritePriceFilter,
@@ -309,7 +325,15 @@ internal fun MainScreen(
                     SearchBar(
                         query = state.searchText,
                         onQueryChange = { onIntent(MainIntent.ChangeSearchText(it)) },
-                        placeholder = stringResource(R.string.feature_main_search_placeholder),
+                        // 검색 탭에서는 고른 검색 대상에 맞는 문구, 즐겨찾기 탭에서는 기본 문구
+                        placeholder = stringResource(
+                            if (state.selectedTab == MainTab.Search) {
+                                state.searchTarget
+                                    .placeholderRes()
+                            } else {
+                                R.string.feature_main_search_placeholder
+                            }
+                        ),
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     VSpacer(12.dp)
@@ -372,6 +396,20 @@ internal fun MainScreen(
                                     ),
                                     onClick = sortSheet::show
                                 )
+                                // 검색 대상은 서버가 찾는 검색 탭에만 있다. 기본(전체)이 아니면 강조해서 보여 준다.
+                                if (state.selectedTab == MainTab.Search) {
+                                    OutlinedChip(
+                                        text = stringResource(
+                                            R.string.feature_main_target_chip,
+                                            stringResource(
+                                                state.searchTarget
+                                                    .labelRes()
+                                            )
+                                        ),
+                                        onClick = targetSheet::show,
+                                        selected = state.searchTarget != SearchTargetType.All
+                                    )
+                                }
                                 // 금액 필터는 앱에서 거르는 즐겨찾기에만 있다
                                 if (state.selectedTab == MainTab.Favorite) {
                                     OutlinedChip(

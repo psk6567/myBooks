@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import com.psk.mybooks.core.data.BookRepository
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineDispatcher
@@ -26,7 +27,11 @@ class FetchSearchBooksUseCaseTest {
         var collectedOn: Thread? = null
         val data: PagingData<Book> = PagingData.empty()
 
-        override fun searchBooks(query: String, sort: SearchSortType): Flow<PagingData<Book>> {
+        override fun searchBooks(
+            query: String,
+            sort: SearchSortType,
+            target: SearchTargetType
+        ): Flow<PagingData<Book>> {
             lastQuery = query
             lastSort = sort
             return flow {

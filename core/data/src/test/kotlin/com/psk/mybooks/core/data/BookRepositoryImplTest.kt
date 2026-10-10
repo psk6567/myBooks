@@ -7,6 +7,7 @@ import com.psk.mybooks.core.data.remote.SearchSort
 import com.psk.mybooks.core.data.remote.SearchTarget
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -16,6 +17,7 @@ class BookRepositoryImplTest {
 
     private class FakeBookApi : BookApi {
         val calls: MutableList<Triple<Int, Int, SearchSort>> = mutableListOf()
+        val targets: MutableList<SearchTarget?> = mutableListOf()
 
         override suspend fun searchBooks(
             query: String,
@@ -25,6 +27,7 @@ class BookRepositoryImplTest {
             target: SearchTarget?
         ): BookSearchResponse {
             calls += Triple(page, size, sort)
+            targets += target
             val first: Int = (page - 1) * size
             val docs: List<BookSearchResponse.BookDocument> = (first until first + size).map { document(it) }
             return BookSearchResponse(
@@ -119,5 +122,30 @@ class BookRepositoryImplTest {
                 .last()
                 .third
         )
+    }
+
+    @Test
+    fun `검색 대상을 API 필드로 바꿔서 보내고 전체는 보내지 않는다`() = runTest {
+        val api: FakeBookApi = FakeBookApi()
+        val expected: Map<SearchTargetType, SearchTarget?> = mapOf(
+            SearchTargetType.All to null,
+            SearchTargetType.Title to SearchTarget.Title,
+            SearchTargetType.Isbn to SearchTarget.Isbn,
+            SearchTargetType.Publisher to SearchTarget.Publisher,
+            SearchTargetType.Author to SearchTarget.Person
+        )
+
+        expected.forEach { (type, apiTarget) ->
+            BookRepositoryImpl(api)
+                .searchBooks("한강", SearchSortType.Accuracy, type)
+                .asSnapshot()
+
+            assertEquals(
+                "$type",
+                apiTarget,
+                api.targets
+                    .last()
+            )
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.psk.mybooks.core.common.IoDispatcher
 import com.psk.mybooks.core.data.BookRepository
 import com.psk.mybooks.core.model.Book
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -23,10 +24,20 @@ class FetchSearchBooksUseCase @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
 
-    operator fun invoke(query: String, sort: SearchSortType): Flow<PagingData<Book>> {
+    operator fun invoke(
+        query: String,
+        sort: SearchSortType,
+        target: SearchTargetType = SearchTargetType.All
+    ): Flow<PagingData<Book>> {
         // 검색어가 없으면 불러올 것이 없다. 불러온 뒤 결과가 0건인 경우와 구분되도록 "끝나지 않은" 빈 목록을 준다.
         val result: Flow<PagingData<Book>> =
-            if (query.isBlank()) flowOf(PagingData.empty()) else repository.searchBooks(query = query, sort = sort)
+            if (query.isBlank()) {
+                flowOf(
+                    PagingData.empty()
+                )
+            } else {
+                repository.searchBooks(query = query, sort = sort, target = target)
+            }
         return result.flowOn(ioDispatcher)
     }
 }

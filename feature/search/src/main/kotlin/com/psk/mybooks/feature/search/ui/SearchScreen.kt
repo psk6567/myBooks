@@ -33,6 +33,7 @@ import com.psk.mybooks.core.designsystem.component.BookListItemSkeleton
 import com.psk.mybooks.core.designsystem.component.EmptyMessage
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import com.psk.mybooks.core.ui.BookGridColumns
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.core.ui.ErrorEffect
@@ -52,6 +53,7 @@ private const val SKELETON_COUNT: Int = 12
  *
  * @param query 검색어. main 의 검색창 값이다.
  * @param sort 정렬 기준. main 의 칩 값이다.
+ * @param target 검색어를 찾을 필드. main 의 칩 값이다.
  * @param isGrid 격자(true)/목록(false). 화면 표시 방식일 뿐이라 main 이 정해서 넘긴다.
  * @param onBookClick 도서를 눌러 상세 화면을 열 때. 화면 이동은 main 이 연결한다.
  * @param selectedBookId 넓은 화면에서 옆 패널에 상세가 열려 있는 도서의 id. 목록에서 강조한다. 없으면 강조하지 않는다.
@@ -60,6 +62,7 @@ private const val SKELETON_COUNT: Int = 12
 fun SearchRoute(
     query: String,
     sort: SearchSortType,
+    target: SearchTargetType,
     isGrid: Boolean,
     onBookClick: (BookUiModel) -> Unit,
     modifier: Modifier = Modifier,
@@ -89,7 +92,7 @@ fun SearchRoute(
     LaunchedEffect(loadError) { loadError?.let { viewModel.onIntent(SearchIntent.ReportLoadError(it)) } }
 
     // main 이 가진 검색어와 정렬을 이 화면의 상태로 맞춘다
-    LaunchedEffect(query, sort) { viewModel.onIntent(SearchIntent.ChangeCondition(query, sort)) }
+    LaunchedEffect(query, sort, target) { viewModel.onIntent(SearchIntent.ChangeCondition(query, sort, target)) }
 
     SearchScreen(
         state = state,
@@ -171,7 +174,7 @@ private fun BookList(
 ) {
     val listState: LazyListState = rememberLazyListState()
     // 검색어나 정렬을 바꾸면 결과가 달라지므로 맨 위로 올려 처음부터 보이게 한다
-    ScrollToTopOnChange(key = state.query to state.sort) { listState.scrollToItem(0) }
+    ScrollToTopOnChange(key = Triple(state.query, state.sort, state.target)) { listState.scrollToItem(0) }
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxSize(),
@@ -212,7 +215,7 @@ private fun BookGrid(
     modifier: Modifier = Modifier
 ) {
     val gridState: LazyGridState = rememberLazyGridState()
-    ScrollToTopOnChange(key = state.query to state.sort) { gridState.scrollToItem(0) }
+    ScrollToTopOnChange(key = Triple(state.query, state.sort, state.target)) { gridState.scrollToItem(0) }
     LazyVerticalGrid(
         state = gridState,
         columns = BookGridColumns,

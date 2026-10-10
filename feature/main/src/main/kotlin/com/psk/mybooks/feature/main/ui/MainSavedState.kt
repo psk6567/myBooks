@@ -3,6 +3,7 @@ package com.psk.mybooks.feature.main.ui
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import com.psk.mybooks.core.ui.BookUiModel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -18,6 +19,8 @@ internal data class MainSavedState(
     val tab: String,
     val searchText: String,
     val searchSort: String,
+    // 검색 대상은 나중에 추가된 값이라 옛 저장 값에는 없다. 없으면 기본값(제한 없음)으로 읽는다.
+    val searchTarget: String = SearchTargetType.All.name,
     val favoriteSort: String,
     val priceMin: Int?,
     val priceMax: Int?,
@@ -32,6 +35,7 @@ internal fun MainUiState.toSavedJson(): String = Json.encodeToString(
         tab = selectedTab.name,
         searchText = searchText,
         searchSort = searchSort.name,
+        searchTarget = searchTarget.name,
         favoriteSort = favoriteSort.name,
         priceMin = favoritePriceFilter.min,
         priceMax = favoritePriceFilter.max,
@@ -55,6 +59,8 @@ internal fun mainUiStateFromSaved(json: String?): MainUiState? {
         searchText = saved.searchText,
         searchSort = SearchSortType.entries
             .firstOrNull { it.name == saved.searchSort } ?: default.searchSort,
+        searchTarget = SearchTargetType.entries
+            .firstOrNull { it.name == saved.searchTarget } ?: default.searchTarget,
         favoriteSort = FavoriteSortType.entries
             .firstOrNull { it.name == saved.favoriteSort } ?: default.favoriteSort,
         favoritePriceFilter = PriceFilter(min = saved.priceMin, max = saved.priceMax),

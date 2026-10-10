@@ -1,7 +1,7 @@
 <resources>
     <string name="feature_main_tab_search">Search</string>
     <string name="feature_main_tab_favorite">Favorites</string>
-    <string name="feature_main_search_placeholder">Enter a title or author.</string>
+    <string name="feature_main_search_placeholder">Enter a title, author, or publisher.</string>
     <string name="feature_main_sort_accuracy">Relevance</string>
     <string name="feature_main_sort_latest">Newest first</string>
     <string name="feature_main_sort_title_asc">Title (A–Z)</string>
@@ -20,4 +20,14 @@
     <string name="feature_main_price_filter_all">All prices</string>
     <string name="feature_main_price_slider_min_label">KRW 0</string>
     <string name="feature_main_offline_moved_to_favorite">No internet connection. Showing your favorites.</string>
+    <string name="feature_main_search_placeholder_title">Enter a title.</string>
+    <string name="feature_main_search_placeholder_isbn">Enter an ISBN.</string>
+    <string name="feature_main_search_placeholder_publisher">Enter a publisher.</string>
+    <string name="feature_main_search_placeholder_author">Enter an author.</string>
+    <string name="feature_main_target_all">All</string>
+    <string name="feature_main_target_title">Title</string>
+    <string name="feature_main_target_isbn">ISBN</string>
+    <string name="feature_main_target_publisher">Publisher</string>
+    <string name="feature_main_target_author">Author</string>
+    <string name="feature_main_target_chip">Search: %1$s</string>
 </resources>

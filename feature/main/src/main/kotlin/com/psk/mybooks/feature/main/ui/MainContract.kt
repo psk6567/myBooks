@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.feature.main.R
 
@@ -22,6 +23,26 @@ internal fun SearchSortType.labelRes(): Int = when (this) {
     SearchSortType.Latest -> R.string.feature_main_sort_latest
 }
 
+/** 검색 대상의 화면 표시용 라벨 (시트의 선택지) */
+@StringRes
+internal fun SearchTargetType.labelRes(): Int = when (this) {
+    SearchTargetType.All -> R.string.feature_main_target_all
+    SearchTargetType.Title -> R.string.feature_main_target_title
+    SearchTargetType.Isbn -> R.string.feature_main_target_isbn
+    SearchTargetType.Publisher -> R.string.feature_main_target_publisher
+    SearchTargetType.Author -> R.string.feature_main_target_author
+}
+
+/** 검색 대상이 정해지면 입력창 안내 문구도 거기에 맞춰 바꾼다. */
+@StringRes
+internal fun SearchTargetType.placeholderRes(): Int = when (this) {
+    SearchTargetType.All -> R.string.feature_main_search_placeholder
+    SearchTargetType.Title -> R.string.feature_main_search_placeholder_title
+    SearchTargetType.Isbn -> R.string.feature_main_search_placeholder_isbn
+    SearchTargetType.Publisher -> R.string.feature_main_search_placeholder_publisher
+    SearchTargetType.Author -> R.string.feature_main_search_placeholder_author
+}
+
 @StringRes
 internal fun FavoriteSortType.labelRes(): Int = when (this) {
     FavoriteSortType.TitleAsc -> R.string.feature_main_sort_title_asc
@@ -35,6 +56,8 @@ internal data class MainUiState(
     val searchText: String = "",
     /** 정렬은 탭마다 따로 가진다. 검색은 서버가, 즐겨찾기는 앱이 정렬해서 고를 수 있는 항목이 다르다. */
     val searchSort: SearchSortType = SearchSortType.Accuracy,
+    /** 검색어를 찾을 필드. 서버 검색(검색 탭)에만 있고, 즐겨찾기는 제목·저자·출판사에서 찾는다. */
+    val searchTarget: SearchTargetType = SearchTargetType.All,
     val favoriteSort: FavoriteSortType = FavoriteSortType.TitleAsc,
     /** 금액 필터는 즐겨찾기 탭에만 있다. 검색은 서버가 결과를 주므로 앱에서 거르지 않는다. */
     val favoritePriceFilter: PriceFilter = PriceFilter(),
@@ -52,6 +75,11 @@ internal sealed interface MainIntent {
     /** 검색창 입력이 바뀜 */
     data class ChangeSearchText(
         val text: String
+    ) : MainIntent
+
+    /** 검색 대상(제목, ISBN, 출판사, 저자 등)이 바뀜 */
+    data class ChangeSearchTarget(
+        val target: SearchTargetType
     ) : MainIntent
 
     /** 검색 정렬 기준이 바뀜 */

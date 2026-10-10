@@ -48,8 +48,8 @@ internal class SearchViewModel @Inject constructor(
     private val loadedBooks: MutableMap<String, Book> = ConcurrentHashMap()
 
     /**
-     * 검색 결과. 검색어나 정렬이 바뀌면 처음부터 다시 불러오고, 화면 회전에도 목록이 유지된다. (cachedIn)
-     * 검색어는 입력이 멈춘 뒤에 반영하고(앞뒤 공백은 무시), 정렬은 바로 반영한다.
+     * 검색 결과. 검색어, 정렬, 검색 대상이 바뀌면 처음부터 다시 불러오고, 화면 회전에도 목록이 유지된다. (cachedIn)
+     * 검색어는 입력이 멈춘 뒤에 반영하고(앞뒤 공백은 무시), 정렬과 검색 대상은 바로 반영한다.
      */
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     val books: Flow<PagingData<BookUiModel>> = combine(
@@ -61,14 +61,14 @@ internal class SearchViewModel @Inject constructor(
             // 비우는 건 바로 반영해서 지운 즉시 결과가 사라지게 한다
             .debounce { query -> if (query.isEmpty()) 0L else QUERY_DEBOUNCE_MILLIS },
         state
-            .map { it.sort }
+            .map { it.sort to it.target }
             .distinctUntilChanged()
-    ) { query: String, sort: SearchSortType -> query to sort }
+    ) { query: String, (sort, target) -> Triple(query, sort, target) }
         .distinctUntilChanged()
-        .flatMapLatest { (query, sort) ->
+        .flatMapLatest { (query, sort, target) ->
             // 새 검색이면 이전 결과의 원본은 필요 없다
             loadedBooks.clear()
-            fetchSearchBooks(query, sort)
+            fetchSearchBooks(query, sort, target)
         }.map { paging ->
             paging.map { book ->
                 loadedBooks[book.id] = book
@@ -82,9 +82,14 @@ internal class SearchViewModel @Inject constructor(
 
     override fun onIntent(intent: SearchIntent) {
         when (intent) {
-            is SearchIntent.ChangeCondition -> reduce { copy(query = intent.query, sort = intent.sort) }
+            is SearchIntent.ChangeCondition -> reduce {
+                copy(query = intent.query, sort = intent.sort, target = intent.target)
+            }
+
             is SearchIntent.OpenDetail -> sendEffect(SearchEffect.OpenDetail(intent.book))
+
             is SearchIntent.ReportLoadError -> reportLoadError(intent.error)
+
             is SearchIntent.ToggleFavorite -> toggleFavorite(intent.bookId)
         }
     }

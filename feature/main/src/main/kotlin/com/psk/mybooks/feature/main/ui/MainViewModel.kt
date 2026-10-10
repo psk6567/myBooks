@@ -39,6 +39,7 @@ internal class MainViewModel @Inject constructor(
             is MainIntent.SelectTab -> reduce { copy(selectedTab = intent.tab) }
             is MainIntent.ChangeSearchText -> reduce { copy(searchText = intent.text) }
             is MainIntent.ChangeSearchSort -> reduce { copy(searchSort = intent.sort) }
+            is MainIntent.ChangeSearchTarget -> reduce { copy(searchTarget = intent.target) }
             is MainIntent.ChangeFavoriteSort -> reduce { copy(favoriteSort = intent.sort) }
             is MainIntent.ChangeFavoritePriceFilter -> reduce { copy(favoritePriceFilter = intent.priceFilter) }
             is MainIntent.ChangeViewMode -> reduce { copy(viewMode = intent.viewMode) }

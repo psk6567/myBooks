@@ -15,6 +15,7 @@ import com.psk.mybooks.core.model.ErrorReason
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import com.psk.mybooks.core.ui.BookUiModel
 import com.psk.mybooks.core.ui.toUiModel
 import kotlin.coroutines.CoroutineContext
@@ -51,9 +52,15 @@ class SearchViewModelTest {
         private val results: List<Book> = emptyList()
     ) : BookRepository {
         val calls: MutableList<Pair<String, SearchSortType>> = mutableListOf()
+        val targets: MutableList<SearchTargetType> = mutableListOf()
 
-        override fun searchBooks(query: String, sort: SearchSortType): Flow<PagingData<Book>> {
+        override fun searchBooks(
+            query: String,
+            sort: SearchSortType,
+            target: SearchTargetType
+        ): Flow<PagingData<Book>> {
             calls += query to sort
+            targets += target
             return flowOf(if (results.isEmpty()) PagingData.empty() else PagingData.from(results))
         }
     }
@@ -201,6 +208,37 @@ class SearchViewModelTest {
         assertEquals(
             "한강" to SearchSortType.Latest,
             repository.calls
+                .last()
+        )
+    }
+
+    @Test
+    fun `검색 대상이 바뀌면 그 대상으로 바로 다시 검색한다`() = runTest(dispatcher) {
+        val repository: FakeBookRepository = FakeBookRepository()
+        val viewModel: SearchViewModel = viewModel(repository)
+        backgroundScope.launch {
+            viewModel.books
+                .collect {}
+        }
+        viewModel.onIntent(SearchIntent.ChangeCondition("9788965823148", SearchSortType.Accuracy))
+        advanceTimeBy(301)
+        assertEquals(
+            SearchTargetType.All,
+            repository.targets
+                .last()
+        )
+        val before: Int = repository.calls.size
+
+        // 검색어는 그대로이고 대상만 바꿔도 새로 검색한다. (입력 대기 없이 바로)
+        viewModel.onIntent(
+            SearchIntent.ChangeCondition("9788965823148", SearchSortType.Accuracy, SearchTargetType.Isbn)
+        )
+        advanceTimeBy(1)
+
+        assertEquals(before + 1, repository.calls.size)
+        assertEquals(
+            SearchTargetType.Isbn,
+            repository.targets
                 .last()
         )
     }

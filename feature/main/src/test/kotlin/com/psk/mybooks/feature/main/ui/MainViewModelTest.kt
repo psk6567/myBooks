@@ -6,6 +6,7 @@ import com.psk.mybooks.core.domain.IsOnlineUseCase
 import com.psk.mybooks.core.model.FavoriteSortType
 import com.psk.mybooks.core.model.PriceFilter
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import com.psk.mybooks.core.ui.BookUiModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -84,6 +85,30 @@ class MainViewModelTest {
             viewModel.effect
                 .first()
         )
+    }
+
+    @Test
+    fun `검색 대상도 저장되어 새 ViewModel 에서 되살아난다`() {
+        val handle: SavedStateHandle = SavedStateHandle()
+        viewModel(handle = handle)
+            .onIntent(MainIntent.ChangeSearchTarget(SearchTargetType.Author))
+
+        val restored: MainViewModel = viewModel(handle = handle)
+
+        assertEquals(SearchTargetType.Author, restored.state.value.searchTarget)
+    }
+
+    @Test
+    fun `검색 대상이 없는 옛 저장 값도 읽고 검색 대상은 기본값으로 둔다`() {
+        val old: String = """{"tab":"Favorite","searchText":"소설","searchSort":"Latest","favoriteSort":"TitleAsc",""" +
+            """"priceMin":null,"priceMax":null,"viewMode":"Grid","selectedBook":null}"""
+        val handle: SavedStateHandle = SavedStateHandle(mapOf(MAIN_SAVED_STATE_KEY to old))
+
+        val viewModel: MainViewModel = viewModel(handle = handle)
+
+        assertEquals(MainTab.Favorite, viewModel.state.value.selectedTab)
+        assertEquals("소설", viewModel.state.value.searchText)
+        assertEquals(SearchTargetType.All, viewModel.state.value.searchTarget)
     }
 
     @Test

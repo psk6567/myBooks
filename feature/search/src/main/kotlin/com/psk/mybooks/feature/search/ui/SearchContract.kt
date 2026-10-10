@@ -1,6 +1,7 @@
 package com.psk.mybooks.feature.search.ui
 
 import com.psk.mybooks.core.model.SearchSortType
+import com.psk.mybooks.core.model.SearchTargetType
 import com.psk.mybooks.core.ui.BookUiModel
 
 /**
@@ -11,6 +12,7 @@ import com.psk.mybooks.core.ui.BookUiModel
 internal data class SearchUiState(
     val query: String = "",
     val sort: SearchSortType = SearchSortType.Accuracy,
+    val target: SearchTargetType = SearchTargetType.All,
     /** 즐겨찾기한 도서의 id. 어디서든 담거나 빼면 바로 바뀐다. */
     val favoriteIds: Set<String> = emptySet()
 )
@@ -24,10 +26,11 @@ internal sealed interface SearchEffect {
 }
 
 internal sealed interface SearchIntent {
-    /** main 에서 검색어나 정렬이 바뀜 */
+    /** main 에서 검색어, 정렬, 검색 대상이 바뀜 */
     data class ChangeCondition(
         val query: String,
-        val sort: SearchSortType
+        val sort: SearchSortType,
+        val target: SearchTargetType = SearchTargetType.All
     ) : SearchIntent
 
     /** 목록의 도서를 눌러 상세 화면을 열려고 함 */

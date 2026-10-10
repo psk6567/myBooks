@@ -1,7 +1,7 @@
 <resources>
     <string name="feature_main_tab_search">검색</string>
     <string name="feature_main_tab_favorite">즐겨찾기</string>
-    <string name="feature_main_search_placeholder">제목 또는 저자를 입력하세요.</string>
+    <string name="feature_main_search_placeholder">제목, 저자, 출판사를 입력하세요.</string>
     <string name="feature_main_sort_accuracy">정확도순</string>
     <string name="feature_main_sort_latest">발간일순</string>
     <string name="feature_main_sort_title_asc">제목 오름차순</string>
@@ -20,4 +20,14 @@
     <string name="feature_main_price_filter_all">전체 금액</string>
     <string name="feature_main_price_slider_min_label">0원</string>
     <string name="feature_main_offline_moved_to_favorite">인터넷이 연결되어 있지 않아 즐겨찾기로 이동됩니다</string>
+    <string name="feature_main_search_placeholder_title">제목을 입력하세요.</string>
+    <string name="feature_main_search_placeholder_isbn">ISBN을 입력하세요.</string>
+    <string name="feature_main_search_placeholder_publisher">출판사를 입력하세요.</string>
+    <string name="feature_main_search_placeholder_author">저자를 입력하세요.</string>
+    <string name="feature_main_target_all">전체</string>
+    <string name="feature_main_target_title">제목</string>
+    <string name="feature_main_target_isbn">ISBN</string>
+    <string name="feature_main_target_publisher">출판사</string>
+    <string name="feature_main_target_author">저자</string>
+    <string name="feature_main_target_chip">%1$s 검색</string>
 </resources>

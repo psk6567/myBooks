@@ -5,6 +5,7 @@ import androidx.paging.PagingState
 import com.psk.mybooks.core.data.remote.BookApi
 import com.psk.mybooks.core.data.remote.BookPage
 import com.psk.mybooks.core.data.remote.SearchSort
+import com.psk.mybooks.core.data.remote.SearchTarget
 import com.psk.mybooks.core.data.remote.toAppException
 import com.psk.mybooks.core.data.remote.toBookPage
 import com.psk.mybooks.core.model.Book
@@ -15,7 +16,7 @@ import kotlin.coroutines.cancellation.CancellationException
 private const val MAX_PAGE: Int = 50
 
 /**
- * 검색 결과를 페이지 단위로 불러온다. 검색어나 정렬이 바뀌면 새로 만든다.
+ * 검색 결과를 페이지 단위로 불러온다. 검색어, 정렬, 검색 대상이 바뀌면 새로 만든다.
  *
  * - 키는 페이지 번호(1부터)이고 한 페이지의 크기는 [pageSize] 로 고정이다. API 가 쪽수(page)와 크기(size)로 나누기 때문에
  *   Paging 의 `initialLoadSize` 도 [pageSize] 로 맞춰야 한다. (기본값은 3배라 쪽수 계산이 어긋난다)
@@ -27,7 +28,8 @@ internal class BookPagingSource(
     private val api: BookApi,
     private val query: String,
     private val sort: SearchSort,
-    private val pageSize: Int
+    private val pageSize: Int,
+    private val target: SearchTarget? = null
 ) : PagingSource<Int, Book>() {
 
     /** 이미 내보낸 항목의 id → 그 항목을 내보낸 페이지. 같은 페이지를 다시 불러오는 것(재시도)은 걸러 내지 않는다. */
@@ -40,7 +42,7 @@ internal class BookPagingSource(
         val page: Int = params.key ?: 1
         return try {
             val fetched: BookPage = api
-                .searchBooks(query = query.trim(), sort = sort, page = page, size = pageSize)
+                .searchBooks(query = query.trim(), sort = sort, page = page, size = pageSize, target = target)
                 .toBookPage()
             val books: List<Book> = fetched.books.filter { book ->
                 sentPages.putIfAbsent(book.id, page) in
