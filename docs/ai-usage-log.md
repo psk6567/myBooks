@@ -300,7 +300,7 @@
   - 사람이 "Material을 안 쓴 이유를 설명하기 어렵다"고 문제 제기 → 표준 컴포넌트 유지로 결정
   - 깜빡임은 코드에 TODO로 남기기로 결정 (기기·OS·재현 조건·대안 확인 여부)
   - 포커스 있을 때만 키보드를 다시 올리는 처리(`onCheckIsTextEditor`)는 유지
-  - 직접 구현본은 참고용으로 `docs/BottomSheet.in-window.kt.txt`에 보관 (git 미추적)
+  - 직접 구현본은 한동안 참고용으로 보관했으나 제출물을 간결하게 하려고 삭제함 (git 이력의 철회 전 커밋에서 확인 가능)
 
 ## 31. 격자/목록 전환 아이콘 (dummy)
 - **활용한 작업**: 스크린샷을 보고 격자·목록 벡터 아이콘, `ViewModeToggle`, `ViewMode`, State/Intent/ViewModel/테스트 작성
