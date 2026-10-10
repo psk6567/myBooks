@@ -1,6 +1,9 @@
 package com.psk.mybooks.core.designsystem.component
 
 import android.view.View
+import android.view.ViewParent
+import android.view.Window
+import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
@@ -13,6 +16,8 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
@@ -32,6 +37,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogWindowProvider
 import com.psk.mybooks.core.designsystem.theme.MyBooksTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -41,7 +47,7 @@ import kotlinx.coroutines.launch
  * 화면에서는 보통 이 함수 대신 [rememberBottomSheet] 를 쓴다.
  *
  * 아래로 끌기, 뒷배경 터치, 뒤로가기는 [onDismissRequest] 로 전달된다.
- * 아래 화면의 텍스트 필드에 포커스가 있으면 시트가 닫힐 때 키보드를 올린다. (포커스가 없으면 아무 일도 없다)
+ * 시트가 열리면 키보드를 내린다. 닫혀도 다시 올리지 않는다. (다시 입력하려면 입력창을 누른다)
  *
  * 시트 안에 슬라이더처럼 끌기를 쓰는 컨트롤을 넣으면 손가락이 조금만 위아래로 흔들려도 시트가 따라 움직인다.
  * 그런 컨트롤은 [lockBottomSheetWhilePressed] 로 누르고 있는 동안 시트의 끌기를 잠글 수 있다. ([MbRangeSlider] 는 이미 그렇게 한다)
@@ -58,19 +64,10 @@ fun BottomSheet(
 ) {
     val sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope: CoroutineScope = rememberCoroutineScope()
-    // 시트 바깥(메인 창)의 View 와 키보드 컨트롤러
-    val view: View = LocalView.current
     val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
-    // 시트는 별도 창이라, 닫히면서 창 포커스가 돌아올 때 포커스가 남은 입력창에 키보드가 잠깐 떴다가
-    // 메인 창의 "키보드 숨김" 상태가 다시 적용되어 내려간다. 닫기 전에 표시를 요청해 두어 깜빡이지 않게 한다.
-    // 입력 중인 텍스트 필드가 없을 때 요청하면 오히려 키보드가 깜빡이므로, 있을 때만 요청한다.
-    // TODO: 특정 기기(Galaxy S25, One UI 8.5 / Android 16)에서 텍스트 필드 포커스 없이 시트를 닫으면
-    //  키보드가 약 0.04초 나타났다 사라진다. 별도 창이 닫힐 때 시스템이 보내는 키보드 요청으로, 다른 기기에서는 재현되지 않는다.
-    //  같은 창에 직접 그리는 시트로 해소되는 것은 확인했으나, 표준 컴포넌트 유지를 위해 보류한다.
-    val onDismiss: () -> Unit = {
-        if (view.onCheckIsTextEditor()) keyboardController?.show()
-        onDismissRequest()
-    }
+    // 시트가 열리면 키보드는 내린다. (시트가 키보드에 가려지지 않게)
+    LaunchedEffect(Unit) { keyboardController?.hide() }
+    val onDismiss: () -> Unit = onDismissRequest
     val dismiss: () -> Unit = {
         scope.launch { sheetState.hide() }.invokeOnCompletion {
             if (!sheetState.isVisible) onDismiss()
@@ -91,10 +88,32 @@ fun BottomSheet(
         sheetGesturesEnabled = gesturesEnabled,
         dragHandle = { Handle() }
     ) {
+        KeepImeTargetOnMainWindow()
         val columnScope: ColumnScope = this
         CompositionLocalProvider(LocalBottomSheetGestures provides gestures) {
             columnScope.content(dismiss)
         }
+    }
+}
+
+/**
+ * 시트 창이 키보드(IME)의 대상 창이 되지 않게 한다. 시트 안에서 불러야 한다.
+ *
+ * 시트는 별도 창이라, 그대로 두면 열릴 때 IME 대상이 시트 창으로 바뀌고 닫힐 때 다시 메인 창으로 돌아온다.
+ * 일부 기기(Galaxy S25, One UI 8.5 / Android 16)는 이렇게 대상이 메인 창으로 돌아오는 순간 키보드를 잠깐 올렸다 내린다.
+ * (시스템 로그 `ImeTracker` 에 `IME_REQUESTED_CHANGED_LISTENER` 표시 요청 뒤 `HIDE_UNSPECIFIED_WINDOW` 숨김이 찍힌다)
+ * `FLAG_ALT_FOCUSABLE_IM` 을 주면 시트 창이 포커스는 가지되(뒤로가기·바깥 터치 동작) IME 대상은 되지 않아
+ * 대상이 바뀌지 않고, 깜빡임도 없다. 시트 안에서는 키보드를 쓸 수 없게 되므로 시트에 텍스트 입력을 두지 않는다.
+ */
+@Composable
+private fun KeepImeTargetOnMainWindow() {
+    val view: View = LocalView.current
+    DisposableEffect(view) {
+        var parent: ViewParent? = view.parent
+        while (parent != null && parent !is DialogWindowProvider) parent = parent.parent
+        val window: Window? = (parent as? DialogWindowProvider)?.window
+        window?.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+        onDispose { }
     }
 }
 
