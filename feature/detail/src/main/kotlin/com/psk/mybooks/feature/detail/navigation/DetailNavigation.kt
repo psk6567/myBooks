@@ -24,6 +24,10 @@ import kotlinx.serialization.json.Json
  *     ISBN 을 담아 `target=isbn` 으로 다시 검색하는 방법도 있다)
  *  2. 그 뒤에 `composable<DetailDestination>` 에 `navDeepLink` 를 붙이고, MainActivity 에 스킴 intent-filter 를 추가한다.
  *  3. 앱이 새로 켜져 상세로 바로 들어오면 뒤로가기가 앱을 종료한다. 홈을 백스택 아래에 둘지 정해야 한다.
+ *
+ * TODO: 위 작업은 하지 않았다. 앱이 이미 떠 있을 때 온 새 Intent 를 `navController.handleDeepLink(intent)` 로 넘기는 것까지만
+ *  `feature:main` 의 `MainRoute` 에 준비해 두었고, 등록된 딥링크가 없어 지금은 아무 일도 하지 않는다.
+ *  (MainActivity 에 스킴 intent-filter 를 넣고 launchMode 를 singleTop 으로 바꿔야 새 Intent 가 전달된다)
  */
 @Serializable
 data class DetailDestination(

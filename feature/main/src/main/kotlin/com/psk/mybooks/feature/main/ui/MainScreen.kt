@@ -1,5 +1,8 @@
 package com.psk.mybooks.feature.main.ui
 
+import android.content.Intent
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -31,6 +35,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.util.Consumer
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -83,6 +88,16 @@ private data object HomeDestination
 @Composable
 fun MainRoute(modifier: Modifier = Modifier) {
     val navController: NavHostController = rememberNavController()
+
+    // 앱이 이미 떠 있는 상태에서 앱 스킴 링크가 오면 Activity 는 새로 만들어지지 않고 새 Intent 만 받는다.
+    // NavHost 는 이것을 알아서 처리하지 않으므로 직접 받아 handleDeepLink 로 넘긴다.
+    // TODO: 아직 등록된 딥링크가 없어 아무 일도 하지 않는다. (DetailNavigation 의 TODO 참고)
+    val activity: ComponentActivity? = LocalActivity.current as? ComponentActivity
+    DisposableEffect(activity, navController) {
+        val listener: Consumer<Intent> = Consumer { intent -> navController.handleDeepLink(intent) }
+        activity?.addOnNewIntentListener(listener)
+        onDispose { activity?.removeOnNewIntentListener(listener) }
+    }
 
     NavHost(navController = navController, startDestination = HomeDestination, modifier = modifier) {
         composable<HomeDestination> { MainHome(onNavigateToDetail = navController::navigateToDetail) }
