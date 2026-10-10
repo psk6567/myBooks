@@ -29,7 +29,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // 코드 난독화·축소(R8)와 안 쓰는 리소스 제거
+            isMinifyEnabled = true
+            isShrinkResources = true
+            // 과제용이라 별도 릴리스 키 없이 debug 키로 서명해 바로 설치해 볼 수 있게 한다. (실서비스라면 릴리스 키 사용)
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

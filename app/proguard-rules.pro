@@ -19,3 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# 난독화한 뒤에도 오류 로그에서 파일 이름과 줄 번호를 보고 mapping.txt 로 원래 이름을 되살릴 수 있게 한다
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
